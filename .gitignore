@@ -261,4 +261,4 @@ __pycache__/
 *.pyc
 
 # Visual Studio
-.vs
+.vs/
