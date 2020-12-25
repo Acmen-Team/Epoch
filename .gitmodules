@@ -1,0 +1,6 @@
+[submodule "Epoch\\vendor\\spdlog"]
+	path = Epoch\\vendor\\spdlog
+	url = https://github.com/gabime/spdlog
+[submodule "Epoch\\vendor\\ImGUI"]
+	path = Epoch\\vendor\\ImGUI
+	url = https://github.com/ocornut/imgui
