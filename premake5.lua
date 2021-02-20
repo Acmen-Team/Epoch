@@ -71,16 +71,16 @@ project "Epoch"
 		}
 
 	filter "configurations:Debug"
-		defines "DK_DEBUG"
+		defines "EP_DEBUG"
 		runtime "Debug"
 		symbols "On"
 
 	filter "configurations:Release"
-		defines "DK_RELEASE"
+		defines "EP_RELEASE"
 		runtime "Release"
 		optimize "On"
 
 	filter "configurations:Dist"
-		defines "DK_Dist"
+		defines "EP_Dist"
 		runtime "Release"
 		optimize "On"
