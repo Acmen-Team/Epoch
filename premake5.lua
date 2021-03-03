@@ -32,6 +32,9 @@ project "Epoch"
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
+	pchheader "eppch.h"
+	pchsource "Epoch/src/eppch.cpp"
+
 	files
 	{
 		"%{prj.name}/src/**.h",
