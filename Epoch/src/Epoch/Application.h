@@ -7,7 +7,10 @@
 #include "Epoch/Events/Event.h"
 #include "Epoch/Events/ApplicationEvent.h"
 
-//#include "Epoch/ImGui/ImGuiLayer.h"
+#include "Epoch/ImGui/ImGuiLayer.h"
+
+#include "Epoch/Renderer/Shader.h"
+#include "Epoch/Renderer/Buffer.h"
 
 namespace Epoch {
 
@@ -29,9 +32,12 @@ namespace Epoch {
 	bool OnWindowClose(WindowCloseEvent& e);
 
 	std::unique_ptr<Window> m_Window;
-	//ImGuiLayer* m_ImGuiLayer;
+	ImGuiLayer* m_ImGuiLayer;
 	bool m_Running = true;
 	LayerStack m_LayerStack;
+	std::unique_ptr<Shader> m_Shader;
+	std::unique_ptr<VertexBuffer> m_VertexBuffer;
+	std::unique_ptr<IndexBuffer> m_IndexBuffer;
   private:
 	static Application* m_Instance;
   };
