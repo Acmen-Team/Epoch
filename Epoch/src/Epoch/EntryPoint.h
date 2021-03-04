@@ -6,7 +6,7 @@
 
 #ifdef EP_RELEASE
 #pragma comment( linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"" )
-#endif // DK_DEBUG
+#endif // EP_DEBUG
 
 int main()
 {

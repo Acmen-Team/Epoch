@@ -11,6 +11,7 @@
 
 #include "Epoch/Renderer/Shader.h"
 #include "Epoch/Renderer/Buffer.h"
+#include "Epoch/Renderer/VertexArray.h"
 
 namespace Epoch {
 
@@ -35,9 +36,8 @@ namespace Epoch {
 	ImGuiLayer* m_ImGuiLayer;
 	bool m_Running = true;
 	LayerStack m_LayerStack;
-	std::unique_ptr<Shader> m_Shader;
-	std::unique_ptr<VertexBuffer> m_VertexBuffer;
-	std::unique_ptr<IndexBuffer> m_IndexBuffer;
+	std::shared_ptr<VertexArray> m_VertexArray;
+	std::shared_ptr<Shader> m_Shader;
   private:
 	static Application* m_Instance;
   };

@@ -11,27 +11,6 @@ namespace Epoch {
 
   Application* Application::m_Instance = nullptr;
 
-  static GLenum ShaderDataTypeToOPenGLBaseType(ShaderDataType type)
-  {
-	switch (type)
-	{
-	case ShaderDataType::Float:	  return GL_FLOAT;
-	case ShaderDataType::Float2:  return GL_FLOAT;
-	case ShaderDataType::Float3:  return GL_FLOAT;
-	case ShaderDataType::Float4:  return GL_FLOAT;
-	case ShaderDataType::Mat3:	  return GL_FLOAT;
-	case ShaderDataType::Mat4:	  return GL_FLOAT;
-	case ShaderDataType::Int:	  return GL_INT;
-	case ShaderDataType::Int2:	  return GL_INT;
-	case ShaderDataType::Int3:	  return GL_INT;
-	case ShaderDataType::Int4:	  return GL_INT;
-	case ShaderDataType::Bool:	  return GL_BOOL;
-	}
-
-	EP_CORE_ASSERT(false, "Unknown ShaderDataType!");
-	return 0;
-  }
-
   Application::Application()
   {
 	EP_CORE_ASSERT(!m_Instance, "Application already exists!");
@@ -56,10 +35,9 @@ namespace Epoch {
 		1, 2, 3  // 第二个三角形
 	};
 
-	//顶点数组对象VAO
-	unsigned int VAO;
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
+	m_VertexArray.reset(VertexArray::Create());
+
+	std::shared_ptr<VertexBuffer> m_VertexBuffer;
 
 	m_VertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
 
@@ -68,22 +46,12 @@ namespace Epoch {
 	  { ShaderDataType::Float4, "a_Color" }
 	};
 
-	uint32_t index = 0;
-	for (const auto& element : layout)
-	{
-	  glEnableVertexAttribArray(index);
-	  glVertexAttribPointer(
-		index,
-		element.GetComponentCount(),
-		ShaderDataTypeToOPenGLBaseType(element.Type),
-		element.Normalized ? GL_TRUE : GL_FALSE,
-		layout.GetStride(),
-		(const void*)element.Offset
-	  );
-	  index++;
-	}
+	m_VertexArray->AddVertexBuffer(m_VertexBuffer);
+	m_VertexBuffer->SetLayout(layout);
 
+	std::shared_ptr<IndexBuffer> m_IndexBuffer;
 	m_IndexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
+	m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
 	std::string vertexShaderSource = R"(
 	  #version 330 core
@@ -130,7 +98,8 @@ namespace Epoch {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		m_Shader->use();
-		glDrawElements(GL_TRIANGLES, m_IndexBuffer->GetCount(), GL_UNSIGNED_INT, 0);
+		m_VertexArray->Bind();
+		glDrawElements(GL_TRIANGLES, m_VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
 
 		for (Layer* layer : m_LayerStack)
 		  layer->OnUpdate();

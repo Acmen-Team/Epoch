@@ -71,6 +71,7 @@ project "Epoch"
 
 		defines
 		{
+			"EP_ENABLE_ASSERTS"
 		}
 
 	filter "configurations:Debug"
