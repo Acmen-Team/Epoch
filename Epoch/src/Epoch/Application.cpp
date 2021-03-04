@@ -46,8 +46,8 @@ namespace Epoch {
 	  { ShaderDataType::Float4, "a_Color" }
 	};
 
-	m_VertexArray->AddVertexBuffer(m_VertexBuffer);
 	m_VertexBuffer->SetLayout(layout);
+	m_VertexArray->AddVertexBuffer(m_VertexBuffer);
 
 	std::shared_ptr<IndexBuffer> m_IndexBuffer;
 	m_IndexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
