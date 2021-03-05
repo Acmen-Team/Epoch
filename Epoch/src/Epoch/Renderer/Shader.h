@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 namespace Epoch {
 
   class Shader
@@ -10,6 +12,7 @@ namespace Epoch {
 	~Shader();
 
 	void use();
+	void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
   private:
 	uint32_t m_RendererID;
   };

@@ -2,6 +2,9 @@
 #include "Application.h"
 #include "Log.h"
 
+#include "Renderer/Renderer.h"
+#include "Renderer/RenderCommand.h"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -12,6 +15,7 @@ namespace Epoch {
   Application* Application::m_Instance = nullptr;
 
   Application::Application()
+	: m_Camera(45.0f, 1.6f, 0.9f, 0.1f, 100.0f)
   {
 	EP_CORE_ASSERT(!m_Instance, "Application already exists!");
 	Application::m_Instance = this;
@@ -59,10 +63,11 @@ namespace Epoch {
 	  layout(location = 1) in vec4 a_Color;
 
 	  out vec4 v_Color;
+	  uniform mat4 u_ViewProjection;
 
 	  void main() 
 	  {
-		gl_Position = vec4(a_Pos.x, a_Pos.y, a_Pos.z, 1.0);
+		gl_Position = u_ViewProjection * vec4(a_Pos, 1.0);
 		v_Color = a_Color;
 	  }
 	)";
@@ -94,12 +99,20 @@ namespace Epoch {
 	{
 	  while (m_Running)
 	  {
-		glClearColor(0.1f, 0.2f, 0.2f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		RenderCommand::SetClearColor({ 0.1f, 0.2f, 0.2f, 1.0f });
+		RenderCommand::Clear();
 
-		m_Shader->use();
-		m_VertexArray->Bind();
-		glDrawElements(GL_TRIANGLES, m_VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
+		m_Camera.SetRotation(20.0f);
+		m_Camera.SetPosition({ 0.0f, -0.9f, 0.0f });
+
+		// Begin Rendering
+		{
+		  Renderer::BeginScene();
+		  m_Shader->use();
+		  m_Shader->UploadUniformMat4("u_ViewProjection", m_Camera.GetViewProjectionMatrix());
+		  Renderer::Submit(m_VertexArray);
+		  Renderer::EndScene();
+		}
 
 		for (Layer* layer : m_LayerStack)
 		  layer->OnUpdate();

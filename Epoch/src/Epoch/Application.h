@@ -12,6 +12,7 @@
 #include "Epoch/Renderer/Shader.h"
 #include "Epoch/Renderer/Buffer.h"
 #include "Epoch/Renderer/VertexArray.h"
+#include "Epoch/Renderer/PrespectiveCamera.h"
 
 namespace Epoch {
 
@@ -38,6 +39,8 @@ namespace Epoch {
 	LayerStack m_LayerStack;
 	std::shared_ptr<VertexArray> m_VertexArray;
 	std::shared_ptr<Shader> m_Shader;
+
+	PrespectiveCamera m_Camera;
   private:
 	static Application* m_Instance;
   };
