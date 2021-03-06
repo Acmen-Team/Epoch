@@ -41,6 +41,15 @@ namespace Epoch {
 	std::shared_ptr<Shader> m_Shader;
 
 	PrespectiveCamera m_Camera;
+
+	glm::vec3 m_CameraPosition = { 0.0f, 0.0f, 3.0f };
+
+	glm::vec3 m_SquarePosition = { 0.0f, 0.0f, 0.0f };
+
+	float m_CameaSpeed = 0.8f;
+	float m_LastFramTime = 0.0f;
+	float m_Rotation = 0.0f;
+	float m_RotationSpeed = 5.0f;
   private:
 	static Application* m_Instance;
   };

@@ -2,11 +2,15 @@
 #include "Application.h"
 #include "Log.h"
 
+#include "Core/Timestep.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/RenderCommand.h"
+#include "Input.h"
+#include "KeyCodes.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace Epoch {
 
@@ -64,10 +68,11 @@ namespace Epoch {
 
 	  out vec4 v_Color;
 	  uniform mat4 u_ViewProjection;
+	  uniform mat4 u_Transform;
 
 	  void main() 
 	  {
-		gl_Position = u_ViewProjection * vec4(a_Pos, 1.0);
+		gl_Position = u_ViewProjection * u_Transform * vec4(a_Pos, 1.0);
 		v_Color = a_Color;
 	  }
 	)";
@@ -99,23 +104,50 @@ namespace Epoch {
 	{
 	  while (m_Running)
 	  {
+		float time = (float)glfwGetTime();
+		Timestep timestep = time - m_LastFramTime;
+		m_LastFramTime = time;
+
+		if (Input::IsKeyPressed(EP_KEY_LEFT))
+		  m_CameraPosition.x -= m_CameaSpeed * timestep.GetSeconds();
+		if (Input::IsKeyPressed(EP_KEY_RIGHT))
+		  m_CameraPosition.x += m_CameaSpeed * timestep.GetSeconds();
+		if (Input::IsKeyPressed(EP_KEY_DOWN))
+		  m_CameraPosition.y -= m_CameaSpeed * timestep.GetSeconds();
+		if (Input::IsKeyPressed(EP_KEY_UP))
+		  m_CameraPosition.y += m_CameaSpeed * timestep.GetSeconds();
+		if (Input::IsKeyPressed(EP_KEY_W))
+		  m_CameraPosition.z -= m_CameaSpeed * timestep.GetSeconds();
+		if (Input::IsKeyPressed(EP_KEY_S))
+		  m_CameraPosition.z += m_CameaSpeed * timestep.GetSeconds();
+		if (Input::IsKeyPressed(EP_KEY_Q))
+		  m_Rotation -= m_RotationSpeed * timestep.GetSeconds();
+		if (Input::IsKeyPressed(EP_KEY_E))
+		  m_Rotation += m_RotationSpeed * timestep.GetSeconds();
+
+		if (Input::IsKeyPressed(EP_KEY_A))
+		  m_SquarePosition.x -= m_CameaSpeed * timestep.GetSeconds();
+		if (Input::IsKeyPressed(EP_KEY_D))
+		  m_SquarePosition.x += m_CameaSpeed * timestep.GetSeconds();
+
 		RenderCommand::SetClearColor({ 0.1f, 0.2f, 0.2f, 1.0f });
 		RenderCommand::Clear();
 
-		m_Camera.SetRotation(20.0f);
-		m_Camera.SetPosition({ 0.0f, -0.9f, 0.0f });
+		m_Camera.SetPosition(m_CameraPosition);
+		m_Camera.SetRotation(m_Rotation);
+
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_SquarePosition);
 
 		// Begin Rendering
 		{
-		  Renderer::BeginScene();
-		  m_Shader->use();
-		  m_Shader->UploadUniformMat4("u_ViewProjection", m_Camera.GetViewProjectionMatrix());
-		  Renderer::Submit(m_VertexArray);
+		  Renderer::BeginScene(m_Camera);
+		  Renderer::Submit(m_Shader, m_VertexArray, transform);
+		  Renderer::Submit(m_Shader, m_VertexArray);
 		  Renderer::EndScene();
 		}
 
 		for (Layer* layer : m_LayerStack)
-		  layer->OnUpdate();
+		  layer->OnUpdate(timestep);
 
 		m_ImGuiLayer->Begin();
 		for (Layer* layer : m_LayerStack)
