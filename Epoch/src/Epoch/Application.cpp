@@ -7,6 +7,7 @@
 #include "Renderer/RenderCommand.h"
 #include "Input.h"
 #include "KeyCodes.h"
+#include "MouseButtonCodes.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -32,15 +33,36 @@ namespace Epoch {
 
 	//矩形顶点数据
 	float vertices[] = {
-		0.5f, 0.5f, 0.0f, 0.8f, 0.2f, 0.3f, 1.0f,  // 右上角
-		0.5f, -0.5f, 0.0f, 0.3f, 0.4f, 0.7f, 1.0f,  // 右下角
-		-0.5f, -0.5f, 0.0f, 0.5f, 0.8f, 0.2f, 1.0f, // 左下角
-		-0.5f, 0.5f, 0.0f, 0.2f, 0.5f, 0.3f, 1.0f   // 左上角
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f,   // 正右上角
+		0.5f, -0.5f, 0.5f, 1.0f, 0.5f, 0.0f, 1.0f,  // 正右下角
+		-0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 1.0f, // 正左下角
+		-0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f,  // 正左上角
+
+		0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f,   // 背右上角
+		0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f,  // 背右下角
+		-0.5f, -0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 1.0f, // 背左下角
+		-0.5f, 0.5f, -0.5f, 0.2f, 0.0f, 0.0f, 0.0f   // 背左上角
 	};
 	//索引绘制
 	unsigned int indices[] = { // 注意索引从0开始! 
-		0, 1, 3, // 第一个三角形
-		1, 2, 3  // 第二个三角形
+	  //正面
+		2, 3, 1, // 正左下三角形
+		0, 1, 3, // 正右上三角形
+	  //左侧面
+		6, 7, 3,
+		3, 2, 6,
+	  //背面
+		5, 4, 6,
+		7, 6, 4,
+	  //右侧面
+		1, 0, 5,
+		4, 5, 0,
+	  //顶部
+		3, 7, 0,
+		4, 0, 7,
+	  //底部
+		6, 2, 5,
+		1, 5, 2
 	};
 
 	m_VertexArray.reset(VertexArray::Create());
@@ -120,15 +142,15 @@ namespace Epoch {
 		  m_CameraPosition.z -= m_CameaSpeed * timestep.GetSeconds();
 		if (Input::IsKeyPressed(EP_KEY_S))
 		  m_CameraPosition.z += m_CameaSpeed * timestep.GetSeconds();
-		if (Input::IsKeyPressed(EP_KEY_Q))
-		  m_Rotation -= m_RotationSpeed * timestep.GetSeconds();
-		if (Input::IsKeyPressed(EP_KEY_E))
-		  m_Rotation += m_RotationSpeed * timestep.GetSeconds();
 
 		if (Input::IsKeyPressed(EP_KEY_A))
 		  m_SquarePosition.x -= m_CameaSpeed * timestep.GetSeconds();
 		if (Input::IsKeyPressed(EP_KEY_D))
 		  m_SquarePosition.x += m_CameaSpeed * timestep.GetSeconds();
+		if (Input::IsKeyPressed(EP_KEY_Q))
+		  m_SquarePosition.y -= m_CameaSpeed * timestep.GetSeconds();
+		if (Input::IsKeyPressed(EP_KEY_E))
+		  m_SquarePosition.y += m_CameaSpeed * timestep.GetSeconds();
 
 		RenderCommand::SetClearColor({ 0.1f, 0.2f, 0.2f, 1.0f });
 		RenderCommand::Clear();
@@ -136,13 +158,18 @@ namespace Epoch {
 		m_Camera.SetPosition(m_CameraPosition);
 		m_Camera.SetRotation(m_Rotation);
 
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_SquarePosition);
 
 		// Begin Rendering
 		{
 		  Renderer::BeginScene(m_Camera);
-		  Renderer::Submit(m_Shader, m_VertexArray, transform);
-		  Renderer::Submit(m_Shader, m_VertexArray);
+		  for (int i = 0; i < 10; i++)
+		  {
+			glm::mat4 transform = glm::translate(glm::mat4(1.0f), cubePositions[i]);
+			float angle = 20.0f * i;
+			transform = glm::rotate(transform, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+
+			Renderer::Submit(m_Shader, m_VertexArray, transform);
+		  }
 		  Renderer::EndScene();
 		}
 

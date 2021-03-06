@@ -18,6 +18,7 @@ namespace Epoch {
 
   void OpenGLRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray)
   {
+	glEnable(GL_DEPTH_TEST);
 	glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
   }
 
