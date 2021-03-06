@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Epoch/Core.h"
+#include "Core/Timestep.h"
+
 #include "Epoch/Events/Event.h"
 
 namespace Epoch {
@@ -13,7 +15,7 @@ namespace Epoch {
 
 	virtual void OnAttach() {}
 	virtual void OnDetach() {}
-	virtual void OnUpdate() {}
+	virtual void OnUpdate(Timestep timestep) {}
 	virtual void OnImGuiRender() {}
 	virtual void OnEvent(Event& event) {}
 
