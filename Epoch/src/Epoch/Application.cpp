@@ -9,9 +9,12 @@
 #include "KeyCodes.h"
 #include "MouseButtonCodes.h"
 
+#include "Platform/OpenGL/OpenGLShader.h"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace Epoch {
 
@@ -111,7 +114,7 @@ namespace Epoch {
 	  }
 	)";
 
-	m_Shader.reset(new Shader(vertexShaderSource, fragmentShaderSource));
+	m_Shader.reset(Shader::Create(vertexShaderSource, fragmentShaderSource));
   }
 
   Application::~Application()

@@ -7,14 +7,12 @@ namespace Epoch {
   class Shader
   {
   public:
-	Shader(const char* vertexPath, const char* fragmentPath);
-	Shader(const std::string& vertexSource, const std::string& fragmentSource);
-	~Shader();
+	virtual ~Shader() = default;
 
-	void use();
-	void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
-  private:
-	uint32_t m_RendererID;
+	virtual void use() const = 0;
+
+	static Shader* Create(const char* vertexPath, const char* fragmentPath);
+	static Shader* Create(const std::string& vertexSource, const std::string& fragmentSource);
   };
 
 }
