@@ -17,6 +17,7 @@ IncludeDir["GLFW"] = "Epoch/vendor/GLFW/include"
 IncludeDir["Glad"] = "Epoch/vendor/Glad/include"
 IncludeDir["ImGui"] = "Epoch/vendor/imgui"
 IncludeDir["glm"] = "Epoch/vendor/glm"
+IncludeDir["stb_image"] = "Epoch/vendor/stb_image"
 
 include "Epoch/vendor/GLFW"
 include "Epoch/vendor/Glad"
@@ -40,7 +41,9 @@ project "Epoch"
 		"%{prj.name}/src/**.h",
 		"%{prj.name}/src/**.cpp",
 		"%{prj.name}/vendor/glm/glm/**.hpp",
-		"%{prj.name}/vendor/glm/glm/**.inl"
+		"%{prj.name}/vendor/glm/glm/**.inl",
+		"%{prj.name}/vendor/stb_image/**.h",
+		"%{prj.name}/vendor/stb_image/**.cpp"
 	}
 
 	defines
@@ -55,7 +58,8 @@ project "Epoch"
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.ImGui}",
-		"%{IncludeDir.glm}"
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.stb_image}"
 	}
 
 	links

@@ -18,7 +18,7 @@
 
 #include "Epoch/Renderer/Buffer.h"
 #include "Epoch/Renderer/Shader.h"
-//#include "Epoch/Renderer/Texture.h"
+#include "Epoch/Renderer/Texture.h"
 #include "Epoch/Renderer/VertexArray.h"
 #include "Epoch/Renderer/PrespectiveCamera.h"
 // -----------------------------------
