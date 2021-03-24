@@ -9,6 +9,7 @@ namespace Epoch {
   class Renderer
   {
   public:
+	static void Init();
 	static void BeginScene(PrespectiveCamera& camera);
 	static void EndScene();
 

@@ -8,6 +8,11 @@ namespace Epoch {
 
   Renderer::SceneData* Renderer::m_SceneData = new Renderer::SceneData;
 
+  void Renderer::Init()
+  {
+	RenderCommand::Init();
+  }
+
   void Renderer::BeginScene(PrespectiveCamera& camera)
   {
 	m_SceneData->ViewProjectMatrix = camera.GetViewProjectionMatrix();
