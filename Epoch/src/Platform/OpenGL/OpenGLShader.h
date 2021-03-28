@@ -3,11 +3,14 @@
 
 #include <glm/glm.hpp>
 
+typedef unsigned int GLenum;
+
 namespace Epoch {
 
   class OpenGLShader : public Shader
   {
   public:
+	OpenGLShader(const std::string& filePath);
 	OpenGLShader(const char* vertexPath, const char* fragmentPath);
 	OpenGLShader(const std::string& vertexSource, const std::string& fragmentSource);
 	virtual ~OpenGLShader() override;
@@ -22,6 +25,10 @@ namespace Epoch {
 
 	void UploadUniformMat3(const std::string& name, const glm::mat3& matrix);
 	void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
+  protected:
+	std::string ReadFile(const std::string& filePath);
+	std::unordered_map<GLenum, std::string> PreProcess(const std::string& source);
+	void Compile(const std::unordered_map<GLenum, std::string>& shaderSources);
   private:
 	uint32_t m_RendererID;
   };

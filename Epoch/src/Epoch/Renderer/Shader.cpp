@@ -6,6 +6,11 @@
 
 namespace Epoch {
 
+  Shader* Shader::Create(const std::string& filePath)
+  {
+	return new OpenGLShader(filePath);
+  }
+
   Shader* Shader::Create(const char* vertexPath, const char* fragmentPath)
   {
 	return new OpenGLShader(vertexPath, fragmentPath);

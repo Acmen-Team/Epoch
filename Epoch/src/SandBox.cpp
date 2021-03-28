@@ -161,7 +161,7 @@ public:
 	  }
 	)";
 
-	m_Shader.reset(Epoch::Shader::Create(vertexShaderSource, fragmentShaderSource));
+	m_Shader.reset(Epoch::Shader::Create("assets/shaders/Texture.glsl"));
 	m_ColorShader.reset(Epoch::Shader::Create(vertexShaderSource, ColorfragmentShaderSource));
 
 	m_Texture = Epoch::Texture2D::Create("assets/textures/container.jpg");
@@ -195,7 +195,7 @@ public:
 	if (Epoch::Input::IsKeyPressed(EP_KEY_E))
 	  m_SquarePosition.y += m_CameaSpeed * timestep.GetSeconds();
 
-	Epoch::RenderCommand::SetClearColor({ 0.1f, 0.2f, 0.2f, 1.0f });
+	Epoch::RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	Epoch::RenderCommand::Clear();
 
 	m_Camera.SetPosition(m_CameraPosition);
@@ -228,9 +228,7 @@ public:
 	ImGui::Text("  Vendor: %s", glGetString(GL_VENDOR));
 	ImGui::Text("Renderer: %s", glGetString(GL_RENDERER));
 	ImGui::Text(" Version: %s", glGetString(GL_VERSION));
-
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
 	ImGui::End();
   }
 
