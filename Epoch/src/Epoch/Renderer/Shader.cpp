@@ -8,17 +8,17 @@ namespace Epoch {
 
   std::shared_ptr<Shader> Shader::Create(const std::string& filePath)
   {
-	return std::make_shared(OpenGLShader(filePath));
+	return std::make_shared<OpenGLShader>(filePath);
   }
 
   std::shared_ptr<Shader> Shader::Create(const char* vertexPath, const char* fragmentPath)
   {
-	return std::make_shared(OpenGLShader(vertexPath, fragmentPath));
+	return std::make_shared<OpenGLShader>(vertexPath, fragmentPath);
   }
 
-  std::shared_ptr<Shader> Shader::Create(const std::string& vertexSource, const std::string& fragmentSource)
+  std::shared_ptr<Shader> Shader::Create(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource)
   {
-	return std::make_shared(OpenGLShader(vertexSource, fragmentSource));
+	return std::make_shared<OpenGLShader>(name, vertexSource, fragmentSource);
   }
 
   void ShaderLibrary::Add(const std::shared_ptr<Shader>& shader)

@@ -14,7 +14,7 @@ namespace Epoch {
 
 	static std::shared_ptr<Shader> Create(const std::string& filePath);
 	static std::shared_ptr<Shader> Create(const char* vertexPath, const char* fragmentPath);
-	static std::shared_ptr<Shader> Create(const std::string& vertexSource, const std::string& fragmentSource);
+	static std::shared_ptr<Shader> Create(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource);
   };
 
   class ShaderLibrary
