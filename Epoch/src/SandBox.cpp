@@ -17,63 +17,53 @@ public:
   ExampleLayer() : Layer("Example"), m_Camera(45.0f, 1.6f, 0.9f, 0.1f, 100.0f)
   {
 	//矩形顶点数据
-	float vertices[] = {
+	float CubeVertices[] = {
 	  //背面
-		/*    position    */  /* Coord */  /*       Color      */
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.5f, 1.0f, 0.0f, 0.7f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  0.0f, 0.0f, 1.0f, 0.8f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 1.0f, 1.0f, 0.6f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 1.0f, 1.0f, 0.6f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.2f, 0.0f, 0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.5f, 1.0f, 0.0f, 0.7f,
+		/*    position    */  /* Coord */  /*       Color      */	/*     Normal    */
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.5f, 1.0f, 0.0f, 0.7f,  0.0f,  0.0f, -1.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  0.0f, 0.0f, 1.0f, 0.8f,  0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 1.0f, 1.0f, 0.6f,  0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 1.0f, 1.0f, 0.6f,  0.0f,  0.0f, -1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.2f, 0.0f, 0.0f, 1.0f,  0.0f,  0.0f, -1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.5f, 1.0f, 0.0f, 0.7f,  0.0f,  0.0f, -1.0f,
 	  //正面
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.5f, 0.5f, 0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.5f, 0.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.5f, 0.5f, 0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.5f, 0.5f, 0.0f, 1.0f,  0.0f,  0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.5f, 0.0f, 1.0f,  0.0f,  0.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f,  0.0f,  0.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f,  0.0f,  0.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f,  0.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.5f, 0.5f, 0.0f, 1.0f,  0.0f,  0.0f, 1.0f,
 	  //左侧面
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.2f, 0.0f, 0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.5f, 1.0f, 0.0f, 0.7f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.5f, 1.0f, 0.0f, 0.7f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.5f, 0.5f, 0.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.2f, 0.0f, 0.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.5f, 1.0f, 0.0f, 0.7f,  -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.5f, 1.0f, 0.0f, 0.7f,  -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.5f, 0.5f, 0.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
 	  //右侧面
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 1.0f, 1.0f, 0.6f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 0.0f, 1.0f, 0.8f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 0.0f, 1.0f, 0.8f,
-		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  1.0f, 0.5f, 0.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 1.0f, 1.0f, 0.6f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 0.0f, 1.0f, 0.8f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 0.0f, 1.0f, 0.8f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  1.0f, 0.5f, 0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
 	  //底面
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.5f, 1.0f, 0.0f, 0.7f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 0.0f, 1.0f, 0.8f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.5f, 0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.5f, 0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.5f, 0.5f, 0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.5f, 1.0f, 0.0f, 0.7f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.5f, 1.0f, 0.0f, 0.7f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 0.0f, 1.0f, 0.8f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.5f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.5f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.5f, 0.5f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.5f, 1.0f, 0.0f, 0.7f,  0.0f, -1.0f,  0.0f,
 	  //顶面
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.2f, 0.0f, 0.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 1.0f, 1.0f, 0.6f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.2f, 0.0f, 0.0f, 1.0f
-
-		//0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f,   // 正右上角
-		//0.5f, -0.5f, 0.5f, 1.0f, 0.5f, 0.0f, 1.0f,  // 正右下角
-		//-0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 1.0f, // 正左下角
-		//-0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f,  // 正左上角
-
-		//0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f,   // 背右上角
-		//0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f,  // 背右下角
-		//-0.5f, -0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 1.0f, // 背左下角
-		//-0.5f, 0.5f, -0.5f, 0.2f, 0.0f, 0.0f, 1.0f   // 背左上角
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.2f, 0.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 1.0f, 1.0f, 0.6f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.2f, 0.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f
 	};
 	//索引绘制
-	unsigned int indices[] = { // 注意索引从0开始! 
+	unsigned int CubeIndices[] = { // 注意索引从0开始! 
 	  //正面
 		6, 7, 8, // 正左下三角形
 		9, 10, 11, // 正右上三角形
@@ -94,112 +84,133 @@ public:
 		27, 28, 29
 	};
 
-	m_VertexArray.reset(Epoch::VertexArray::Create());
-
-	std::shared_ptr<Epoch::VertexBuffer> m_VertexBuffer;
-
-	m_VertexBuffer.reset(Epoch::VertexBuffer::Create(vertices, sizeof(vertices)));
-
-	Epoch::BufferLayout layout = {
-	  { Epoch::ShaderDataType::Float3, "a_Pos" },
-	  { Epoch::ShaderDataType::Float2, "a_TexCoord" },
-	  { Epoch::ShaderDataType::Float4, "a_Color" }
+	//矩形顶点数据
+	float PlaneVertices[] = {
+		 0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 0.0f,  1.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,  1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  1.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f, 0.0f, 1.0f, 0.0f,  1.0f,  0.0f
+	};
+	//索引绘制
+	uint32_t PlaneIndices[] = { // 注意索引从0开始! 
+		0, 1, 3, // 第一个三角形
+		1, 2, 3  // 第二个三角形
 	};
 
-	m_VertexBuffer->SetLayout(layout);
-	m_VertexArray->AddVertexBuffer(m_VertexBuffer);
+	//Cube
+	m_CubeVertexArray.reset(Epoch::VertexArray::Create());
 
-	std::shared_ptr<Epoch::IndexBuffer> m_IndexBuffer;
-	m_IndexBuffer.reset(Epoch::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
-	m_VertexArray->SetIndexBuffer(m_IndexBuffer);
+	std::shared_ptr<Epoch::VertexBuffer> m_CubeVertexBuffer;
 
-	std::string vertexShaderSource = R"(
-	  #version 330 core
-	  layout(location = 0) in vec3 a_Pos;
-	  layout(location = 1) in vec2 a_TexCoord;
-	  layout(location = 2) in vec4 a_Color;
+	m_CubeVertexBuffer.reset(Epoch::VertexBuffer::Create(CubeVertices, sizeof(CubeVertices)));
 
-	  out vec2 v_TexCoord;
-	  out vec4 v_Color;
-	  uniform mat4 u_ViewProjection;
-	  uniform mat4 u_Transform;
+	Epoch::BufferLayout CubeLayout = {
+	  { Epoch::ShaderDataType::Float3, "a_Pos" },
+	  { Epoch::ShaderDataType::Float2, "a_TexCoord" },
+	  { Epoch::ShaderDataType::Float4, "a_Color" },
+	  { Epoch::ShaderDataType::Float3, "a_Normal" }
+	};
 
-	  void main() 
-	  {
-		gl_Position = u_ViewProjection * u_Transform * vec4(a_Pos, 1.0);
-		v_TexCoord = a_TexCoord;
-		v_Color = a_Color;
-	  }
-	)";
+	m_CubeVertexBuffer->SetLayout(CubeLayout);
+	m_CubeVertexArray->AddVertexBuffer(m_CubeVertexBuffer);
 
-	std::string fragmentShaderSource = R"(
-	  #version 330 core
+	std::shared_ptr<Epoch::IndexBuffer> m_CubeIndexBuffer;
+	m_CubeIndexBuffer.reset(Epoch::IndexBuffer::Create(CubeIndices, sizeof(CubeIndices) / sizeof(uint32_t)));
+	m_CubeVertexArray->SetIndexBuffer(m_CubeIndexBuffer);
 
-	  uniform sampler2D u_Texture1;
-	  uniform sampler2D u_Texture2;
+	//Plane
+	m_PlaneVertexArray.reset(Epoch::VertexArray::Create());
 
-	  in  vec2 v_TexCoord;
-	  in  vec4 v_Color;
-	  out vec4 FragColor;
+	std::shared_ptr<Epoch::VertexBuffer> m_PlaneVertexBuffer;
 
-	  void main() 
-	  {
-		FragColor = mix(texture(u_Texture1, v_TexCoord), texture(u_Texture2, v_TexCoord), 0.2);
-	  }
-	)";
+	m_PlaneVertexBuffer.reset(Epoch::VertexBuffer::Create(PlaneVertices, sizeof(PlaneVertices)));
 
-	std::string ColorfragmentShaderSource = R"(
-	  #version 330 core
+	Epoch::BufferLayout PlaneLayout = {
+	  { Epoch::ShaderDataType::Float3, "a_Pos" },
+	  { Epoch::ShaderDataType::Float2, "a_TexCoord" },
+	  { Epoch::ShaderDataType::Float3, "a_Normal" }
+	};
 
-	  in  vec2 v_TexCoord;
-	  in  vec4 v_Color;
-	  out vec4 FragColor;
+	m_PlaneVertexBuffer->SetLayout(PlaneLayout);
+	m_PlaneVertexArray->AddVertexBuffer(m_PlaneVertexBuffer);
 
-	  void main() 
-	  {
-		FragColor = v_Color;
-	  }
-	)";
+	std::shared_ptr<Epoch::IndexBuffer> m_PlaneIndexBuffer;
+	m_PlaneIndexBuffer.reset(Epoch::IndexBuffer::Create(PlaneIndices, sizeof(PlaneIndices) / sizeof(uint32_t)));
+	m_PlaneVertexArray->SetIndexBuffer(m_PlaneIndexBuffer);
 
-	m_Shader.reset(Epoch::Shader::Create("assets/shaders/Texture.glsl"));
-	m_ColorShader.reset(Epoch::Shader::Create(vertexShaderSource, ColorfragmentShaderSource));
-
+	// Load shader
+	m_ShaderLibrary.Load("assets/shaders/Texture.glsl");
+	m_ShaderLibrary.Load("ColorShader", "assets/shaders/VertexColor.glsl");
+	m_ShaderLibrary.Load("PlanShader", "assets/shaders/Plane.glsl");
+	m_ShaderLibrary.Load("LightShader", "assets/shaders/test/Light.glsl");
+	// Load texture
 	m_Texture = Epoch::Texture2D::Create("assets/textures/container.jpg");
+	m_CheckerboardTex = Epoch::Texture2D::Create("assets/textures/Checkerboard.png");
 	m_FaceTexture = Epoch::Texture2D::Create("assets/textures/face.png");
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(m_Shader)->use();
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(m_Shader)->UploadUniformInt("u_Texture1", 0);
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(m_Shader)->UploadUniformInt("u_Texture2", 1);
   }
 
   void OnUpdate(Epoch::Timestep timestep) override
   {
 	if (Epoch::Input::IsKeyPressed(EP_KEY_LEFT))
-	  m_CameraPosition.x -= m_CameaSpeed * timestep.GetSeconds();
+	  m_CameraPosition.x -= m_CameraSpeed * timestep.GetSeconds();
 	if (Epoch::Input::IsKeyPressed(EP_KEY_RIGHT))
-	  m_CameraPosition.x += m_CameaSpeed * timestep.GetSeconds();
+	  m_CameraPosition.x += m_CameraSpeed * timestep.GetSeconds();
 	if (Epoch::Input::IsKeyPressed(EP_KEY_DOWN))
-	  m_CameraPosition.y -= m_CameaSpeed * timestep.GetSeconds();
+	  m_CameraPosition.y -= m_CameraSpeed * timestep.GetSeconds();
 	if (Epoch::Input::IsKeyPressed(EP_KEY_UP))
-	  m_CameraPosition.y += m_CameaSpeed * timestep.GetSeconds();
+	  m_CameraPosition.y += m_CameraSpeed * timestep.GetSeconds();
 	if (Epoch::Input::IsKeyPressed(EP_KEY_W))
-	  m_CameraPosition.z -= m_CameaSpeed * timestep.GetSeconds();
+	  m_CameraPosition.z -= m_CameraSpeed * timestep.GetSeconds();
 	if (Epoch::Input::IsKeyPressed(EP_KEY_S))
-	  m_CameraPosition.z += m_CameaSpeed * timestep.GetSeconds();
+	  m_CameraPosition.z += m_CameraSpeed * timestep.GetSeconds();
 
 	if (Epoch::Input::IsKeyPressed(EP_KEY_A))
-	  m_SquarePosition.x -= m_CameaSpeed * timestep.GetSeconds();
+	  m_SquarePosition.x -= m_CameraSpeed * timestep.GetSeconds();
 	if (Epoch::Input::IsKeyPressed(EP_KEY_D))
-	  m_SquarePosition.x += m_CameaSpeed * timestep.GetSeconds();
+	  m_SquarePosition.x += m_CameraSpeed * timestep.GetSeconds();
 	if (Epoch::Input::IsKeyPressed(EP_KEY_Q))
-	  m_SquarePosition.y -= m_CameaSpeed * timestep.GetSeconds();
+	  m_SquarePosition.y -= m_CameraSpeed * timestep.GetSeconds();
 	if (Epoch::Input::IsKeyPressed(EP_KEY_E))
-	  m_SquarePosition.y += m_CameaSpeed * timestep.GetSeconds();
+	  m_SquarePosition.y += m_CameraSpeed * timestep.GetSeconds();
 
 	Epoch::RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	Epoch::RenderCommand::Clear();
 
 	m_Camera.SetPosition(m_CameraPosition);
-	m_Camera.SetRotation(m_Rotation);
+	m_Camera.SetRotation(m_CameraRotation);
+
+	// Bind Uniform
+	auto TexShader = m_ShaderLibrary.Get("Texture");
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(TexShader)->use();
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(TexShader)->UploadUniformInt("u_Texture1", 0);
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(TexShader)->UploadUniformInt("u_Texture2", 1);
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(TexShader)->UploadUniformFloat("u_AmbientStrength", ambientStrength);
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(TexShader)->UploadUniformFloat("u_SpecularStrength", specularStrength);
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(TexShader)->UploadUniformFloat4("u_LightColor", m_LightColor);
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(TexShader)->UploadUniformFloat3("u_lightPos", m_LightPosition);
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(TexShader)->UploadUniformFloat3("u_viewPos", m_CameraPosition);
+
+	auto PlanShader = m_ShaderLibrary.Get("PlanShader");
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(PlanShader)->use();
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(PlanShader)->UploadUniformInt("u_Texture1", 2);
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(PlanShader)->UploadUniformFloat("u_AmbientStrength", ambientStrength);
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(PlanShader)->UploadUniformFloat("u_SpecularStrength", specularStrength);
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(PlanShader)->UploadUniformFloat4("u_LightColor", m_LightColor);
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(PlanShader)->UploadUniformFloat3("u_lightPos", m_LightPosition);
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(PlanShader)->UploadUniformFloat3("u_viewPos", m_CameraPosition);
+
+	auto ColorShader = m_ShaderLibrary.Get("ColorShader");
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(ColorShader)->use();
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(ColorShader)->UploadUniformFloat("u_AmbientStrength", ambientStrength);
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(ColorShader)->UploadUniformFloat("u_SpecularStrength", specularStrength);
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(ColorShader)->UploadUniformFloat4("u_LightColor", m_LightColor);
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(ColorShader)->UploadUniformFloat3("u_lightPos", m_LightPosition);
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(ColorShader)->UploadUniformFloat3("u_viewPos", m_CameraPosition);
+
+	auto LightShader = m_ShaderLibrary.Get("LightShader");
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(LightShader)->use();
+	std::dynamic_pointer_cast<Epoch::OpenGLShader>(LightShader)->UploadUniformFloat4("u_Color", m_LightColor);
+	glm::mat4 LightTransform = glm::translate(glm::mat4(1.0f), m_LightPosition) * glm::scale(glm::mat4(1.0f), glm::vec3(0.3f, 0.3f, 0.3f));
 
 	// Begin Rendering
 	{
@@ -213,22 +224,43 @@ public:
 		{
 		  m_Texture->Bind();
 		  m_FaceTexture->Bind(1);
-		  Epoch::Renderer::Submit(m_Shader, m_VertexArray, transform);
+		  Epoch::Renderer::Submit(TexShader, m_CubeVertexArray, transform);
 		}
 		else
-		  Epoch::Renderer::Submit(m_ColorShader, m_VertexArray, transform);
+		  Epoch::Renderer::Submit(ColorShader, m_CubeVertexArray, transform);
 	  }
+
+	  m_CheckerboardTex->Bind(2);
+	  Epoch::Renderer::Submit(PlanShader, m_PlaneVertexArray, glm::scale(glm::mat4(1.0f), glm::vec3(5.0f, 1.0f, 4.0f)));
+
+	  Epoch::Renderer::Submit(LightShader, m_CubeVertexArray, LightTransform);
+
 	  Epoch::Renderer::EndScene();
 	}
   }
 
   void OnImGuiRender() override
   {
+	//Renderer Info
 	ImGui::Begin("Renderer Info");
 	ImGui::Text("  Vendor: %s", glGetString(GL_VENDOR));
 	ImGui::Text("Renderer: %s", glGetString(GL_RENDERER));
 	ImGui::Text(" Version: %s", glGetString(GL_VERSION));
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	ImGui::End();
+
+	//setting
+	ImGui::Begin("Setting");
+	//ambientStrength
+	ImGui::DragFloat("AmbientStrength", &ambientStrength, 0.03f, 0.0f, 1.0f);
+	//SpecularStrength
+	ImGui::DragFloat("SpecularStrength", &specularStrength, 0.03f, 0.0f, 1.0f);
+	//Camera Rotation
+	ImGui::DragFloat3("Camera Rotation", glm::value_ptr(m_CameraRotation), 0.03f);
+	//Light Position
+	ImGui::DragFloat3("Light Position", glm::value_ptr(m_LightPosition), 0.03f);
+	//Light Color
+	ImGui::ColorEdit4("Light Color", glm::value_ptr(m_LightColor));
 	ImGui::End();
   }
 
@@ -237,11 +269,13 @@ public:
 
   }
 private:
-  std::shared_ptr<Epoch::VertexArray> m_VertexArray;
-  std::shared_ptr<Epoch::Shader> m_Shader;
-  std::shared_ptr<Epoch::Shader> m_ColorShader;
+  std::shared_ptr<Epoch::VertexArray> m_CubeVertexArray;
+  std::shared_ptr<Epoch::VertexArray> m_PlaneVertexArray;
+
+  Epoch::ShaderLibrary m_ShaderLibrary;
 
   std::shared_ptr<Epoch::Texture2D> m_Texture;
+  std::shared_ptr<Epoch::Texture2D> m_CheckerboardTex;
   std::shared_ptr<Epoch::Texture2D> m_FaceTexture;
 
   Epoch::PrespectiveCamera m_Camera;
@@ -250,11 +284,18 @@ private:
 
   glm::vec3 m_SquarePosition = { 0.0f, 0.0f, 0.0f };
 
-  float m_CameaSpeed = 0.8f;
   float m_LastFramTime = 0.0f;
-  float m_Rotation = 0.0f;
+  //Camera
+  float m_CameraSpeed = 0.8f;
+  glm::vec3 m_CameraRotation = { 0.0f, 0.0f, 0.0f };
   float m_RotationSpeed = 5.0f;
 
+  //Light
+  glm::vec4 m_LightColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+  glm::vec3 m_LightPosition = { 0.0f, 0.0f, 0.0f };
+  //ambientStrength
+  float ambientStrength = 0.1f;
+  float specularStrength = 0.1f;
 
   glm::vec3 cubePositions[15] = {
 	glm::vec3(0.0f,  0.0f,  0.0f),
