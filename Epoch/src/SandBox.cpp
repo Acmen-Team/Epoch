@@ -142,7 +142,7 @@ public:
 	m_ShaderLibrary.Load("assets/shaders/Texture.glsl");
 	m_ShaderLibrary.Load("ColorShader", "assets/shaders/VertexColor.glsl");
 	m_ShaderLibrary.Load("PlanShader", "assets/shaders/Plane.glsl");
-	m_ShaderLibrary.Load("LightShader", "assets/shaders/test/Light.glsl");
+	m_ShaderLibrary.Load("LightShader", "assets/shaders/Demo/Light.glsl");
 	// Load texture
 	m_Texture = Epoch::Texture2D::Create("assets/textures/container.jpg");
 	m_CheckerboardTex = Epoch::Texture2D::Create("assets/textures/Checkerboard.png");
