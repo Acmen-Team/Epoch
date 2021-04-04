@@ -22,6 +22,13 @@ namespace Epoch {
 	std::string source = ReadFile(filePath);
 	auto shaderSource = PreProcess(source);
 	Compile(shaderSource);
+
+	// can be greate?
+	auto lastSlash = filePath.find_last_of("/\\");
+	lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
+	auto lastDot = filePath.rfind('.');
+	auto count = lastDot == std::string::npos ? filePath.size() - lastSlash : lastDot - lastSlash;
+	m_Name = filePath.substr(lastSlash, count);
   }
 
   OpenGLShader::OpenGLShader(const char* vertexPath, const char* fragmentPath)
@@ -98,7 +105,8 @@ namespace Epoch {
 	glDetachShader(m_RendererID, fragmentShader);
   }
 
-  OpenGLShader::OpenGLShader(const std::string& vertexSource, const std::string& fragmentSource)
+  OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource)
+	: m_Name(name)
   {
 	std::unordered_map<GLenum, std::string> sources;
 	sources[GL_VERTEX_SHADER] = vertexSource;
