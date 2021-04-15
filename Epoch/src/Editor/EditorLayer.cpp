@@ -1,6 +1,6 @@
 #include "eppch.h"
 
-#include <Epoch.h>
+#include "EditorLayer.h"
 
 #include <imgui.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -11,10 +11,14 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-class ExampleLayer :public Epoch::Layer
-{
-public:
-  ExampleLayer() : Layer("Example"), m_Camera(45.0f, 1.6f, 0.9f, 0.1f, 100.0f)
+namespace Epoch {
+
+  EditorLayer::EditorLayer() : Layer("Example"), m_Camera(45.0f, 1.6f, 0.9f, 0.1f, 100.0f)
+  {
+
+  }
+
+  void EditorLayer::OnAttach()
   {
 	//矩形顶点数据
 	float CubeVertices[] = {
@@ -48,8 +52,8 @@ public:
 		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  1.0f, 0.5f, 0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
 		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
 	  //底面
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.5f, 1.0f, 0.0f, 0.7f,  0.0f, -1.0f,  0.0f,
 		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 0.0f, 1.0f, 0.8f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.5f, 1.0f, 0.0f, 0.7f,  0.0f, -1.0f,  0.0f,
 		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.5f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
 		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.5f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
 		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.5f, 0.5f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
@@ -149,7 +153,12 @@ public:
 	m_FaceTexture = Epoch::Texture2D::Create("assets/textures/face.png");
   }
 
-  void OnUpdate(Epoch::Timestep timestep) override
+  void EditorLayer::OnDetach()
+  {
+
+  }
+
+  void EditorLayer::OnUpdate(Timestep timestep)
   {
 	if (Epoch::Input::IsKeyPressed(EP_KEY_LEFT))
 	  m_CameraPosition.x -= m_CameraSpeed * timestep.GetSeconds();
@@ -239,98 +248,110 @@ public:
 	}
   }
 
-  void OnImGuiRender() override
+  void EditorLayer::OnEvent(Event& event)
   {
-	//Renderer Info
-	ImGui::Begin("Renderer Info");
-	ImGui::Text("  Vendor: %s", glGetString(GL_VENDOR));
-	ImGui::Text("Renderer: %s", glGetString(GL_RENDERER));
-	ImGui::Text(" Version: %s", glGetString(GL_VERSION));
-	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+  }
+
+  void EditorLayer::OnImGuiRender()
+  {
+	static bool opt_fullscreen = true;
+	static bool opt_padding = false;
+	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+	static bool *p_open;
+
+	// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
+	// because it would be confusing to have two docking targets within each others.
+	ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+	if (opt_fullscreen)
+	{
+	  ImGuiViewport* viewport = ImGui::GetMainViewport();
+	  ImGui::SetNextWindowPos(viewport->GetWorkPos());
+	  ImGui::SetNextWindowSize(viewport->GetWorkSize());
+	  ImGui::SetNextWindowViewport(viewport->ID);
+	  ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	  ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	  window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+	  window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+	}
+	else
+	{
+	  dockspace_flags &= ~ImGuiDockNodeFlags_PassthruCentralNode;
+	}
+
+	// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
+	// and handle the pass-thru hole, so we ask Begin() to not render a background.
+	if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
+	  window_flags |= ImGuiWindowFlags_NoBackground;
+
+	// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
+	// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
+	// all active windows docked into it will lose their parent and become undocked.
+	// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
+	// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
+	if (!opt_padding)
+	  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::Begin("DockSpace Demo", p_open, window_flags);
+	if (!opt_padding)
+	  ImGui::PopStyleVar();
+
+	if (opt_fullscreen)
+	  ImGui::PopStyleVar(2);
+
+	// DockSpace
+	ImGuiIO& io = ImGui::GetIO();
+	if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+	{
+	  ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+	  ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+	}
+
+	if (ImGui::BeginMenuBar())
+	{
+	  if (ImGui::BeginMenu("File"))
+	  {
+		// Disabling fullscreen would allow the window to be moved to the front of other windows,
+		// which we can't undo at the moment without finer window depth/z control.
+		if (ImGui::MenuItem("Exit"))
+		  Epoch::Application::Get().Exit();
+
+		ImGui::EndMenu();
+	  }
+
+	  ImGui::EndMenuBar();
+	}
+
+	{
+	  // Scene
+	  ImGui::Begin("Scene");
+	  //ImGui::Image((void*)m_Framebuffer->GetColorAttachmentRendererID(), ImVec2{ 1280.0f, 720.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f });
+	  ImGui::End();
+	}
+
+	{
+	  // Detail
+	  ImGui::Begin("Detail");
+	  //ImGui::ColorEdit4("Square Color", glm::value_ptr(m_SquareColor));
+	  ImGui::End();
+	}
+
+	{
+	  // Texture
+	  ImGui::Begin("Texture");
+	  ImGui::Text("Default Texture");
+	  //ImGui::ImageButton((void*)m_DfaultTex->GetRendererID(), ImVec2{ 64.0f, 64.0f });
+	  ImGui::End();
+	}
+
+	{
+	  //Setting
+	  ImGui::Begin("Setting");
+	  //Camera Rotation
+	  //ImGui::DragFloat3("Camera Rotation", glm::value_ptr(m_CameraRotation), 0.03f);
+	  ImGui::End();
+	}
+
 	ImGui::End();
-
-	//setting
-	ImGui::Begin("Setting");
-	//ambientStrength
-	ImGui::DragFloat("AmbientStrength", &ambientStrength, 0.03f, 0.0f, 1.0f);
-	//SpecularStrength
-	ImGui::DragFloat("SpecularStrength", &specularStrength, 0.03f, 0.0f, 1.0f);
-	//Camera Rotation
-	ImGui::DragFloat3("Camera Rotation", glm::value_ptr(m_CameraRotation), 0.03f);
-	//Light Position
-	ImGui::DragFloat3("Light Position", glm::value_ptr(m_LightPosition), 0.03f);
-	//Light Color
-	ImGui::ColorEdit4("Light Color", glm::value_ptr(m_LightColor));
-	ImGui::End();
   }
 
-  void OnEvent(Epoch::Event& event) override
-  {
-
-  }
-private:
-  std::shared_ptr<Epoch::VertexArray> m_CubeVertexArray;
-  std::shared_ptr<Epoch::VertexArray> m_PlaneVertexArray;
-
-  Epoch::ShaderLibrary m_ShaderLibrary;
-
-  std::shared_ptr<Epoch::Texture2D> m_Texture;
-  std::shared_ptr<Epoch::Texture2D> m_CheckerboardTex;
-  std::shared_ptr<Epoch::Texture2D> m_FaceTexture;
-
-  Epoch::PrespectiveCamera m_Camera;
-
-  glm::vec3 m_CameraPosition = { 0.0f, 0.0f, 3.0f };
-
-  glm::vec3 m_SquarePosition = { 0.0f, 0.0f, 0.0f };
-
-  float m_LastFramTime = 0.0f;
-  //Camera
-  float m_CameraSpeed = 0.8f;
-  glm::vec3 m_CameraRotation = { 0.0f, 0.0f, 0.0f };
-  float m_RotationSpeed = 5.0f;
-
-  //Light
-  glm::vec4 m_LightColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-  glm::vec3 m_LightPosition = { 0.0f, 0.0f, 0.0f };
-  //ambientStrength
-  float ambientStrength = 0.1f;
-  float specularStrength = 0.1f;
-
-  glm::vec3 cubePositions[15] = {
-	glm::vec3(0.0f,  0.0f,  0.0f),
-	glm::vec3(4.0f,  5.0f, -15.0f),
-	glm::vec3(-2.5f, -2.2f, -2.5f),
-	glm::vec3(-3.8f, -2.0f, -12.3f),
-	glm::vec3(3.4f, -0.4f, -3.5f),
-	glm::vec3(-1.7f,  3.0f, -7.5f),
-	glm::vec3(1.3f, -2.0f, -2.5f),
-	glm::vec3(2.5f,  2.0f, -2.5f),
-	glm::vec3(1.5f,  0.2f, -1.5f),
-	glm::vec3(-2.3f,  1.0f, -2.5f),
-	glm::vec3(-1.3f,  0.7f, -3.5f),
-	glm::vec3(1.9f,  -0.5f, -1.5f),
-	glm::vec3(-0.3f,  1.1f, -2.5f),
-	glm::vec3(0.9f,  -4.0f, -11.5f),
-	glm::vec3(2.3f,  1.0f, -7.3f)
-  };
-
-};
-
-class SandBox :public Epoch::Application
-{
-public:
-  SandBox()
-  {
-	PushLayer(new ExampleLayer());
-  }
-  ~SandBox()
-  {
-
-  }
-};
-
-Epoch::Application* Epoch::CreateApplication()
-{
-  return new SandBox();
 }

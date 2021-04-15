@@ -14,12 +14,12 @@ namespace Epoch {
 
   Application* Application::m_Instance = nullptr;
 
-  Application::Application()
+  Application::Application(const std::string& name)
   {
 	EP_CORE_ASSERT(!m_Instance, "Application already exists!");
 	Application::m_Instance = this;
 
-	m_Window = std::unique_ptr<Window>(Window::Create());
+	m_Window = std::unique_ptr<Window>(Window::Create(WindowProps(name)));
 	m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
 
 	Renderer::Init();
@@ -82,6 +82,11 @@ namespace Epoch {
   {
 	m_LayerStack.PushOverlay(layer);
 	layer->OnAttach();
+  }
+
+  void Application::Exit()
+  {
+	m_Running = false;
   }
 
   bool Application::OnWindowClose(WindowCloseEvent & e)
