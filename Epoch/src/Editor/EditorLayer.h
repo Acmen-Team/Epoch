@@ -38,11 +38,11 @@ namespace Epoch {
 	float m_RotationSpeed = 5.0f;
 
 	//Light
-	glm::vec4 m_LightColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-	glm::vec3 m_LightPosition = { 0.0f, 0.0f, 0.0f };
+	glm::vec4 m_LightColor = { 1.0f, 0.8f, 0.3f, 1.0f };
+	glm::vec3 m_LightPosition = { 1.0f, 0.0f, 1.0f };
 	//ambientStrength
 	float ambientStrength = 0.1f;
-	float specularStrength = 0.1f;
+	float specularStrength = 0.3f;
 
 	glm::vec3 cubePositions[15] = {
 	  glm::vec3(0.0f,  0.0f,  0.0f),
@@ -61,6 +61,8 @@ namespace Epoch {
 	  glm::vec3(0.9f,  -4.0f, -11.5f),
 	  glm::vec3(2.3f,  1.0f, -7.3f)
 	};
+
+	std::shared_ptr<Framebuffer> m_Framebuffer;
   };
 
 }

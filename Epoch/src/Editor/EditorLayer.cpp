@@ -6,8 +6,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Platform/OpenGL/OpenGLShader.h"
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -151,6 +149,11 @@ namespace Epoch {
 	m_Texture = Epoch::Texture2D::Create("assets/textures/container.jpg");
 	m_CheckerboardTex = Epoch::Texture2D::Create("assets/textures/Checkerboard.png");
 	m_FaceTexture = Epoch::Texture2D::Create("assets/textures/face.png");
+
+	Epoch::FramebufferSpecification fbSpec;
+	fbSpec.Width = 1280;
+	fbSpec.Height = 720;
+	m_Framebuffer = Epoch::Framebuffer::Create(fbSpec);
   }
 
   void EditorLayer::OnDetach()
@@ -182,6 +185,8 @@ namespace Epoch {
 	if (Epoch::Input::IsKeyPressed(EP_KEY_E))
 	  m_SquarePosition.y += m_CameraSpeed * timestep.GetSeconds();
 
+	m_Framebuffer->Bind();
+
 	Epoch::RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	Epoch::RenderCommand::Clear();
 
@@ -190,35 +195,35 @@ namespace Epoch {
 
 	// Bind Uniform
 	auto TexShader = m_ShaderLibrary.Get("Texture");
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(TexShader)->use();
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(TexShader)->UploadUniformInt("u_Texture1", 0);
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(TexShader)->UploadUniformInt("u_Texture2", 1);
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(TexShader)->UploadUniformFloat("u_AmbientStrength", ambientStrength);
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(TexShader)->UploadUniformFloat("u_SpecularStrength", specularStrength);
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(TexShader)->UploadUniformFloat4("u_LightColor", m_LightColor);
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(TexShader)->UploadUniformFloat3("u_lightPos", m_LightPosition);
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(TexShader)->UploadUniformFloat3("u_viewPos", m_CameraPosition);
+	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->use();
+	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->UploadUniformInt("u_Texture1", 0);
+	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->UploadUniformInt("u_Texture2", 1);
+	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->UploadUniformFloat("u_AmbientStrength", ambientStrength);
+	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->UploadUniformFloat("u_SpecularStrength", specularStrength);
+	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->UploadUniformFloat4("u_LightColor", m_LightColor);
+	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->UploadUniformFloat3("u_lightPos", m_LightPosition);
+	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->UploadUniformFloat3("u_viewPos", m_CameraPosition);
 
 	auto PlanShader = m_ShaderLibrary.Get("PlanShader");
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(PlanShader)->use();
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(PlanShader)->UploadUniformInt("u_Texture1", 2);
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(PlanShader)->UploadUniformFloat("u_AmbientStrength", ambientStrength);
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(PlanShader)->UploadUniformFloat("u_SpecularStrength", specularStrength);
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(PlanShader)->UploadUniformFloat4("u_LightColor", m_LightColor);
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(PlanShader)->UploadUniformFloat3("u_lightPos", m_LightPosition);
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(PlanShader)->UploadUniformFloat3("u_viewPos", m_CameraPosition);
+	std::dynamic_pointer_cast<Epoch::Shader>(PlanShader)->use();
+	std::dynamic_pointer_cast<Epoch::Shader>(PlanShader)->UploadUniformInt("u_Texture1", 2);
+	std::dynamic_pointer_cast<Epoch::Shader>(PlanShader)->UploadUniformFloat("u_AmbientStrength", ambientStrength);
+	std::dynamic_pointer_cast<Epoch::Shader>(PlanShader)->UploadUniformFloat("u_SpecularStrength", specularStrength);
+	std::dynamic_pointer_cast<Epoch::Shader>(PlanShader)->UploadUniformFloat4("u_LightColor", m_LightColor);
+	std::dynamic_pointer_cast<Epoch::Shader>(PlanShader)->UploadUniformFloat3("u_lightPos", m_LightPosition);
+	std::dynamic_pointer_cast<Epoch::Shader>(PlanShader)->UploadUniformFloat3("u_viewPos", m_CameraPosition);
 
 	auto ColorShader = m_ShaderLibrary.Get("ColorShader");
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(ColorShader)->use();
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(ColorShader)->UploadUniformFloat("u_AmbientStrength", ambientStrength);
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(ColorShader)->UploadUniformFloat("u_SpecularStrength", specularStrength);
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(ColorShader)->UploadUniformFloat4("u_LightColor", m_LightColor);
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(ColorShader)->UploadUniformFloat3("u_lightPos", m_LightPosition);
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(ColorShader)->UploadUniformFloat3("u_viewPos", m_CameraPosition);
+	std::dynamic_pointer_cast<Epoch::Shader>(ColorShader)->use();
+	std::dynamic_pointer_cast<Epoch::Shader>(ColorShader)->UploadUniformFloat("u_AmbientStrength", ambientStrength);
+	std::dynamic_pointer_cast<Epoch::Shader>(ColorShader)->UploadUniformFloat("u_SpecularStrength", specularStrength);
+	std::dynamic_pointer_cast<Epoch::Shader>(ColorShader)->UploadUniformFloat4("u_LightColor", m_LightColor);
+	std::dynamic_pointer_cast<Epoch::Shader>(ColorShader)->UploadUniformFloat3("u_lightPos", m_LightPosition);
+	std::dynamic_pointer_cast<Epoch::Shader>(ColorShader)->UploadUniformFloat3("u_viewPos", m_CameraPosition);
 
 	auto LightShader = m_ShaderLibrary.Get("LightShader");
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(LightShader)->use();
-	std::dynamic_pointer_cast<Epoch::OpenGLShader>(LightShader)->UploadUniformFloat4("u_Color", m_LightColor);
+	std::dynamic_pointer_cast<Epoch::Shader>(LightShader)->use();
+	std::dynamic_pointer_cast<Epoch::Shader>(LightShader)->UploadUniformFloat4("u_Color", m_LightColor);
 	glm::mat4 LightTransform = glm::translate(glm::mat4(1.0f), m_LightPosition) * glm::scale(glm::mat4(1.0f), glm::vec3(0.3f, 0.3f, 0.3f));
 
 	// Begin Rendering
@@ -246,6 +251,8 @@ namespace Epoch {
 
 	  Epoch::Renderer::EndScene();
 	}
+
+	m_Framebuffer->UnBind();
   }
 
   void EditorLayer::OnEvent(Event& event)
@@ -324,7 +331,7 @@ namespace Epoch {
 	{
 	  // Scene
 	  ImGui::Begin("Scene");
-	  //ImGui::Image((void*)m_Framebuffer->GetColorAttachmentRendererID(), ImVec2{ 1280.0f, 720.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f });
+	  ImGui::Image((void*)m_Framebuffer->GetColorAttachmentRendererID(), ImVec2{ 1280.0f, 720.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f });
 	  ImGui::End();
 	}
 
