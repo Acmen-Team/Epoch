@@ -3,7 +3,7 @@
 #include "Core.h"
 
 #include "Window.h"
-#include "Epoch/LayerStack.h"
+#include "Epoch/Core/LayerStack.h"
 #include "Epoch/Events/Event.h"
 #include "Epoch/Events/ApplicationEvent.h"
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Epoch/Window.h"
+#include "Epoch/Core/Window.h"
 #include "Epoch/Renderer/RendererContext.h"
 
 #include "glad/glad.h"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Epoch/Input.h"
+#include "Epoch/Core/Input.h"
 
 namespace Epoch {
 

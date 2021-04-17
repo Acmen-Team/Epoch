@@ -1,7 +1,7 @@
 #include "eppch.h"
 
 #include "WindowsInput.h"
-#include "Epoch/Application.h"
+#include "Epoch/Core/Application.h"
 
 #include <GLFW/glfw3.h>
 

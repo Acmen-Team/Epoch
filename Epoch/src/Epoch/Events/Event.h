@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Epoch/Core.h"
+#include "Epoch/Core/Core.h"
 
 namespace Epoch {
 

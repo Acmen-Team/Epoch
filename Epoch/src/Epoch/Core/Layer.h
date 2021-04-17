@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Epoch/Core.h"
-#include "Core/Timestep.h"
+#include "Epoch/Core/Core.h"
+#include "Epoch/Core/Timestep.h"
 
 #include "Epoch/Events/Event.h"
 

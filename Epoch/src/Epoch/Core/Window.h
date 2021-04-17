@@ -2,7 +2,7 @@
 
 #include "eppch.h"
 
-#include "Epoch/Core.h"
+#include "Epoch/Core/Core.h"
 #include "Epoch/Events/Event.h"
 
 namespace Epoch {

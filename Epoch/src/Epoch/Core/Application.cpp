@@ -2,8 +2,8 @@
 #include "Application.h"
 #include "Log.h"
 
-#include "Core/Timestep.h"
-#include "Renderer/Renderer.h"
+#include "Epoch/Core/Timestep.h"
+#include "Epoch/Renderer/Renderer.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>

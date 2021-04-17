@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Epoch/Layer.h"
+#include "Epoch/Core/Layer.h"
 
 #include "Epoch/Events/ApplicationEvent.h"
 #include "Epoch/Events/KeyEvent.h"

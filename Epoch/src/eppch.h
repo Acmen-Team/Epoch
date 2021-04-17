@@ -13,6 +13,6 @@
 #include <unordered_set>
 #include <fstream>
 
-#include "Epoch/Log.h"
+#include "Epoch/Core/Log.h"
 
 #include <Windows.h>

@@ -1,12 +1,12 @@
 #pragma once
 
 // For use Application
-#include "Epoch/Application.h"
-#include "Epoch/Input.h"
-#include "Epoch/KeyCodes.h"
-#include "Epoch/Layer.h"
-#include "Epoch/Log.h"
-#include "Epoch/MouseButtonCodes.h"
+#include "Epoch/Core/Application.h"
+#include "Epoch/Core/Input.h"
+#include "Epoch/Core/KeyCodes.h"
+#include "Epoch/Core/Layer.h"
+#include "Epoch/Core/Log.h"
+#include "Epoch/Core/MouseButtonCodes.h"
 
 #include "Epoch/ImGui/ImGuiLayer.h"
 
