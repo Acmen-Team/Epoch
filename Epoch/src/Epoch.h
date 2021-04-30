@@ -7,10 +7,9 @@
 #include "Epoch/Core/Layer.h"
 #include "Epoch/Core/Log.h"
 #include "Epoch/Core/MouseButtonCodes.h"
+#include "Epoch/Core/Timestep.h"
 
 #include "Epoch/ImGui/ImGuiLayer.h"
-
-#include "Epoch/Core/Timestep.h"
 
 // ----------Renderer---------------
 #include "Epoch/Renderer/Renderer.h"
@@ -23,6 +22,8 @@
 #include "Epoch/Renderer/PrespectiveCamera.h"
 #include "Epoch/Renderer/Framebuffer.h"
 // -----------------------------------
+
+#include "Epoch/SceneCameraController.h"
 
 // ----------EntryPoint---------------
 //#include "Epoch/EntryPoint.h"

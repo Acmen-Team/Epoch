@@ -14,7 +14,7 @@ namespace Epoch {
 	unsigned int Height;
 
 	WindowProps(const std::string& title = "Epoch Engine",
-	  unsigned int width = 1280,
+	  unsigned int width = 1366,
 	  unsigned int height = 720)
 	  :Title(title), Width(width), Height(height) {}
   };

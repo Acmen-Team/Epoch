@@ -35,7 +35,7 @@ namespace Epoch {
 
   void Application::StartUp()
   {
-	WindowResizeEvent e(1280, 720);
+	WindowResizeEvent e(1366, 768);
 	if (e.IsInCategory(EventCategoryApplication))
 	{
 	  while (m_Running)

@@ -13,8 +13,9 @@ namespace Epoch {
 	RenderCommand::Init();
   }
 
-  void Renderer::BeginScene(PrespectiveCamera& camera)
+  void Renderer::BeginScene(SceneCamera& camera)
   {
+
 	m_SceneData->ViewProjectMatrix = camera.GetViewProjectionMatrix();
   }
 
@@ -25,6 +26,7 @@ namespace Epoch {
   void Renderer::Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray, const glm::mat4& transform)
   {
 	shader->use();
+
 	std::dynamic_pointer_cast<OpenGLShader>(shader)->UploadUniformMat4("u_ViewProjection", m_SceneData->ViewProjectMatrix);
 	std::dynamic_pointer_cast<OpenGLShader>(shader)->UploadUniformMat4("u_Transform", transform);
 
