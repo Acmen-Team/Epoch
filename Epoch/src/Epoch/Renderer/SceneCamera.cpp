@@ -16,6 +16,8 @@ namespace Epoch {
 	{
 		m_ProjectionMatrix = glm::perspective(glm::radians(fov), aspectRatio, nearPlan, farPlan);
 		m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
+
+		m_Aspectratio = aspectRatio;
 	}
 
 	void SceneCamera::SetViewMatrix(const glm::mat4 viewMatrix)

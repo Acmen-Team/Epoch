@@ -45,6 +45,7 @@ namespace Epoch {
 	dispatcher.Dispatch<MouseMovedEvent>(EP_BIND_EVENT_FN(SceneCameraController::OnMouseMovedEvent));
 	dispatcher.Dispatch<MouseButtonPressedEvent>(EP_BIND_EVENT_FN(SceneCameraController::OnMouseButtonPressedEvent));
 	dispatcher.Dispatch<MouseButtonReleasedEvent>(EP_BIND_EVENT_FN(SceneCameraController::OnMouseButtonReleasedEvent));
+	dispatcher.Dispatch<WindowResizeEvent>(EP_BIND_EVENT_FN(SceneCameraController::OnWindowResizeEvent));
   }
 
   bool SceneCameraController::OnMouseMovedEvent(MouseMovedEvent& e)
@@ -110,6 +111,10 @@ namespace Epoch {
 
   bool SceneCameraController::OnWindowResizeEvent(WindowResizeEvent& e)
   {
+	m_AspectRatio = 1.6 / 0.9;
+	//m_AspectRatio = e.GetWidth() / e.GetHeight();
+	m_Camera.SetProjectionMatrix(45.0f, m_AspectRatio, 0.1f, 100.0f);
+
 	return false;
   }
 

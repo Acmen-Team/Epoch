@@ -44,13 +44,16 @@ namespace Epoch {
 		Timestep timestep = time - m_LastFramTime;
 		m_LastFramTime = time;
 
-		for (Layer* layer : m_LayerStack)
-		  layer->OnUpdate(timestep);
+		if (!m_Minimized)
+		{
+		  for (Layer* layer : m_LayerStack)
+			layer->OnUpdate(timestep);
 
-		m_ImGuiLayer->Begin();
-		for (Layer* layer : m_LayerStack)
-		  layer->OnImGuiRender();
-		m_ImGuiLayer->End();
+		  m_ImGuiLayer->Begin();
+		  for (Layer* layer : m_LayerStack)
+			layer->OnImGuiRender();
+		  m_ImGuiLayer->End();
+		}
 
 		m_Window->OnUpdate();
 	  }
@@ -61,7 +64,7 @@ namespace Epoch {
   {
 	EventDispatcher dispatcher(e);
 	dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
-
+	dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(OnWindowResize));
 	//DK_CORE_TRACE("{0}", e);
 
 	for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
@@ -93,6 +96,20 @@ namespace Epoch {
   {
 	m_Running = false;
 	return true;
+  }
+
+  bool Application::OnWindowResize(WindowResizeEvent& e)
+  {
+	if (e.GetWidth() == 0 || e.GetHeight() == 0)
+	{
+	  m_Minimized = true;
+	  return false;
+	}
+	Renderer::WindowResize(e.GetWidth(), e.GetHeight());
+
+	m_Minimized = false;
+
+	return false;
   }
 
 }

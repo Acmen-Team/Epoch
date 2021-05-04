@@ -10,6 +10,9 @@ namespace Epoch {
   {
   public:
 	static void Init();
+
+	static void WindowResize(float width, float height);
+
 	static void BeginScene(SceneCamera& camera);
 	static void EndScene();
 

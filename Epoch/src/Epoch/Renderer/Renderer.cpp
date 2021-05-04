@@ -13,6 +13,11 @@ namespace Epoch {
 	RenderCommand::Init();
   }
 
+  void Renderer::WindowResize(float width, float height)
+  {
+	RenderCommand::SetViewport(width, height);
+  }
+
   void Renderer::BeginScene(SceneCamera& camera)
   {
 

@@ -12,6 +12,11 @@ namespace Epoch {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   }
 
+  void OpenGLRendererAPI::SetViewport(float width, float height)
+  {
+	glViewport(0, 0, width, height);
+  }
+
   void OpenGLRendererAPI::SetClearColor(const glm::vec4& color)
   {
 	glClearColor(color.r, color.g, color.b, color.a);

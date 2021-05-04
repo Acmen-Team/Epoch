@@ -16,29 +16,27 @@ namespace Epoch {
 
 	virtual void OnImGuiRender() override;
   private:
+	//CameraController
+	SceneCameraController m_CameraController;
+
 	std::shared_ptr<Epoch::VertexArray> m_CubeVertexArray;
 	std::shared_ptr<Epoch::VertexArray> m_PlaneVertexArray;
+	std::shared_ptr<Epoch::VertexArray> m_TestVertexArray;
 
 	Epoch::ShaderLibrary m_ShaderLibrary;
 
 	std::shared_ptr<Epoch::Texture2D> m_Texture;
 	std::shared_ptr<Epoch::Texture2D> m_CheckerboardTex;
 	std::shared_ptr<Epoch::Texture2D> m_FaceTexture;
+	std::shared_ptr<Epoch::Texture2D> m_sTexture;
+	std::shared_ptr<Epoch::Texture2D> m_StareTexture;
+	std::shared_ptr<Epoch::Texture2D> m_ToonTexture;
 
-	Epoch::PrespectiveCamera m_Camera;
 
-	glm::vec3 m_CameraPosition = { 0.0f, 0.0f, 3.0f };
-
-	glm::vec3 m_SquarePosition = { 0.0f, 0.0f, 0.0f };
-
-	float m_LastFramTime = 0.0f;
-	//Camera
-	float m_CameraSpeed = 0.8f;
-	glm::vec3 m_CameraRotation = { 0.0f, 0.0f, 0.0f };
-	float m_RotationSpeed = 5.0f;
+	glm::vec3 m_SquarePosition = { -1.0f, -0.3f, 1.3f };
 
 	//Light
-	glm::vec4 m_LightColor = { 1.0f, 0.8f, 0.3f, 1.0f };
+	glm::vec4 m_LightColor = { 1.0f, 0.3f, 1.0f, 1.0f };
 	glm::vec3 m_LightPosition = { 1.0f, 0.0f, 1.0f };
 	//ambientStrength
 	float ambientStrength = 0.1f;
@@ -63,6 +61,8 @@ namespace Epoch {
 	};
 
 	std::shared_ptr<Framebuffer> m_Framebuffer;
+
+	glm::vec2 m_ViewportSize = { 0.0f, 0.0f };
   };
 
 }

@@ -163,35 +163,29 @@ namespace Epoch {
 
   void EditorLayer::OnUpdate(Timestep timestep)
   {
-	if (Epoch::Input::IsKeyPressed(EP_KEY_LEFT))
-	  m_CameraPosition.x -= m_CameraSpeed * timestep.GetSeconds();
-	if (Epoch::Input::IsKeyPressed(EP_KEY_RIGHT))
-	  m_CameraPosition.x += m_CameraSpeed * timestep.GetSeconds();
-	if (Epoch::Input::IsKeyPressed(EP_KEY_DOWN))
-	  m_CameraPosition.y -= m_CameraSpeed * timestep.GetSeconds();
-	if (Epoch::Input::IsKeyPressed(EP_KEY_UP))
-	  m_CameraPosition.y += m_CameraSpeed * timestep.GetSeconds();
-	if (Epoch::Input::IsKeyPressed(EP_KEY_W))
-	  m_CameraPosition.z -= m_CameraSpeed * timestep.GetSeconds();
-	if (Epoch::Input::IsKeyPressed(EP_KEY_S))
-	  m_CameraPosition.z += m_CameraSpeed * timestep.GetSeconds();
+	m_CameraController.OnUpdate(timestep);
+	//if (Epoch::Input::IsKeyPressed(EP_KEY_LEFT))
+	//  m_CameraPosition.x -= m_CameraSpeed * timestep.GetSeconds();
+	//if (Epoch::Input::IsKeyPressed(EP_KEY_RIGHT))
+	//  m_CameraPosition.x += m_CameraSpeed * timestep.GetSeconds();
+	//if (Epoch::Input::IsKeyPressed(EP_KEY_DOWN))
+	//  m_CameraPosition.y -= m_CameraSpeed * timestep.GetSeconds();
+	//if (Epoch::Input::IsKeyPressed(EP_KEY_UP))
+	//  m_CameraPosition.y += m_CameraSpeed * timestep.GetSeconds();
 
-	if (Epoch::Input::IsKeyPressed(EP_KEY_A))
-	  m_SquarePosition.x -= m_CameraSpeed * timestep.GetSeconds();
-	if (Epoch::Input::IsKeyPressed(EP_KEY_D))
-	  m_SquarePosition.x += m_CameraSpeed * timestep.GetSeconds();
-	if (Epoch::Input::IsKeyPressed(EP_KEY_Q))
-	  m_SquarePosition.y -= m_CameraSpeed * timestep.GetSeconds();
-	if (Epoch::Input::IsKeyPressed(EP_KEY_E))
-	  m_SquarePosition.y += m_CameraSpeed * timestep.GetSeconds();
+	//if (Epoch::Input::IsKeyPressed(EP_KEY_A))
+	//  m_SquarePosition.x -= m_CameraSpeed * timestep.GetSeconds();
+	//if (Epoch::Input::IsKeyPressed(EP_KEY_D))
+	//  m_SquarePosition.x += m_CameraSpeed * timestep.GetSeconds();
+	//if (Epoch::Input::IsKeyPressed(EP_KEY_Q))
+	//  m_SquarePosition.y -= m_CameraSpeed * timestep.GetSeconds();
+	//if (Epoch::Input::IsKeyPressed(EP_KEY_E))
+	//  m_SquarePosition.y += m_CameraSpeed * timestep.GetSeconds();
 
 	m_Framebuffer->Bind();
 
 	Epoch::RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	Epoch::RenderCommand::Clear();
-
-	m_Camera.SetPosition(m_CameraPosition);
-	m_Camera.SetRotation(m_CameraRotation);
 
 	// Bind Uniform
 	auto TexShader = m_ShaderLibrary.Get("Texture");
@@ -257,7 +251,7 @@ namespace Epoch {
 
   void EditorLayer::OnEvent(Event& event)
   {
-
+	m_CameraController.OnEvent(event);
   }
 
   void EditorLayer::OnImGuiRender()
@@ -330,9 +324,17 @@ namespace Epoch {
 
 	{
 	  // Scene
+	  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0, 0.0 });
 	  ImGui::Begin("Scene");
-	  ImGui::Image((void*)m_Framebuffer->GetColorAttachmentRendererID(), ImVec2{ 1280.0f, 720.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f });
+	  ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+	  if (m_ViewportSize != *((glm::vec2*)&viewportPanelSize))
+	  {
+		m_Framebuffer->Resize((uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);
+		m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
+	  }
+	  ImGui::Image((void*)m_Framebuffer->GetColorAttachmentRendererID(), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f });
 	  ImGui::End();
+	  ImGui::PopStyleVar();
 	}
 
 	{
