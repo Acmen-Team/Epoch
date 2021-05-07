@@ -1,9 +1,9 @@
 #type VERTEX
 
-#version 330 core
+#version 430 core
 layout(location = 0) in vec3 a_Pos;
-layout(location = 1) in vec2 a_TexCoord;
-layout(location = 3) in vec3 a_Normal;
+layout(location = 1) in vec3 a_Normal;
+layout(location = 2) in vec2 a_TexCoord;
 
 out vec2 v_TexCoord;
 out vec3 v_Normal;
@@ -21,7 +21,7 @@ void main()
 
 #type FRAGMENT
 
-#version 330 core
+#version 430 core
 
 uniform sampler2D u_Texture1;
 uniform vec3 u_viewPos;
@@ -49,6 +49,7 @@ void main()
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
 	vec3 specular = u_SpecularStrength * spec * u_LightColor.xyz;
 
-    vec4 result = vec4((ambient.xyz + diffuse + specular) * texture(u_Texture1, v_TexCoord).xyz, 1.0);
+    //vec4 result = vec4((ambient.xyz + diffuse + specular) * texture(u_Texture1, v_TexCoord).xyz, 1.0);
+	vec4 result = vec4(texture(u_Texture1, v_TexCoord).xyz, 1.0);
 	FragColor = result;
 }

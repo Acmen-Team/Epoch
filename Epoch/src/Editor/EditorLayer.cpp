@@ -2,6 +2,8 @@
 
 #include "EditorLayer.h"
 
+#include "Resource/Mesh.h"
+
 #include <imgui.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -11,87 +13,23 @@
 
 namespace Epoch {
 
-  EditorLayer::EditorLayer() : Layer("Example"), m_Camera(45.0f, 1.6f, 0.9f, 0.1f, 100.0f)
+  EditorLayer::EditorLayer() : Layer("Example"), m_CameraController(1.6f / 0.9f)
   {
 
   }
 
   void EditorLayer::OnAttach()
   {
-	//矩形顶点数据
-	float CubeVertices[] = {
-	  //背面
-		/*    position    */  /* Coord */  /*       Color      */	/*     Normal    */
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.5f, 1.0f, 0.0f, 0.7f,  0.0f,  0.0f, -1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  0.0f, 0.0f, 1.0f, 0.8f,  0.0f,  0.0f, -1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 1.0f, 1.0f, 0.6f,  0.0f,  0.0f, -1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 1.0f, 1.0f, 0.6f,  0.0f,  0.0f, -1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.2f, 0.0f, 0.0f, 1.0f,  0.0f,  0.0f, -1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.5f, 1.0f, 0.0f, 0.7f,  0.0f,  0.0f, -1.0f,
-	  //正面
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.5f, 0.5f, 0.0f, 1.0f,  0.0f,  0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.5f, 0.0f, 1.0f,  0.0f,  0.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f,  0.0f,  0.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f,  0.0f,  0.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f,  0.0f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.5f, 0.5f, 0.0f, 1.0f,  0.0f,  0.0f, 1.0f,
-	  //左侧面
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.2f, 0.0f, 0.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.5f, 1.0f, 0.0f, 0.7f,  -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.5f, 1.0f, 0.0f, 0.7f,  -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.5f, 0.5f, 0.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
-	  //右侧面
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 1.0f, 1.0f, 0.6f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 0.0f, 1.0f, 0.8f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 0.0f, 1.0f, 0.8f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  1.0f, 0.5f, 0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-	  //底面
-		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 0.0f, 1.0f, 0.8f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.5f, 1.0f, 0.0f, 0.7f,  0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.5f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.5f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.5f, 0.5f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.5f, 1.0f, 0.0f, 0.7f,  0.0f, -1.0f,  0.0f,
-	  //顶面
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.2f, 0.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 1.0f, 1.0f, 0.6f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.2f, 0.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f
-	};
-	//索引绘制
-	unsigned int CubeIndices[] = { // 注意索引从0开始! 
-	  //正面
-		6, 7, 8, // 正左下三角形
-		9, 10, 11, // 正右上三角形
-	  //左侧面
-		12, 13, 14,
-		15, 16, 17,
-	  //背面
-		0, 1, 2,
-		3, 4, 5,
-	  //右侧面
-		18, 19, 20,
-		21, 22, 23,
-	  //顶部
-		30, 31, 32,
-		33, 34, 35,
-	  //底部
-		24, 25, 26,
-		27, 28, 29
-	};
+	MeshData* earthData = Mesh::CreateMesh("assets/models/earth.obj", "assets/models/", true);
+	MeshData* cubeData = Mesh::CreateMesh("assets/models/cube.obj", "assets/models/", true);
+	MeshData* bulbData = Mesh::CreateMesh("assets/models/bulb.obj", "assets/models/", true);
 
 	//矩形顶点数据
 	float PlaneVertices[] = {
-		 0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 0.0f,  1.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,  1.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  1.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f, 0.0f, 1.0f, 0.0f,  1.0f,  0.0f
+		 0.5f, -0.5f,  0.5f, 0.0f,  1.0f,  0.0f, 1.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f, 0.0f,  1.0f,  0.0f, 1.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f,  1.0f,  0.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f, 0.0f,  1.0f,  0.0f, 0.0f, 1.0f
 	};
 	//索引绘制
 	uint32_t PlaneIndices[] = { // 注意索引从0开始! 
@@ -104,20 +42,19 @@ namespace Epoch {
 
 	std::shared_ptr<Epoch::VertexBuffer> m_CubeVertexBuffer;
 
-	m_CubeVertexBuffer.reset(Epoch::VertexBuffer::Create(CubeVertices, sizeof(CubeVertices)));
+	m_CubeVertexBuffer.reset(Epoch::VertexBuffer::Create((float*)&cubeData->vertices_list[0], sizeof(float) * 8 * cubeData->vertices_list.size()));
 
 	Epoch::BufferLayout CubeLayout = {
 	  { Epoch::ShaderDataType::Float3, "a_Pos" },
-	  { Epoch::ShaderDataType::Float2, "a_TexCoord" },
-	  { Epoch::ShaderDataType::Float4, "a_Color" },
-	  { Epoch::ShaderDataType::Float3, "a_Normal" }
+	  { Epoch::ShaderDataType::Float3, "a_Normal" },
+	  { Epoch::ShaderDataType::Float2, "a_TexCoord" }
 	};
 
 	m_CubeVertexBuffer->SetLayout(CubeLayout);
 	m_CubeVertexArray->AddVertexBuffer(m_CubeVertexBuffer);
 
 	std::shared_ptr<Epoch::IndexBuffer> m_CubeIndexBuffer;
-	m_CubeIndexBuffer.reset(Epoch::IndexBuffer::Create(CubeIndices, sizeof(CubeIndices) / sizeof(uint32_t)));
+	m_CubeIndexBuffer.reset(Epoch::IndexBuffer::Create((uint32_t*)&cubeData->indices_list[0], cubeData->indices_list.size()));
 	m_CubeVertexArray->SetIndexBuffer(m_CubeIndexBuffer);
 
 	//Plane
@@ -129,8 +66,8 @@ namespace Epoch {
 
 	Epoch::BufferLayout PlaneLayout = {
 	  { Epoch::ShaderDataType::Float3, "a_Pos" },
-	  { Epoch::ShaderDataType::Float2, "a_TexCoord" },
-	  { Epoch::ShaderDataType::Float3, "a_Normal" }
+	  { Epoch::ShaderDataType::Float3, "a_Normal" },
+	  { Epoch::ShaderDataType::Float2, "a_TexCoord" }
 	};
 
 	m_PlaneVertexBuffer->SetLayout(PlaneLayout);
@@ -140,19 +77,61 @@ namespace Epoch {
 	m_PlaneIndexBuffer.reset(Epoch::IndexBuffer::Create(PlaneIndices, sizeof(PlaneIndices) / sizeof(uint32_t)));
 	m_PlaneVertexArray->SetIndexBuffer(m_PlaneIndexBuffer);
 
+	// Bulb
+	m_BulbVertexArray.reset(Epoch::VertexArray::Create());
+
+	std::shared_ptr<Epoch::VertexBuffer> m_BulbVertexBuffer;
+
+	m_BulbVertexBuffer.reset(Epoch::VertexBuffer::Create((float*)&bulbData->vertices_list[0], sizeof(float) * 8 * bulbData->vertices_list.size()));
+
+	Epoch::BufferLayout BulbLayout = {
+	  { Epoch::ShaderDataType::Float3, "a_Pos" },
+	  { Epoch::ShaderDataType::Float3, "a_Normal" },
+	  { Epoch::ShaderDataType::Float2, "a_TexCoord" }
+	};
+
+	m_BulbVertexBuffer->SetLayout(BulbLayout);
+	m_BulbVertexArray->AddVertexBuffer(m_BulbVertexBuffer);
+
+	std::shared_ptr<Epoch::IndexBuffer> m_BulbIndexBuffer;
+	m_BulbIndexBuffer.reset(Epoch::IndexBuffer::Create((uint32_t*)&bulbData->indices_list[0], bulbData->indices_list.size()));
+	m_BulbVertexArray->SetIndexBuffer(m_BulbIndexBuffer);
+
+	// Earth
+	m_EarthVertexArray.reset(Epoch::VertexArray::Create());
+
+	std::shared_ptr<Epoch::VertexBuffer> m_EarthVertexBuffer;
+
+	m_EarthVertexBuffer.reset(Epoch::VertexBuffer::Create((float*)&earthData->vertices_list[0], sizeof(float) * 8 * earthData->vertices_list.size()));
+
+	Epoch::BufferLayout EarthLayout = {
+	  { Epoch::ShaderDataType::Float3, "a_Pos" },
+	  { Epoch::ShaderDataType::Float3, "a_Normal" },
+	  { Epoch::ShaderDataType::Float2, "a_TexCoord" }
+	};
+
+	m_EarthVertexBuffer->SetLayout(EarthLayout);
+	m_EarthVertexArray->AddVertexBuffer(m_EarthVertexBuffer);
+
+	std::shared_ptr<Epoch::IndexBuffer> m_EarthIndexBuffer;
+	m_EarthIndexBuffer.reset(Epoch::IndexBuffer::Create((uint32_t*)&earthData->indices_list[0], earthData->indices_list.size()));
+	m_EarthVertexArray->SetIndexBuffer(m_EarthIndexBuffer);
+
 	// Load shader
 	m_ShaderLibrary.Load("assets/shaders/Texture.glsl");
-	m_ShaderLibrary.Load("ColorShader", "assets/shaders/VertexColor.glsl");
 	m_ShaderLibrary.Load("PlanShader", "assets/shaders/Plane.glsl");
 	m_ShaderLibrary.Load("LightShader", "assets/shaders/Demo/Light.glsl");
+	m_ShaderLibrary.Load("Test", "assets/shaders/Test.glsl");
+
 	// Load texture
-	m_Texture = Epoch::Texture2D::Create("assets/textures/container.jpg");
+	m_Texture = Epoch::Texture2D::Create("assets/textures/earth.jpg");
 	m_CheckerboardTex = Epoch::Texture2D::Create("assets/textures/Checkerboard.png");
-	m_FaceTexture = Epoch::Texture2D::Create("assets/textures/face.png");
+	m_FaceTexture = Epoch::Texture2D::Create("assets/textures/Stare.jpg");
+	m_StareTexture = Epoch::Texture2D::Create("assets/textures/stars_map.jpg");
 
 	Epoch::FramebufferSpecification fbSpec;
-	fbSpec.Width = 1280;
-	fbSpec.Height = 720;
+	fbSpec.Width = 1366;
+	fbSpec.Height = 768;
 	m_Framebuffer = Epoch::Framebuffer::Create(fbSpec);
   }
 
@@ -164,23 +143,6 @@ namespace Epoch {
   void EditorLayer::OnUpdate(Timestep timestep)
   {
 	m_CameraController.OnUpdate(timestep);
-	//if (Epoch::Input::IsKeyPressed(EP_KEY_LEFT))
-	//  m_CameraPosition.x -= m_CameraSpeed * timestep.GetSeconds();
-	//if (Epoch::Input::IsKeyPressed(EP_KEY_RIGHT))
-	//  m_CameraPosition.x += m_CameraSpeed * timestep.GetSeconds();
-	//if (Epoch::Input::IsKeyPressed(EP_KEY_DOWN))
-	//  m_CameraPosition.y -= m_CameraSpeed * timestep.GetSeconds();
-	//if (Epoch::Input::IsKeyPressed(EP_KEY_UP))
-	//  m_CameraPosition.y += m_CameraSpeed * timestep.GetSeconds();
-
-	//if (Epoch::Input::IsKeyPressed(EP_KEY_A))
-	//  m_SquarePosition.x -= m_CameraSpeed * timestep.GetSeconds();
-	//if (Epoch::Input::IsKeyPressed(EP_KEY_D))
-	//  m_SquarePosition.x += m_CameraSpeed * timestep.GetSeconds();
-	//if (Epoch::Input::IsKeyPressed(EP_KEY_Q))
-	//  m_SquarePosition.y -= m_CameraSpeed * timestep.GetSeconds();
-	//if (Epoch::Input::IsKeyPressed(EP_KEY_E))
-	//  m_SquarePosition.y += m_CameraSpeed * timestep.GetSeconds();
 
 	m_Framebuffer->Bind();
 
@@ -191,12 +153,11 @@ namespace Epoch {
 	auto TexShader = m_ShaderLibrary.Get("Texture");
 	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->use();
 	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->UploadUniformInt("u_Texture1", 0);
-	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->UploadUniformInt("u_Texture2", 1);
 	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->UploadUniformFloat("u_AmbientStrength", ambientStrength);
 	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->UploadUniformFloat("u_SpecularStrength", specularStrength);
 	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->UploadUniformFloat4("u_LightColor", m_LightColor);
 	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->UploadUniformFloat3("u_lightPos", m_LightPosition);
-	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->UploadUniformFloat3("u_viewPos", m_CameraPosition);
+	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->UploadUniformFloat3("u_viewPos", m_CameraController.GetCamera().GetPosition());
 
 	auto PlanShader = m_ShaderLibrary.Get("PlanShader");
 	std::dynamic_pointer_cast<Epoch::Shader>(PlanShader)->use();
@@ -205,43 +166,34 @@ namespace Epoch {
 	std::dynamic_pointer_cast<Epoch::Shader>(PlanShader)->UploadUniformFloat("u_SpecularStrength", specularStrength);
 	std::dynamic_pointer_cast<Epoch::Shader>(PlanShader)->UploadUniformFloat4("u_LightColor", m_LightColor);
 	std::dynamic_pointer_cast<Epoch::Shader>(PlanShader)->UploadUniformFloat3("u_lightPos", m_LightPosition);
-	std::dynamic_pointer_cast<Epoch::Shader>(PlanShader)->UploadUniformFloat3("u_viewPos", m_CameraPosition);
-
-	auto ColorShader = m_ShaderLibrary.Get("ColorShader");
-	std::dynamic_pointer_cast<Epoch::Shader>(ColorShader)->use();
-	std::dynamic_pointer_cast<Epoch::Shader>(ColorShader)->UploadUniformFloat("u_AmbientStrength", ambientStrength);
-	std::dynamic_pointer_cast<Epoch::Shader>(ColorShader)->UploadUniformFloat("u_SpecularStrength", specularStrength);
-	std::dynamic_pointer_cast<Epoch::Shader>(ColorShader)->UploadUniformFloat4("u_LightColor", m_LightColor);
-	std::dynamic_pointer_cast<Epoch::Shader>(ColorShader)->UploadUniformFloat3("u_lightPos", m_LightPosition);
-	std::dynamic_pointer_cast<Epoch::Shader>(ColorShader)->UploadUniformFloat3("u_viewPos", m_CameraPosition);
+	std::dynamic_pointer_cast<Epoch::Shader>(PlanShader)->UploadUniformFloat3("u_viewPos", m_CameraController.GetCamera().GetPosition());
 
 	auto LightShader = m_ShaderLibrary.Get("LightShader");
 	std::dynamic_pointer_cast<Epoch::Shader>(LightShader)->use();
 	std::dynamic_pointer_cast<Epoch::Shader>(LightShader)->UploadUniformFloat4("u_Color", m_LightColor);
-	glm::mat4 LightTransform = glm::translate(glm::mat4(1.0f), m_LightPosition) * glm::scale(glm::mat4(1.0f), glm::vec3(0.3f, 0.3f, 0.3f));
+	glm::mat4 LightTransform = glm::translate(glm::mat4(1.0f), m_LightPosition) * glm::scale(glm::mat4(1.0f), glm::vec3(0.0005f, 0.0005f, 0.0005f));
+
+	auto TestShader = m_ShaderLibrary.Get("Test");
+	std::dynamic_pointer_cast<Epoch::Shader>(TestShader)->use();
+	std::dynamic_pointer_cast<Epoch::Shader>(TestShader)->UploadUniformInt("u_Texture1", 3);
 
 	// Begin Rendering
 	{
-	  Epoch::Renderer::BeginScene(m_Camera);
-	  for (int i = 0; i < 15; i++)
-	  {
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), cubePositions[i]);
-		float angle = 20.0f * i;
-		transform = glm::rotate(transform, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-		if (i % 2 == 0)
-		{
-		  m_Texture->Bind();
-		  m_FaceTexture->Bind(1);
-		  Epoch::Renderer::Submit(TexShader, m_CubeVertexArray, transform);
-		}
-		else
-		  Epoch::Renderer::Submit(ColorShader, m_CubeVertexArray, transform);
-	  }
+	  Epoch::Renderer::BeginScene(m_CameraController.GetCamera());
+
+	  //m_StareTexture->Bind();
+	  //Epoch::Renderer::Submit(TexShader, m_CubeVertexArray, glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f)));
+	  m_Texture->Bind();
+	  Epoch::Renderer::Submit(TexShader, m_EarthVertexArray, glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.0f, 0.5f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.0005f, 0.0005f, 0.0005f)));
+
+
+	  m_StareTexture->Bind(3);
+	  Epoch::Renderer::Submit(TestShader, m_EarthVertexArray, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.05f, 0.05f, 0.05f)));
 
 	  m_CheckerboardTex->Bind(2);
-	  Epoch::Renderer::Submit(PlanShader, m_PlaneVertexArray, glm::scale(glm::mat4(1.0f), glm::vec3(5.0f, 1.0f, 4.0f)));
+	  Epoch::Renderer::Submit(PlanShader, m_PlaneVertexArray, glm::scale(glm::mat4(1.0f), glm::vec3(6.0f, 1.0f, 5.0f)));
 
-	  Epoch::Renderer::Submit(LightShader, m_CubeVertexArray, LightTransform);
+	  Epoch::Renderer::Submit(LightShader, m_BulbVertexArray, LightTransform);
 
 	  Epoch::Renderer::EndScene();
 	}
@@ -355,8 +307,12 @@ namespace Epoch {
 	{
 	  //Setting
 	  ImGui::Begin("Setting");
-	  //Camera Rotation
-	  //ImGui::DragFloat3("Camera Rotation", glm::value_ptr(m_CameraRotation), 0.03f);
+	  //Light Setting
+	  ImGui::DragFloat("ambientStrength", &ambientStrength, 0.003f, 0.0f, 1.0f);
+	  ImGui::DragFloat("specularStrength", &specularStrength, 0.003f, 0.0f, 1.0f);
+	  ImGui::DragFloat3("Light Position", glm::value_ptr(m_LightPosition), 0.03f);
+	  ImGui::ColorEdit4("Light Color", glm::value_ptr(m_LightColor), 0.03f);
+	  ImGui::DragFloat3("Dragon Rotation", glm::value_ptr(m_Position), 0.03f);
 	  ImGui::End();
 	}
 

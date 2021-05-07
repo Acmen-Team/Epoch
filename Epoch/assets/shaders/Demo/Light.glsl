@@ -1,6 +1,6 @@
 #type VERTEX
 
-#version 330 core
+#version 430 core
 layout(location = 0) in vec3 a_Pos;
 
 uniform mat4 u_ViewProjection;
@@ -13,7 +13,7 @@ void main()
 
 #type FRAGMENT
 
-#version 330 core
+#version 430 core
 
 uniform vec4 u_Color;
 out vec4 FragColor;
