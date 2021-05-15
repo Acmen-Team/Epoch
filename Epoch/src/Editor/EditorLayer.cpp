@@ -2,14 +2,14 @@
 
 #include "EditorLayer.h"
 
-#include "Resource/Mesh.h"
-
 #include <imgui.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+#include <thread>
 
 namespace Epoch {
 
@@ -20,9 +20,10 @@ namespace Epoch {
 
   void EditorLayer::OnAttach()
   {
-	MeshData* earthData = Mesh::CreateMesh("assets/models/earth.obj", "assets/models/", true);
+	MeshData* earthData = Mesh::CreateMesh("assets/models/bunny.obj", "assets/models/", true);
 	MeshData* cubeData = Mesh::CreateMesh("assets/models/cube.obj", "assets/models/", true);
 	MeshData* bulbData = Mesh::CreateMesh("assets/models/bulb.obj", "assets/models/", true);
+	MeshData* bunnyData = Mesh::CreateMesh("assets/models/dragon.obj", "assets/models/", true);
 
 	//矩形顶点数据
 	float PlaneVertices[] = {
@@ -117,18 +118,38 @@ namespace Epoch {
 	m_EarthIndexBuffer.reset(Epoch::IndexBuffer::Create((uint32_t*)&earthData->indices_list[0], earthData->indices_list.size()));
 	m_EarthVertexArray->SetIndexBuffer(m_EarthIndexBuffer);
 
+	// Bunny
+	m_BunnyVertexArray.reset(Epoch::VertexArray::Create());
+
+	std::shared_ptr<Epoch::VertexBuffer> m_BunnyVertexBuffer;
+
+	m_BunnyVertexBuffer.reset(Epoch::VertexBuffer::Create((float*)&bunnyData->vertices_list[0], sizeof(float) * 8 * bunnyData->vertices_list.size()));
+
+	Epoch::BufferLayout BunnyLayout = {
+	  { Epoch::ShaderDataType::Float3, "a_Pos" },
+	  { Epoch::ShaderDataType::Float3, "a_Normal" },
+	  { Epoch::ShaderDataType::Float2, "a_TexCoord" }
+	};
+
+	m_BunnyVertexBuffer->SetLayout(BunnyLayout);
+	m_BunnyVertexArray->AddVertexBuffer(m_BunnyVertexBuffer);
+
+	std::shared_ptr<Epoch::IndexBuffer> m_BunnyIndexBuffer;
+	m_BunnyIndexBuffer.reset(Epoch::IndexBuffer::Create((uint32_t*)&bunnyData->indices_list[0], bunnyData->indices_list.size()));
+	m_BunnyVertexArray->SetIndexBuffer(m_BunnyIndexBuffer);
+
 	// Load shader
-	m_ShaderLibrary.Load("assets/shaders/Texture.glsl");
-	m_ShaderLibrary.Load("PlanShader", "assets/shaders/Plane.glsl");
-	m_ShaderLibrary.Load("LightShader", "assets/shaders/Demo/Light.glsl");
-	m_ShaderLibrary.Load("Test", "assets/shaders/Test.glsl");
+	m_ShaderLibrary.Load("PhoneShading", "assets/shaders/Phone.glsl");
+	m_ShaderLibrary.Load("ColorShading", "assets/shaders/Color.glsl");
 
 	// Load texture
+	m_DefaultTexture = Epoch::Texture2D::Create("assets/textures/defaultTexture.jpg");
 	m_Texture = Epoch::Texture2D::Create("assets/textures/earth.jpg");
 	m_CheckerboardTex = Epoch::Texture2D::Create("assets/textures/Checkerboard.png");
-	m_FaceTexture = Epoch::Texture2D::Create("assets/textures/Stare.jpg");
-	m_StareTexture = Epoch::Texture2D::Create("assets/textures/stars_map.jpg");
+	m_FaceTexture = Epoch::Texture2D::Create("assets/textures/face.png");
+	m_StareTexture = Epoch::Texture2D::Create("assets/textures/Stare.jpg");
 
+	// Create Framebuffer
 	Epoch::FramebufferSpecification fbSpec;
 	fbSpec.Width = 1366;
 	fbSpec.Height = 768;
@@ -142,58 +163,65 @@ namespace Epoch {
 
   void EditorLayer::OnUpdate(Timestep timestep)
   {
-	m_CameraController.OnUpdate(timestep);
+	PROFILE_SCOPE("EditorLayer::OnUpdate");
+
+	{
+	  PROFILE_SCOPE("Camera::OnUpdate");
+	  m_CameraController.OnUpdate(timestep);
+	}
 
 	m_Framebuffer->Bind();
 
-	Epoch::RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
-	Epoch::RenderCommand::Clear();
+	{
+	  PROFILE_SCOPE("Render::Pro");
+	  Epoch::RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+	  Epoch::RenderCommand::Clear();
+	  Epoch::RenderCommand::SetRenderModel(m_RenderModel);
+	}
 
 	// Bind Uniform
-	auto TexShader = m_ShaderLibrary.Get("Texture");
-	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->use();
-	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->UploadUniformInt("u_Texture1", 0);
-	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->UploadUniformFloat("u_AmbientStrength", ambientStrength);
-	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->UploadUniformFloat("u_SpecularStrength", specularStrength);
-	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->UploadUniformFloat4("u_LightColor", m_LightColor);
-	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->UploadUniformFloat3("u_lightPos", m_LightPosition);
-	std::dynamic_pointer_cast<Epoch::Shader>(TexShader)->UploadUniformFloat3("u_viewPos", m_CameraController.GetCamera().GetPosition());
+	auto PhoneShading = m_ShaderLibrary.Get("PhoneShading");
+	auto ColorShading = m_ShaderLibrary.Get("ColorShading");
 
-	auto PlanShader = m_ShaderLibrary.Get("PlanShader");
-	std::dynamic_pointer_cast<Epoch::Shader>(PlanShader)->use();
-	std::dynamic_pointer_cast<Epoch::Shader>(PlanShader)->UploadUniformInt("u_Texture1", 2);
-	std::dynamic_pointer_cast<Epoch::Shader>(PlanShader)->UploadUniformFloat("u_AmbientStrength", ambientStrength);
-	std::dynamic_pointer_cast<Epoch::Shader>(PlanShader)->UploadUniformFloat("u_SpecularStrength", specularStrength);
-	std::dynamic_pointer_cast<Epoch::Shader>(PlanShader)->UploadUniformFloat4("u_LightColor", m_LightColor);
-	std::dynamic_pointer_cast<Epoch::Shader>(PlanShader)->UploadUniformFloat3("u_lightPos", m_LightPosition);
-	std::dynamic_pointer_cast<Epoch::Shader>(PlanShader)->UploadUniformFloat3("u_viewPos", m_CameraController.GetCamera().GetPosition());
+	{
+	  PROFILE_SCOPE("Shader::BindUniform");
+	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->use();
+	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformInt("u_Texture1", 0);
+	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat3("ObjectColor", m_ObjectColor);
+	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat3("ViewPosition", m_CameraController.GetCameraPosition());
+	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat3("material.ambient", materialData->Ambient);
+	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat3("material.diffuse", materialData->Diffuse);
+	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat3("material.specular", materialData->Specular);
+	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat("material.shininess", materialData->Shininess);
+	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat3("light.ambient", lightData->Ambient);
+	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat3("light.diffuse", lightData->Diffuse);
+	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat3("light.specular", lightData->Specular);
+	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat3("light.position", lightData->Position);
 
-	auto LightShader = m_ShaderLibrary.Get("LightShader");
-	std::dynamic_pointer_cast<Epoch::Shader>(LightShader)->use();
-	std::dynamic_pointer_cast<Epoch::Shader>(LightShader)->UploadUniformFloat4("u_Color", m_LightColor);
-	glm::mat4 LightTransform = glm::translate(glm::mat4(1.0f), m_LightPosition) * glm::scale(glm::mat4(1.0f), glm::vec3(0.0005f, 0.0005f, 0.0005f));
-
-	auto TestShader = m_ShaderLibrary.Get("Test");
-	std::dynamic_pointer_cast<Epoch::Shader>(TestShader)->use();
-	std::dynamic_pointer_cast<Epoch::Shader>(TestShader)->UploadUniformInt("u_Texture1", 3);
+	  std::dynamic_pointer_cast<Epoch::Shader>(ColorShading)->use();
+	  std::dynamic_pointer_cast<Epoch::Shader>(ColorShading)->UploadUniformFloat3("LightColor", lightData->Diffuse);
+	}
 
 	// Begin Rendering
 	{
+	  PROFILE_SCOPE("Rendering::Begin Scene");
 	  Epoch::Renderer::BeginScene(m_CameraController.GetCamera());
 
-	  //m_StareTexture->Bind();
-	  //Epoch::Renderer::Submit(TexShader, m_CubeVertexArray, glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f)));
-	  m_Texture->Bind();
-	  Epoch::Renderer::Submit(TexShader, m_EarthVertexArray, glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.0f, 0.5f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.0005f, 0.0005f, 0.0005f)));
+	  m_DefaultTexture->Bind();
+	  Epoch::Renderer::Submit(PhoneShading, m_BunnyVertexArray, glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f)));
 
+	  Epoch::Renderer::Submit(PhoneShading, m_EarthVertexArray, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.3f, 0.3f, 0.3f)));
 
-	  m_StareTexture->Bind(3);
-	  Epoch::Renderer::Submit(TestShader, m_EarthVertexArray, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.05f, 0.05f, 0.05f)));
+	  m_StareTexture->Bind();
+	  Epoch::Renderer::Submit(PhoneShading, m_CubeVertexArray, glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f)));
 
-	  m_CheckerboardTex->Bind(2);
-	  Epoch::Renderer::Submit(PlanShader, m_PlaneVertexArray, glm::scale(glm::mat4(1.0f), glm::vec3(6.0f, 1.0f, 5.0f)));
+	  m_CheckerboardTex->Bind();
+	  Epoch::Renderer::Submit(PhoneShading, m_PlaneVertexArray, glm::scale(glm::mat4(1.0f), glm::vec3(6.0f, 1.0f, 5.0f)));
 
-	  Epoch::Renderer::Submit(LightShader, m_BulbVertexArray, LightTransform);
+	  //m_Texture->Bind();
+
+	  glm::mat4 LightTransform = glm::translate(glm::mat4(1.0f), lightData->Position) * glm::scale(glm::mat4(1.0f), glm::vec3(0.0005f, 0.0005f, 0.0005f));
+	  Epoch::Renderer::Submit(ColorShading, m_BulbVertexArray, LightTransform);
 
 	  Epoch::Renderer::EndScene();
 	}
@@ -275,6 +303,35 @@ namespace Epoch {
 	}
 
 	{
+	  //Setting
+	  ImGui::Begin("Setting");
+	  if (ImGui::Combo("RenderModel", &renderModel_idx, "Fill\0Line\0Point\0"))
+	  {
+		switch (renderModel_idx)
+		{
+		case 0: m_RenderModel = RenderModel::Fill; break;
+		case 1: m_RenderModel = RenderModel::Line; break;
+		case 2: m_RenderModel = RenderModel::Point; break;
+		}
+	  }
+	  ImGui::End();
+	}
+
+	{
+	  // Profile
+	  ImGui::Begin("Profile");
+	  for (auto& result : m_ProfileResults)
+	  {
+		char label[50];
+		strcpy(label, result.Name);
+		strcat(label, "  %.3fms");
+		ImGui::Text(label, result.Time);
+	  }
+	  m_ProfileResults.clear();
+	  ImGui::End();
+	}
+
+	{
 	  // Scene
 	  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0, 0.0 });
 	  ImGui::Begin("Scene");
@@ -292,6 +349,16 @@ namespace Epoch {
 	{
 	  // Detail
 	  ImGui::Begin("Detail");
+	  //Light Setting
+	  ImGui::ColorEdit3("Ambient", glm::value_ptr(lightData->Ambient), 0.03f);
+	  ImGui::ColorEdit3("Diffuse", glm::value_ptr(lightData->Diffuse), 0.03f);
+	  ImGui::ColorEdit3("Specular", glm::value_ptr(lightData->Specular), 0.03f);
+	  ImGui::DragFloat3("Position", glm::value_ptr(lightData->Position), 0.1f);
+	  ImGui::ColorEdit4("ObjectColor", glm::value_ptr(m_ObjectColor), 0.03f);
+
+	  //ImGui::DragFloat3("Ambient", glm::value_ptr(lightData->Ambient), 0.1f);
+	  //ImGui::DragFloat3("Diffuse", glm::value_ptr(lightData->Diffuse), 0.1f);
+	  //ImGui::DragFloat3("Specular", glm::value_ptr(lightData->Specular), 0.1f);
 	  //ImGui::ColorEdit4("Square Color", glm::value_ptr(m_SquareColor));
 	  ImGui::End();
 	}
@@ -300,19 +367,28 @@ namespace Epoch {
 	  // Texture
 	  ImGui::Begin("Texture");
 	  ImGui::Text("Default Texture");
-	  //ImGui::ImageButton((void*)m_DfaultTex->GetRendererID(), ImVec2{ 64.0f, 64.0f });
+	  if (ImGui::ImageButton((void*)m_DefaultTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
+	  {
+		m_DefaultTexture->Bind();
+	  }
+	  if (ImGui::ImageButton((void*)m_StareTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
+	  {
+		m_StareTexture->Bind(0);
+	  }
+	  if (ImGui::ImageButton((void*)m_FaceTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
+	  {
+		m_FaceTexture->Bind(0);
+	  }
 	  ImGui::End();
 	}
 
 	{
-	  //Setting
-	  ImGui::Begin("Setting");
-	  //Light Setting
-	  ImGui::DragFloat("ambientStrength", &ambientStrength, 0.003f, 0.0f, 1.0f);
-	  ImGui::DragFloat("specularStrength", &specularStrength, 0.003f, 0.0f, 1.0f);
-	  ImGui::DragFloat3("Light Position", glm::value_ptr(m_LightPosition), 0.03f);
-	  ImGui::ColorEdit4("Light Color", glm::value_ptr(m_LightColor), 0.03f);
-	  ImGui::DragFloat3("Dragon Rotation", glm::value_ptr(m_Position), 0.03f);
+	  //material
+	  ImGui::Begin("Material");
+	  ImGui::DragFloat3("Ambient", glm::value_ptr(materialData->Ambient), 0.3f);
+	  ImGui::DragFloat3("Diffuse", glm::value_ptr(materialData->Diffuse), 0.3f);
+	  ImGui::DragFloat3("Specular", glm::value_ptr(materialData->Specular), 0.3f);
+	  ImGui::DragFloat("Shininess", &(materialData->Shininess), 0.5f);
 	  ImGui::End();
 	}
 

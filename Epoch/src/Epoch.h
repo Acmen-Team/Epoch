@@ -26,6 +26,10 @@
 
 #include "Epoch/SceneCameraController.h"
 
+#include "Epoch/Resource/Mesh.h"
+#include "Epoch/Resource/Material.h"
+#include "Epoch/Resource/Light.h"
+
 // ----------EntryPoint---------------
 //#include "Epoch/EntryPoint.h"
 // -----------------------------------
