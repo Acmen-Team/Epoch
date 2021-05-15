@@ -19,6 +19,10 @@ namespace Epoch {
 	{
 	  s_RendererAPI->SetClearColor(color);
 	}
+	inline static void SetRenderModel(RenderModel& model)
+	{
+	  s_RendererAPI->SetRenderModel(model);
+	}
 	inline static void Clear()
 	{
 	  s_RendererAPI->Clear();

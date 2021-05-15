@@ -14,6 +14,7 @@ namespace Epoch {
 	virtual void Init() override;
 	virtual void SetViewport(float width, float height) override;
 	virtual void SetClearColor(const glm::vec4& color) override;
+	virtual void SetRenderModel(RenderModel& model) override;
 	virtual void Clear() override;
 
 	virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray) override;

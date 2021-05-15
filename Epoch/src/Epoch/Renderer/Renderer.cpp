@@ -20,12 +20,16 @@ namespace Epoch {
 
   void Renderer::BeginScene(SceneCamera& camera)
   {
-
 	m_SceneData->ViewProjectMatrix = camera.GetViewProjectionMatrix();
   }
 
   void Renderer::EndScene()
   {
+  }
+
+  void Renderer::SetRenderModel(RenderModel& model)
+  {
+	RenderCommand::SetRenderModel(model);
   }
 
   void Renderer::Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray, const glm::mat4& transform)
