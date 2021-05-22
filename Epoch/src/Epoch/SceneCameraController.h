@@ -20,6 +20,7 @@ namespace Epoch {
 	const SceneCamera& GetCamera() const { return m_Camera; }
 
 	glm::vec3& GetCameraPosition() { return m_CameraPosition; }
+	glm::vec3& GetCameraFront() { return m_CameraFront; }
   private:
 	bool OnMouseMovedEvent(MouseMovedEvent& e);
 	bool OnMouseScrolledEvent(MouseScrolledEvent& e);

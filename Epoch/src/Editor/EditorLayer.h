@@ -65,15 +65,25 @@ namespace Epoch {
 	std::shared_ptr<Epoch::VertexArray> m_PlaneVertexArray;
 	std::shared_ptr<Epoch::VertexArray> m_BulbVertexArray;
 	std::shared_ptr<Epoch::VertexArray> m_EarthVertexArray;
-	std::shared_ptr<Epoch::VertexArray> m_BunnyVertexArray;
+	std::shared_ptr<Epoch::VertexArray> m_BunnyVertexArray = nullptr;
 
 	Epoch::ShaderLibrary m_ShaderLibrary;
 
+	std::shared_ptr<Epoch::Shader> TestPhone;
+
 	std::shared_ptr<Epoch::Texture2D> m_DefaultTexture;
 	std::shared_ptr<Epoch::Texture2D> m_Texture;
+	std::shared_ptr<Epoch::Texture2D> m_EarthTexture;
 	std::shared_ptr<Epoch::Texture2D> m_CheckerboardTex;
 	std::shared_ptr<Epoch::Texture2D> m_FaceTexture;
 	std::shared_ptr<Epoch::Texture2D> m_StareTexture;
+	std::shared_ptr<Epoch::Texture2D> m_DiffuseTexture;
+	std::shared_ptr<Epoch::Texture2D> m_SpecularTexture;
+
+	//// Async Resource
+	//std::future<MeshData*> m_Fu;
+
+	//MeshData* bunnyData;
 
 	//Light
 	glm::vec3 m_LightColor = { 1.0f, 0.3f, 1.0f };
@@ -92,6 +102,8 @@ namespace Epoch {
 
 	int renderModel_idx = 0;
 	RenderModel m_RenderModel = RenderModel::Fill;
+
+	int lightType = 0;
 
 	struct ProfileResult
 	{
