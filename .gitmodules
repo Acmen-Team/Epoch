@@ -10,3 +10,6 @@
 [submodule "Epoch/vendor/GLFW"]
 	path = Epoch/vendor/GLFW
 	url = https://github.com/Holy-YxY/glfw
+[submodule "Epoch/vendor/dirent"]
+	path = Epoch/vendor/dirent
+	url = https://github.com/tronkko/dirent

@@ -9,6 +9,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "FileDialog.h"
+
 #include <thread>
 
 namespace Epoch {
@@ -489,6 +491,29 @@ namespace Epoch {
 	  ImGui::DragFloat3("Diffuse", glm::value_ptr(materialData->Diffuse), 0.3f);
 	  ImGui::DragFloat3("Specular", glm::value_ptr(materialData->Specular), 0.3f);
 	  ImGui::DragFloat("Shininess", &(materialData->Shininess), 0.5f);
+	  ImGui::End();
+	}
+
+	{
+	  ImGui::Begin("FileDialog");
+	  // open Dialog Simple
+	  if (ImGui::Button("Open File Dialog"))
+		ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".cpp,.h,.hpp", ".");
+
+	  // display
+	  if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
+	  {
+		// action if OK
+		if (ImGuiFileDialog::Instance()->IsOk())
+		{
+		  std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+		  std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+		  // action
+		}
+
+		// close
+		ImGuiFileDialog::Instance()->Close();
+	  }
 	  ImGui::End();
 	}
 
