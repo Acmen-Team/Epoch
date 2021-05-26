@@ -184,7 +184,8 @@ namespace Epoch {
 
 	{
 	  PROFILE_SCOPE("Camera::OnUpdate");
-	  m_CameraController.OnUpdate(timestep);
+	  if(m_ViewPanelFocused)
+		m_CameraController.OnUpdate(timestep);
 	}
 
 	m_Framebuffer->Bind();
@@ -325,7 +326,8 @@ namespace Epoch {
 
   void EditorLayer::OnEvent(Event& event)
   {
-	m_CameraController.OnEvent(event);
+	if(m_ViewPanelFocused)
+	  m_CameraController.OnEvent(event);
   }
 
   void EditorLayer::OnImGuiRender()
@@ -432,6 +434,8 @@ namespace Epoch {
 	  // Scene
 	  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0, 0.0 });
 	  ImGui::Begin("Scene");
+	  m_ViewPanelFocused = ImGui::IsWindowFocused();
+	  m_ViewPanelHovered = ImGui::IsWindowHovered();
 	  ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 	  if (m_ViewportSize != *((glm::vec2*)&viewportPanelSize))
 	  {

@@ -59,6 +59,14 @@ namespace Epoch {
 	ImGui::DestroyContext();
   }
 
+  void ImGuiLayer::OnEvent(Event& event)
+  {
+	ImGuiIO& io = ImGui::GetIO();
+
+	event.Handled |= event.IsInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
+	//event.Handled |= event.IsInCategory(EventCategoryMouse) & io.WantCaptureMouse;
+  }
+
   void ImGuiLayer::Begin()
   {
 	// Start the Dear ImGui frame
