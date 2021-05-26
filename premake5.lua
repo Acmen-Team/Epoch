@@ -20,6 +20,7 @@ IncludeDir["glm"] = "Epoch/vendor/glm"
 IncludeDir["stb_image"] = "Epoch/vendor/stb_image"
 IncludeDir["tinyobjloader"] = "Epoch/vendor/tinyobjloader"
 IncludeDir["dirent"] = "Epoch/vendor/dirent/include"
+IncludeDir["entt"] = "Epoch/vendor/entt/include"
 
 group "Dependencies"
 	include "Epoch/vendor/GLFW"
@@ -49,7 +50,8 @@ project "Epoch"
 		"%{prj.name}/vendor/stb_image/**.h",
 		"%{prj.name}/vendor/stb_image/**.cpp",
 		"%{prj.name}/vendor/tinyobjloader/**.h",
-		"%{prj.name}/vendor/dirent/include/dirent.h"
+		"%{prj.name}/vendor/dirent/include/dirent.h",
+		"%{prj.name}/vendor/entt/include/entt.hpp"
 	}
 
 	defines
@@ -67,7 +69,8 @@ project "Epoch"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.tinyobjloader}",
-		"%{IncludeDir.dirent}"
+		"%{IncludeDir.dirent}",
+		"%{IncludeDir.entt}"
 	}
 
 	links
