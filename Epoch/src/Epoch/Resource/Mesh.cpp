@@ -6,7 +6,14 @@
 
 namespace Epoch {
 
-  MeshData* Mesh::CreateMesh(const char* file_path, const char* base_path, bool triangle)
+  float GetPro()
+  {
+	return tinyobj::LoadPro;
+  }
+
+  float Mesh::pro = 0.0f;
+
+  MeshData* Mesh::CreateMesh(const std::string& file_path, const std::string& base_path, bool triangle)
   {
 	tinyobj::ObjReaderConfig reader_config;
 	reader_config.mtl_search_path = base_path; // Path to material files
@@ -38,6 +45,11 @@ namespace Epoch {
 	  // Loop over faces(polygon)
 	  size_t index_offset = 0;
 	  for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
+
+		pro = (float)f / (float)shapes[s].mesh.num_face_vertices.size();
+
+		//EP_CORE_TRACE("PRO : {0}", pro);
+
 		size_t fv = size_t(shapes[s].mesh.num_face_vertices[f]);
 
 		// Loop over vertices in the face.
@@ -77,6 +89,7 @@ namespace Epoch {
 	  }
 
 	}
+	pro = 0.0f;
 
 	return meshData;
   }

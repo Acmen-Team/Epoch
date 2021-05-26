@@ -65,6 +65,8 @@ THE SOFTWARE.
 
 namespace tinyobj {
 
+static float LoadPro = 0.0f;
+
 // TODO(syoyo): Better C++11 detection for older compiler
 #if __cplusplus > 199711L
 #define TINYOBJ_OVERRIDE override
@@ -2358,10 +2360,21 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
 
   bool found_all_colors = true;
 
+  // Calculator File size
+  inStream->seekg(0, inStream->end);
+  int length = inStream->tellg();
+  inStream->seekg(0, inStream->beg);
+
   size_t line_num = 0;
   std::string linebuf;
   while (inStream->peek() != -1) {
     safeGetline(*inStream, linebuf);
+
+	// Current Pos
+	int CurrentPos = inStream->tellg();
+
+	// Calculator Pro
+	LoadPro = float(CurrentPos) / float(length);
 
     line_num++;
 
@@ -2882,6 +2895,8 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
   attrib->texcoord_ws.swap(vt);
   attrib->colors.swap(vc);
   attrib->skin_weights.swap(vw);
+
+  LoadPro = 0.0f;
 
   return true;
 }

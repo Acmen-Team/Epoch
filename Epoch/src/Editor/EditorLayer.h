@@ -48,9 +48,6 @@ namespace Epoch {
 	EditorLayer();
 	virtual ~EditorLayer() = default;
 
-	void LoadModel(const char* filename, const char* basepath,
-	  bool triangulate);
-
 	virtual void OnAttach() override;
 	virtual void OnDetach() override;
 	virtual void OnUpdate(Timestep timestep) override;
@@ -80,10 +77,10 @@ namespace Epoch {
 	std::shared_ptr<Epoch::Texture2D> m_DiffuseTexture;
 	std::shared_ptr<Epoch::Texture2D> m_SpecularTexture;
 
-	//// Async Resource
-	//std::future<MeshData*> m_Fu;
+	// Async Resource
+	std::future<MeshData*> m_Fu;
 
-	//MeshData* bunnyData;
+	MeshData* bunnyData;
 
 	//Light
 	glm::vec3 m_LightColor = { 1.0f, 0.3f, 1.0f };
@@ -104,6 +101,9 @@ namespace Epoch {
 	RenderModel m_RenderModel = RenderModel::Fill;
 
 	int lightType = 0;
+
+	bool m_ViewPanelFocused = true;
+	bool m_ViewPanelHovered = true;
 
 	struct ProfileResult
 	{

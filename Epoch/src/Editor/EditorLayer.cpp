@@ -259,41 +259,41 @@ namespace Epoch {
 	  //m_DefaultTexture->Bind();
 	  //Epoch::Renderer::Submit(Phone, m_BunnyVertexArray, glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f)));
 
-	 // {
-		//PROFILE_SCOPE("Resource::Loading Moudel");
-		//if (m_Fu._Is_ready())
-		//{
-		//  for (int i = 0; i < 1; i++)
-		//  {
-		//	bunnyData = m_Fu.get();
+	  {
+		PROFILE_SCOPE("Resource::Loading Moudel");
+		if (m_Fu._Is_ready())
+		{
+		  for (int i = 0; i < 1; i++)
+		  {
+			bunnyData = m_Fu.get();
 
-		//	m_BunnyVertexArray.reset(Epoch::VertexArray::Create());
+			m_BunnyVertexArray.reset(Epoch::VertexArray::Create());
 
-		//	std::shared_ptr<Epoch::VertexBuffer> m_BunnyVertexBuffer;
+			std::shared_ptr<Epoch::VertexBuffer> m_BunnyVertexBuffer;
 
-		//	m_BunnyVertexBuffer.reset(Epoch::VertexBuffer::Create((float*)&bunnyData->vertices_list[0], sizeof(float) * 8 * bunnyData->vertices_list.size()));
+			m_BunnyVertexBuffer.reset(Epoch::VertexBuffer::Create((float*)&bunnyData->vertices_list[0], sizeof(float) * 8 * bunnyData->vertices_list.size()));
 
-		//	Epoch::BufferLayout BunnyLayout = {
-		//	  { Epoch::ShaderDataType::Float3, "a_Pos" },
-		//	  { Epoch::ShaderDataType::Float3, "a_Normal" },
-		//	  { Epoch::ShaderDataType::Float2, "a_TexCoord" }
-		//	};
+			Epoch::BufferLayout BunnyLayout = {
+			  { Epoch::ShaderDataType::Float3, "a_Pos" },
+			  { Epoch::ShaderDataType::Float3, "a_Normal" },
+			  { Epoch::ShaderDataType::Float2, "a_TexCoord" }
+			};
 
-		//	m_BunnyVertexBuffer->SetLayout(BunnyLayout);
-		//	m_BunnyVertexArray->AddVertexBuffer(m_BunnyVertexBuffer);
+			m_BunnyVertexBuffer->SetLayout(BunnyLayout);
+			m_BunnyVertexArray->AddVertexBuffer(m_BunnyVertexBuffer);
 
-		//	std::shared_ptr<Epoch::IndexBuffer> m_BunnyIndexBuffer;
-		//	m_BunnyIndexBuffer.reset(Epoch::IndexBuffer::Create((uint32_t*)&bunnyData->indices_list[0], bunnyData->indices_list.size()));
-		//	m_BunnyVertexArray->SetIndexBuffer(m_BunnyIndexBuffer);
-		//  }
-		//}
-	 // }
+			std::shared_ptr<Epoch::IndexBuffer> m_BunnyIndexBuffer;
+			m_BunnyIndexBuffer.reset(Epoch::IndexBuffer::Create((uint32_t*)&bunnyData->indices_list[0], bunnyData->indices_list.size()));
+			m_BunnyVertexArray->SetIndexBuffer(m_BunnyIndexBuffer);
+		  }
+		}
+	  }
 
-	 // if (m_BunnyVertexArray)
-	 // {
-		//m_DefaultTexture->Bind();
-		//Epoch::Renderer::Submit(Phone, m_BunnyVertexArray, glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f)));
-	 // }
+	  if (m_BunnyVertexArray)
+	  {
+		m_DefaultTexture->Bind();
+		Epoch::Renderer::Submit(Phone, m_BunnyVertexArray, glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f)));
+	  }
 	  //m_Texture->Bind();
 	  //Epoch::Renderer::Submit(Phone, m_EarthVertexArray, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.3f, 0.3f, 0.3f)));
 
@@ -461,11 +461,6 @@ namespace Epoch {
 	  ImGui::DragFloat("Quadratic", &lightData->Quadratic, 0.03f);
 	  ImGui::DragFloat("CutOff", &lightData->CutOff, 0.03f);
 	  ImGui::ColorEdit4("ObjectColor", glm::value_ptr(m_ObjectColor), 0.03f);
-
-	  //ImGui::DragFloat3("Ambient", glm::value_ptr(lightData->Ambient), 0.1f);
-	  //ImGui::DragFloat3("Diffuse", glm::value_ptr(lightData->Diffuse), 0.1f);
-	  //ImGui::DragFloat3("Specular", glm::value_ptr(lightData->Specular), 0.1f);
-	  //ImGui::ColorEdit4("Square Color", glm::value_ptr(m_SquareColor));
 	  ImGui::End();
 	}
 
@@ -479,11 +474,11 @@ namespace Epoch {
 	  }
 	  if (ImGui::ImageButton((void*)m_DiffuseTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
 	  {
-		m_StareTexture->Bind(0);
+		m_DiffuseTexture->Bind(0);
 	  }
 	  if (ImGui::ImageButton((void*)m_SpecularTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
 	  {
-		m_FaceTexture->Bind(0);
+		m_SpecularTexture->Bind(0);
 	  }
 	  ImGui::End();
 	}
@@ -498,13 +493,17 @@ namespace Epoch {
 	  ImGui::End();
 	}
 
+	
 	{
 	  ImGui::Begin("FileDialog");
 	  // open Dialog Simple
 	  if (ImGui::Button("Open File Dialog"))
-		ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".cpp,.h,.hpp", ".");
-
+		ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".obj,.cpp,.h,.hpp", ".");
 	  // display
+	  ImGui::ProgressBar(GetPro());
+	  ImGui::ProgressBar(Mesh::GetReadPro());
+	  //EP_CORE_TRACE("Editor pro : {0}", Mesh::GetPro());
+
 	  if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
 	  {
 		// action if OK
@@ -513,6 +512,7 @@ namespace Epoch {
 		  std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
 		  std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
 		  // action
+		  m_Fu = std::async(Mesh::CreateMesh, filePathName, filePath, true);
 		}
 
 		// close
@@ -520,6 +520,7 @@ namespace Epoch {
 	  }
 	  ImGui::End();
 	}
+	
 
 	ImGui::End();
   }

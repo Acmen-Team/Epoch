@@ -4,6 +4,8 @@
 
 namespace Epoch {
 
+  float GetPro();
+
   struct Vertex
   {
 	glm::vec3 m_Position;
@@ -27,7 +29,9 @@ namespace Epoch {
   class Mesh
   {
   public:
-	static MeshData* CreateMesh(const char* file_path, const char* base_path, bool triangle);
+	static MeshData* CreateMesh(const std::string& file_path, const std::string& base_path, bool triangle);
+	static float GetReadPro() { return pro; }
+	static float pro;
   };
 
 }
