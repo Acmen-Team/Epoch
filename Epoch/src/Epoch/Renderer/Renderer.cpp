@@ -23,6 +23,11 @@ namespace Epoch {
 	m_SceneData->ViewProjectMatrix = camera.GetViewProjectionMatrix();
   }
 
+  void Renderer::BeginScene(Camera& camera, const glm::mat4& transform)
+  {
+	m_SceneData->ViewProjectMatrix = camera.GetProjection() * transform;
+  }
+
   void Renderer::EndScene()
   {
   }

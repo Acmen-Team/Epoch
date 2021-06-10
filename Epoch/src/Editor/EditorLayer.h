@@ -55,28 +55,15 @@ namespace Epoch {
 
 	virtual void OnImGuiRender() override;
   private:
-	//CameraController
-	SceneCameraController m_CameraController;
-
-	std::shared_ptr<Epoch::VertexArray> m_CubeVertexArray;
-	std::shared_ptr<Epoch::VertexArray> m_PlaneVertexArray;
-	std::shared_ptr<Epoch::VertexArray> m_BulbVertexArray;
-	std::shared_ptr<Epoch::VertexArray> m_EarthVertexArray;
-	std::shared_ptr<Epoch::VertexArray> m_BunnyVertexArray = nullptr;
-
 	Epoch::ShaderLibrary m_ShaderLibrary;
 
-	std::shared_ptr<Epoch::Shader> TestPhone;
+	// Scene
+	std::shared_ptr<Scene> m_Scene;
 
-	std::shared_ptr<Epoch::Texture2D> m_DefaultTexture;
-	std::shared_ptr<Epoch::Texture2D> m_Texture;
-	std::shared_ptr<Epoch::Texture2D> m_EarthTexture;
-	std::shared_ptr<Epoch::Texture2D> m_CheckerboardTex;
-	std::shared_ptr<Epoch::Texture2D> m_FaceTexture;
-	std::shared_ptr<Epoch::Texture2D> m_StareTexture;
-	std::shared_ptr<Epoch::Texture2D> m_DiffuseTexture;
-	std::shared_ptr<Epoch::Texture2D> m_SpecularTexture;
+	Entity m_PerspectiveCameraEntity;
+	Entity m_OrthographicCameraEntity;
 
+	bool Perspective = true;
 	// Async Resource
 	std::future<MeshData*> m_Fu;
 
