@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Epoch/Renderer/VertexArray.h"
+
 #include "glm/glm.hpp"
 
 namespace Epoch {
@@ -29,9 +31,27 @@ namespace Epoch {
   class Mesh
   {
   public:
-	static MeshData* CreateMesh(const std::string& file_path, const std::string& base_path, bool triangle);
+	Mesh(const std::string& file_path, const std::string& base_path);
+	Mesh(const std::string& file_path, const std::string& base_path, bool triangle);
+	
+	~Mesh() = default;
+
+	static Ref<Mesh> CreateMesh(const std::string& file_path, const std::string& base_path) { return CreateRef<Mesh>(file_path, base_path); }
+
 	static float GetReadPro() { return pro; }
 	static float pro;
+
+	std::shared_ptr<VertexArray>& GetVertexArray() { return m_VertexArray; }
+	//static GetName() { return m_Name; }
+  private:
+	std::shared_ptr<MeshData> ObjLoad(const std::string& file_path, const std::string& base_path, bool triangle = true);
+	void CreatVertexArray(std::shared_ptr<MeshData>& mehsData);
+	// TODO
+	//FbxLoad()
+  private:
+	std::string m_Name;
+
+	std::shared_ptr<VertexArray> m_VertexArray;
   };
 
 }

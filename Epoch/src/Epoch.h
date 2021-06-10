@@ -25,6 +25,12 @@
 // -----------------------------------
 
 #include "Epoch/SceneCameraController.h"
+#include "Epoch/CameraController.h"
+
+#include "Epoch/Scene/Scene.h"
+#include "Epoch/Scene/Component.h"
+#include "Epoch/Scene/Entity.h"
+#include "Epoch/Scene/ScriptableEntity.h"
 
 #include "Epoch/Resource/Mesh.h"
 #include "Epoch/Resource/Material.h"

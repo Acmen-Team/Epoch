@@ -2,6 +2,7 @@
 
 #include "RenderCommand.h"
 #include "SceneCamera.h"
+#include "Camera.h"
 #include "Shader.h"
 
 namespace Epoch {
@@ -14,6 +15,7 @@ namespace Epoch {
 	static void WindowResize(float width, float height);
 
 	static void BeginScene(SceneCamera& camera);
+	static void BeginScene(Camera& camera, const glm::mat4& transform);
 	static void EndScene();
 
 	static void SetRenderModel(RenderModel& model);

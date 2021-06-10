@@ -13,7 +13,31 @@ namespace Epoch {
 
   float Mesh::pro = 0.0f;
 
-  MeshData* Mesh::CreateMesh(const std::string& file_path, const std::string& base_path, bool triangle)
+  Mesh::Mesh(const std::string& file_path, const std::string& base_path)
+  {
+	CreatVertexArray(ObjLoad(file_path, base_path));
+
+	// can be greate?
+	auto lastSlash = file_path.find_last_of("/\\");
+	lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
+	auto lastDot = file_path.rfind('.');
+	auto count = lastDot == std::string::npos ? file_path.size() - lastSlash : lastDot - lastSlash;
+	m_Name = file_path.substr(lastSlash, count);
+  }
+
+  Mesh::Mesh(const std::string& file_path, const std::string& base_path, bool triangle)
+  {
+	CreatVertexArray(ObjLoad(file_path, base_path, triangle));
+
+	// can be greate?
+	auto lastSlash = file_path.find_last_of("/\\");
+	lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
+	auto lastDot = file_path.rfind('.');
+	auto count = lastDot == std::string::npos ? file_path.size() - lastSlash : lastDot - lastSlash;
+	m_Name = file_path.substr(lastSlash, count);
+  }
+
+  std::shared_ptr<MeshData> Mesh::ObjLoad(const std::string& file_path, const std::string& base_path, bool triangle)
   {
 	tinyobj::ObjReaderConfig reader_config;
 	reader_config.mtl_search_path = base_path; // Path to material files
@@ -31,7 +55,7 @@ namespace Epoch {
 	  std::cout << "TinyObjReader: " << reader.Warning();
 	}
 
-	MeshData* meshData = new MeshData();
+	std::shared_ptr<MeshData> meshData = std::make_shared<MeshData>();
 	glm::vec3 pos = { 0.0f, 0.0f, 0.0f };
 	glm::vec3 normal = { 0.0f, 0.0f, 0.0f };
 	glm::vec2 texCoord = { 0.0f, 0.0f };
@@ -92,6 +116,28 @@ namespace Epoch {
 	pro = 0.0f;
 
 	return meshData;
+  }
+
+  void Mesh::CreatVertexArray(std::shared_ptr<MeshData>& mehsData)
+  {
+	m_VertexArray.reset(VertexArray::Create());
+
+	std::shared_ptr<Epoch::VertexBuffer> m_VertexBuffer;
+
+	m_VertexBuffer.reset(Epoch::VertexBuffer::Create((float*)&mehsData->vertices_list[0], sizeof(float) * 8 * mehsData->vertices_list.size()));
+
+	BufferLayout MeshLayout = {
+	  { ShaderDataType::Float3, "a_Pos" },
+	  { ShaderDataType::Float3, "a_Normal" },
+	  { ShaderDataType::Float2, "a_TexCoord" }
+	};
+
+	m_VertexBuffer->SetLayout(MeshLayout);
+	m_VertexArray->AddVertexBuffer(m_VertexBuffer);
+
+	std::shared_ptr<Epoch::IndexBuffer> m_IndexBuffer;
+	m_IndexBuffer.reset(Epoch::IndexBuffer::Create((uint32_t*)&mehsData->indices_list[0], mehsData->indices_list.size()));
+	m_VertexArray->SetIndexBuffer(m_IndexBuffer);
   }
 
 }

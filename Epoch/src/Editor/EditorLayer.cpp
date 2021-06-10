@@ -15,131 +15,13 @@
 
 namespace Epoch {
 
-  EditorLayer::EditorLayer() : Layer("Example"), m_CameraController(1.6f / 0.9f)
+  EditorLayer::EditorLayer() : Layer("Example")
   {
 
   }
 
   void EditorLayer::OnAttach()
   {
-	MeshData* earthData = Mesh::CreateMesh("assets/models/earth.obj", "assets/models/", true);
-	MeshData* cubeData = Mesh::CreateMesh("assets/models/cube.obj", "assets/models/", true);
-	MeshData* bulbData = Mesh::CreateMesh("assets/models/bulb.obj", "assets/models/", true);
-	//MeshData* bunnyData = Mesh::CreateMesh("assets/models/dragon.obj", "assets/models/", true);
-	//m_Fu = std::async(Mesh::CreateMesh, "assets/models/dragon.obj", "assets/models/", true);
-
-	//矩形顶点数据
-	float PlaneVertices[] = {
-		 0.5f, -0.5f,  0.5f, 0.0f,  1.0f,  0.0f, 1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f, 0.0f,  1.0f,  0.0f, 1.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f, 0.0f,  1.0f,  0.0f, 0.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f, 0.0f,  1.0f,  0.0f, 0.0f, 1.0f
-	};
-	//索引绘制
-	uint32_t PlaneIndices[] = { // 注意索引从0开始! 
-		0, 1, 3, // 第一个三角形
-		1, 2, 3  // 第二个三角形
-	};
-
-	//Cube
-	m_CubeVertexArray.reset(Epoch::VertexArray::Create());
-
-	std::shared_ptr<Epoch::VertexBuffer> m_CubeVertexBuffer;
-
-	m_CubeVertexBuffer.reset(Epoch::VertexBuffer::Create((float*)&cubeData->vertices_list[0], sizeof(float) * 8 * cubeData->vertices_list.size()));
-
-	Epoch::BufferLayout CubeLayout = {
-	  { Epoch::ShaderDataType::Float3, "a_Pos" },
-	  { Epoch::ShaderDataType::Float3, "a_Normal" },
-	  { Epoch::ShaderDataType::Float2, "a_TexCoord" }
-	};
-
-	m_CubeVertexBuffer->SetLayout(CubeLayout);
-	m_CubeVertexArray->AddVertexBuffer(m_CubeVertexBuffer);
-
-	std::shared_ptr<Epoch::IndexBuffer> m_CubeIndexBuffer;
-	m_CubeIndexBuffer.reset(Epoch::IndexBuffer::Create((uint32_t*)&cubeData->indices_list[0], cubeData->indices_list.size()));
-	m_CubeVertexArray->SetIndexBuffer(m_CubeIndexBuffer);
-
-	//Plane
-	m_PlaneVertexArray.reset(Epoch::VertexArray::Create());
-
-	std::shared_ptr<Epoch::VertexBuffer> m_PlaneVertexBuffer;
-
-	m_PlaneVertexBuffer.reset(Epoch::VertexBuffer::Create(PlaneVertices, sizeof(PlaneVertices)));
-
-	Epoch::BufferLayout PlaneLayout = {
-	  { Epoch::ShaderDataType::Float3, "a_Pos" },
-	  { Epoch::ShaderDataType::Float3, "a_Normal" },
-	  { Epoch::ShaderDataType::Float2, "a_TexCoord" }
-	};
-
-	m_PlaneVertexBuffer->SetLayout(PlaneLayout);
-	m_PlaneVertexArray->AddVertexBuffer(m_PlaneVertexBuffer);
-
-	std::shared_ptr<Epoch::IndexBuffer> m_PlaneIndexBuffer;
-	m_PlaneIndexBuffer.reset(Epoch::IndexBuffer::Create(PlaneIndices, sizeof(PlaneIndices) / sizeof(uint32_t)));
-	m_PlaneVertexArray->SetIndexBuffer(m_PlaneIndexBuffer);
-
-	// Bulb
-	m_BulbVertexArray.reset(Epoch::VertexArray::Create());
-
-	std::shared_ptr<Epoch::VertexBuffer> m_BulbVertexBuffer;
-
-	m_BulbVertexBuffer.reset(Epoch::VertexBuffer::Create((float*)&bulbData->vertices_list[0], sizeof(float) * 8 * bulbData->vertices_list.size()));
-
-	Epoch::BufferLayout BulbLayout = {
-	  { Epoch::ShaderDataType::Float3, "a_Pos" },
-	  { Epoch::ShaderDataType::Float3, "a_Normal" },
-	  { Epoch::ShaderDataType::Float2, "a_TexCoord" }
-	};
-
-	m_BulbVertexBuffer->SetLayout(BulbLayout);
-	m_BulbVertexArray->AddVertexBuffer(m_BulbVertexBuffer);
-
-	std::shared_ptr<Epoch::IndexBuffer> m_BulbIndexBuffer;
-	m_BulbIndexBuffer.reset(Epoch::IndexBuffer::Create((uint32_t*)&bulbData->indices_list[0], bulbData->indices_list.size()));
-	m_BulbVertexArray->SetIndexBuffer(m_BulbIndexBuffer);
-
-	// Earth
-	m_EarthVertexArray.reset(Epoch::VertexArray::Create());
-
-	std::shared_ptr<Epoch::VertexBuffer> m_EarthVertexBuffer;
-
-	m_EarthVertexBuffer.reset(Epoch::VertexBuffer::Create((float*)&earthData->vertices_list[0], sizeof(float) * 8 * earthData->vertices_list.size()));
-
-	Epoch::BufferLayout EarthLayout = {
-	  { Epoch::ShaderDataType::Float3, "a_Pos" },
-	  { Epoch::ShaderDataType::Float3, "a_Normal" },
-	  { Epoch::ShaderDataType::Float2, "a_TexCoord" }
-	};
-
-	m_EarthVertexBuffer->SetLayout(EarthLayout);
-	m_EarthVertexArray->AddVertexBuffer(m_EarthVertexBuffer);
-
-	std::shared_ptr<Epoch::IndexBuffer> m_EarthIndexBuffer;
-	m_EarthIndexBuffer.reset(Epoch::IndexBuffer::Create((uint32_t*)&earthData->indices_list[0], earthData->indices_list.size()));
-	m_EarthVertexArray->SetIndexBuffer(m_EarthIndexBuffer);
-
-	// Bunny
-	/*m_BunnyVertexArray.reset(Epoch::VertexArray::Create());
-
-	std::shared_ptr<Epoch::VertexBuffer> m_BunnyVertexBuffer;
-
-	m_BunnyVertexBuffer.reset(Epoch::VertexBuffer::Create((float*)&bunnyData->vertices_list[0], sizeof(float) * 8 * bunnyData->vertices_list.size()));
-
-	Epoch::BufferLayout BunnyLayout = {
-	  { Epoch::ShaderDataType::Float3, "a_Pos" },
-	  { Epoch::ShaderDataType::Float3, "a_Normal" },
-	  { Epoch::ShaderDataType::Float2, "a_TexCoord" }
-	};
-
-	m_BunnyVertexBuffer->SetLayout(BunnyLayout);
-	m_BunnyVertexArray->AddVertexBuffer(m_BunnyVertexBuffer);
-
-	std::shared_ptr<Epoch::IndexBuffer> m_BunnyIndexBuffer;
-	m_BunnyIndexBuffer.reset(Epoch::IndexBuffer::Create((uint32_t*)&bunnyData->indices_list[0], bunnyData->indices_list.size()));
-	m_BunnyVertexArray->SetIndexBuffer(m_BunnyIndexBuffer);*/
 
 	// Load shader
 	m_ShaderLibrary.Load("Phone", "assets/shaders/Phone.glsl");
@@ -147,30 +29,49 @@ namespace Epoch {
 	m_ShaderLibrary.Load("ColorShading", "assets/shaders/Color.glsl");
 	m_ShaderLibrary.Load("PhoneShading", "assets/shaders/PhongShading.glsl");
 
-	// Load texture
-	m_DefaultTexture = Epoch::Texture2D::Create("assets/textures/default_w.jpg");
-	m_Texture = Epoch::Texture2D::Create("assets/textures/defaultTexture.jpg");
-	m_CheckerboardTex = Epoch::Texture2D::Create("assets/textures/Checkerboard.png");
-	m_FaceTexture = Epoch::Texture2D::Create("assets/textures/face.png");
-	m_StareTexture = Epoch::Texture2D::Create("assets/textures/Stare.jpg");
-	m_DiffuseTexture = Epoch::Texture2D::Create("assets/textures/container2.png");
-	m_SpecularTexture = Epoch::Texture2D::Create("assets/textures/container2_specular.png");
-
 	// Create Framebuffer
 	Epoch::FramebufferSpecification fbSpec;
 	fbSpec.Width = 1366;
 	fbSpec.Height = 768;
 	m_Framebuffer = Epoch::Framebuffer::Create(fbSpec);
 
+	m_Scene = std::make_shared<Scene>();
 
-	TestPhone = m_ShaderLibrary.Get("TestShading");
-	std::dynamic_pointer_cast<Epoch::Shader>(TestPhone)->use();
-	std::dynamic_pointer_cast<Epoch::Shader>(TestPhone)->UploadUniformInt("u_Texture1", 0);
+	Entity cube = m_Scene->CreatEntity("Cube");
+	if (cube.HasComponent<TagComponent>())
+	{
+	  std::cout << "Yes" << std::endl;
+	}
+	cube.AddComponent<MeshConponent>("assets/models/cube.obj", "assets/models/");
+	cube.AddComponent<TransformComponent>(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.3f, 0.3f, 0.3f)));
 
-	std::dynamic_pointer_cast<Epoch::Shader>(TestPhone)->UploadUniformFloat3("material.ambient", materialData->Ambient);
-	std::dynamic_pointer_cast<Epoch::Shader>(TestPhone)->UploadUniformFloat3("material.diffuse", materialData->Diffuse);
-	std::dynamic_pointer_cast<Epoch::Shader>(TestPhone)->UploadUniformFloat3("material.specular", materialData->Specular);
-	std::dynamic_pointer_cast<Epoch::Shader>(TestPhone)->UploadUniformFloat("material.shininess", materialData->Shininess);
+	m_PerspectiveCameraEntity = m_Scene->CreatEntity("PreCamera Entity");
+	m_PerspectiveCameraEntity.AddComponent<CameraComponent>(glm::perspective(glm::radians(45.0f), (1.6f / 0.9f), 0.1f, 100.0f));
+	m_PerspectiveCameraEntity.AddComponent<TransformComponent>();
+
+	class CameraController : public ScriptableEntity
+	{
+	public:
+	  void OnCreate(){}
+
+	  void OnUpdate(Timestep timestep)
+	  {
+		auto& transform = GetComponent<TransformComponent>().Transform;
+
+		float m_CamearTransformationSpeed = 1.0;
+
+		if (Input::IsKeyPressed(EP_KEY_W))
+		  transform[3][2] += m_CamearTransformationSpeed * timestep.GetSeconds();
+		if (Input::IsKeyPressed(EP_KEY_S))
+		  transform[3][2] -= m_CamearTransformationSpeed * timestep.GetSeconds();
+	  }
+
+	  void OnDestroy(){}
+	private:
+
+	};
+
+	m_PerspectiveCameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
   }
 
   void EditorLayer::OnDetach()
@@ -182,12 +83,6 @@ namespace Epoch {
   {
 	PROFILE_SCOPE("EditorLayer::OnUpdate");
 
-	{
-	  PROFILE_SCOPE("Camera::OnUpdate");
-	  if(m_ViewPanelFocused)
-		m_CameraController.OnUpdate(timestep);
-	}
-
 	m_Framebuffer->Bind();
 
 	{
@@ -197,128 +92,11 @@ namespace Epoch {
 	  Epoch::RenderCommand::SetRenderModel(m_RenderModel);
 	}
 
-	// Bind Uniform
-	auto Phone = m_ShaderLibrary.Get("Phone");
-	auto ColorShading = m_ShaderLibrary.Get("ColorShading");
-	auto PhoneShading = m_ShaderLibrary.Get("PhoneShading");
-
-	{
-	  PROFILE_SCOPE("Shader::BindUniform");
-	  std::dynamic_pointer_cast<Epoch::Shader>(Phone)->use();
-	  std::dynamic_pointer_cast<Epoch::Shader>(Phone)->UploadUniformInt("u_Texture1", 0);
-	  std::dynamic_pointer_cast<Epoch::Shader>(Phone)->UploadUniformFloat3("ObjectColor", m_ObjectColor);
-	  std::dynamic_pointer_cast<Epoch::Shader>(Phone)->UploadUniformFloat3("ViewPosition", m_CameraController.GetCameraPosition());
-	  std::dynamic_pointer_cast<Epoch::Shader>(Phone)->UploadUniformFloat3("material.ambient", materialData->Ambient);
-	  std::dynamic_pointer_cast<Epoch::Shader>(Phone)->UploadUniformFloat3("material.diffuse", materialData->Diffuse);
-	  std::dynamic_pointer_cast<Epoch::Shader>(Phone)->UploadUniformFloat3("material.specular", materialData->Specular);
-	  std::dynamic_pointer_cast<Epoch::Shader>(Phone)->UploadUniformFloat("material.shininess", materialData->Shininess);
-	  std::dynamic_pointer_cast<Epoch::Shader>(Phone)->UploadUniformFloat3("light.ambient", lightData->Ambient);
-	  std::dynamic_pointer_cast<Epoch::Shader>(Phone)->UploadUniformFloat3("light.diffuse", lightData->Diffuse);
-	  std::dynamic_pointer_cast<Epoch::Shader>(Phone)->UploadUniformFloat3("light.specular", lightData->Specular);
-	  std::dynamic_pointer_cast<Epoch::Shader>(Phone)->UploadUniformFloat3("light.position", lightData->Position);
-
-	  std::dynamic_pointer_cast<Epoch::Shader>(ColorShading)->use();
-	  std::dynamic_pointer_cast<Epoch::Shader>(ColorShading)->UploadUniformFloat3("LightColor", lightData->Diffuse);
-
-	  std::dynamic_pointer_cast<Epoch::Shader>(TestPhone)->use();
-	  std::dynamic_pointer_cast<Epoch::Shader>(TestPhone)->UploadUniformInt("u_Texture1", 0);
-	  std::dynamic_pointer_cast<Epoch::Shader>(TestPhone)->UploadUniformFloat3("ObjectColor", m_ObjectColor);
-	  std::dynamic_pointer_cast<Epoch::Shader>(TestPhone)->UploadUniformFloat3("ViewPosition", m_CameraController.GetCameraPosition());
-	  std::dynamic_pointer_cast<Epoch::Shader>(TestPhone)->UploadUniformFloat3("light.ambient", lightData->Ambient);
-	  std::dynamic_pointer_cast<Epoch::Shader>(TestPhone)->UploadUniformFloat3("light.diffuse", lightData->Diffuse);
-	  std::dynamic_pointer_cast<Epoch::Shader>(TestPhone)->UploadUniformFloat3("light.specular", lightData->Specular);
-	  std::dynamic_pointer_cast<Epoch::Shader>(TestPhone)->UploadUniformFloat3("light.position", lightData->Position);
-
-	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->use();
-	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformInt("u_Texture1", 0);
-	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat3("ObjectColor", m_ObjectColor);
-	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat3("ViewPosition", m_CameraController.GetCameraPosition());
-	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformInt("material.diffuse", 3);
-	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformInt("material.specular", 4);
-	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat("material.shininess", materialData->Shininess);
-	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformInt("LightModel", lightType);
-	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat3("light.ambient", lightData->Ambient);
-	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat3("light.diffuse", lightData->Diffuse);
-	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat3("light.specular", lightData->Specular);
-	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat3("light.position", lightData->Position);
-	  if(lightType != 3)
-		std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat3("light.direction", lightData->Direction);
-	  else
-		std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat3("light.direction", m_CameraController.GetCameraFront());
-	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat("light.constant", lightData->Constant);
-	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat("light.linear", lightData->Linear);
-	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat("light.quadratic", lightData->Quadratic);
-	  std::dynamic_pointer_cast<Epoch::Shader>(PhoneShading)->UploadUniformFloat("light.cutOff", lightData->CutOff);
-	}
-
 	// Begin Rendering
 	{
 	  PROFILE_SCOPE("Rendering::Begin Scene");
-	  Epoch::Renderer::BeginScene(m_CameraController.GetCamera());
 
-	  //m_DefaultTexture->Bind();
-	  //Epoch::Renderer::Submit(Phone, m_BunnyVertexArray, glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f)));
-
-	  {
-		PROFILE_SCOPE("Resource::Loading Moudel");
-		if (m_Fu._Is_ready())
-		{
-		  for (int i = 0; i < 1; i++)
-		  {
-			bunnyData = m_Fu.get();
-
-			m_BunnyVertexArray.reset(Epoch::VertexArray::Create());
-
-			std::shared_ptr<Epoch::VertexBuffer> m_BunnyVertexBuffer;
-
-			m_BunnyVertexBuffer.reset(Epoch::VertexBuffer::Create((float*)&bunnyData->vertices_list[0], sizeof(float) * 8 * bunnyData->vertices_list.size()));
-
-			Epoch::BufferLayout BunnyLayout = {
-			  { Epoch::ShaderDataType::Float3, "a_Pos" },
-			  { Epoch::ShaderDataType::Float3, "a_Normal" },
-			  { Epoch::ShaderDataType::Float2, "a_TexCoord" }
-			};
-
-			m_BunnyVertexBuffer->SetLayout(BunnyLayout);
-			m_BunnyVertexArray->AddVertexBuffer(m_BunnyVertexBuffer);
-
-			std::shared_ptr<Epoch::IndexBuffer> m_BunnyIndexBuffer;
-			m_BunnyIndexBuffer.reset(Epoch::IndexBuffer::Create((uint32_t*)&bunnyData->indices_list[0], bunnyData->indices_list.size()));
-			m_BunnyVertexArray->SetIndexBuffer(m_BunnyIndexBuffer);
-		  }
-		}
-	  }
-
-	  if (m_BunnyVertexArray)
-	  {
-		m_DefaultTexture->Bind();
-		Epoch::Renderer::Submit(Phone, m_BunnyVertexArray, glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f)));
-	  }
-	  //m_Texture->Bind();
-	  //Epoch::Renderer::Submit(Phone, m_EarthVertexArray, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.3f, 0.3f, 0.3f)));
-
-	  //m_StareTexture->Bind();
-	  m_DiffuseTexture->Bind(3);
-	  m_SpecularTexture->Bind(4);
-	  for (int i = -3; i < 5; i++)
-	  {
-		for (int j = 0; j < 3; j++)
-		{
-		  Epoch::Renderer::Submit(PhoneShading, m_CubeVertexArray, glm::translate(glm::mat4(1.0f), glm::vec3(i, j, i + j)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f)));
-		}
-	  }
-
-	  m_CheckerboardTex->Bind(3);
-	  m_CheckerboardTex->Bind(4);
-	  //m_DefaultTexture->Bind(4);
-	  Epoch::Renderer::Submit(PhoneShading, m_PlaneVertexArray, glm::scale(glm::mat4(1.0f), glm::vec3(6.0f, 1.0f, 5.0f)));
-
-	  //m_Texture->Bind();
-
-	  glm::mat4 LightTransform = glm::translate(glm::mat4(1.0f), lightData->Position) * glm::scale(glm::mat4(1.0f), glm::vec3(0.0005f, 0.0005f, 0.0005f));
-	  Epoch::Renderer::Submit(ColorShading, m_BulbVertexArray, LightTransform);
-
-	  Epoch::Renderer::EndScene();
+	  m_Scene->OnUpdate(timestep);
 	}
 
 	m_Framebuffer->UnBind();
@@ -326,8 +104,6 @@ namespace Epoch {
 
   void EditorLayer::OnEvent(Event& event)
   {
-	if(m_ViewPanelFocused)
-	  m_CameraController.OnEvent(event);
   }
 
   void EditorLayer::OnImGuiRender()
@@ -468,18 +244,18 @@ namespace Epoch {
 	  // Texture
 	  ImGui::Begin("Texture");
 	  ImGui::Text("Default Texture");
-	  if (ImGui::ImageButton((void*)m_DefaultTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
-	  {
-		m_DefaultTexture->Bind();
-	  }
-	  if (ImGui::ImageButton((void*)m_DiffuseTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
-	  {
-		m_DiffuseTexture->Bind(0);
-	  }
-	  if (ImGui::ImageButton((void*)m_SpecularTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
-	  {
-		m_SpecularTexture->Bind(0);
-	  }
+	 // if (ImGui::ImageButton((void*)m_DefaultTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
+	 // {
+		//m_DefaultTexture->Bind();
+	 // }
+	 // if (ImGui::ImageButton((void*)m_DiffuseTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
+	 // {
+		//m_DiffuseTexture->Bind(0);
+	 // }
+	 // if (ImGui::ImageButton((void*)m_SpecularTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
+	 // {
+		//m_SpecularTexture->Bind(0);
+	 // }
 	  ImGui::End();
 	}
 
@@ -490,6 +266,14 @@ namespace Epoch {
 	  ImGui::DragFloat3("Diffuse", glm::value_ptr(materialData->Diffuse), 0.3f);
 	  ImGui::DragFloat3("Specular", glm::value_ptr(materialData->Specular), 0.3f);
 	  ImGui::DragFloat("Shininess", &(materialData->Shininess), 0.5f);
+
+	  ImGui::Separator();
+	  ImGui::DragFloat3("Camera Transform", glm::value_ptr(m_PerspectiveCameraEntity.GetComponent<TransformComponent>().Transform[3]));
+	  if (ImGui::Checkbox("PerspectiveCamer", &Perspective))
+	  {
+		m_PerspectiveCameraEntity.GetComponent<CameraComponent>()._Perspective = Perspective;
+		m_OrthographicCameraEntity.GetComponent<CameraComponent>()._Perspective = !Perspective;
+	  }
 	  ImGui::End();
 	}
 
@@ -512,7 +296,7 @@ namespace Epoch {
 		  std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
 		  std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
 		  // action
-		  m_Fu = std::async(Mesh::CreateMesh, filePathName, filePath, true);
+		  //m_Fu = std::async(Mesh::CreateMesh, filePathName, filePath, true);
 		}
 
 		// close
