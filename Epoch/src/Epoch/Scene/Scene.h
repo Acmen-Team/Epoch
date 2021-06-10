@@ -26,6 +26,7 @@ namespace Epoch {
 	entt::registry m_Registry;
 
 	friend class Entity;
+	friend class SceneHierarchyPanel;
 
 	std::shared_ptr<Shader> m_shader;
 

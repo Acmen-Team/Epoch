@@ -72,6 +72,8 @@ namespace Epoch {
 	};
 
 	m_PerspectiveCameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
+
+	m_SceneHierarchyPanel.SetContext(m_Scene);
   }
 
   void EditorLayer::OnDetach()
@@ -173,6 +175,8 @@ namespace Epoch {
 
 	  ImGui::EndMenuBar();
 	}
+
+	m_SceneHierarchyPanel.OnImGuiRender();
 
 	{
 	  //Setting

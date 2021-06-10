@@ -1,5 +1,6 @@
 #pragma once
 #include "Epoch.h"
+#include "Panel/SceneHierarchyPanel.h"
 
 #include <chrono>
 
@@ -91,6 +92,9 @@ namespace Epoch {
 
 	bool m_ViewPanelFocused = true;
 	bool m_ViewPanelHovered = true;
+
+	// Panels
+	SceneHierarchyPanel m_SceneHierarchyPanel;
 
 	struct ProfileResult
 	{
