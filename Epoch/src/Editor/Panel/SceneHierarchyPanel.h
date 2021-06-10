@@ -16,7 +16,8 @@ namespace Epoch {
 
 	void OnImGuiRender();
   protected:
-	void DrawEntityNode(Entity& entity);
+	void DrawEntityNode(Entity entity);
+	void DrawCommponents(Entity entity);
   private:
 	Ref<Scene> m_Context;
 	Entity m_SelectionContext;
