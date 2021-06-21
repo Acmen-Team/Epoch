@@ -58,6 +58,7 @@ namespace Epoch {
   private:
 	Epoch::ShaderLibrary m_ShaderLibrary;
 
+	SceneCameraController m_CameraController;
 	// Scene
 	std::shared_ptr<Scene> m_Scene;
 

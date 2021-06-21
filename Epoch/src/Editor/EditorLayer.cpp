@@ -15,14 +15,13 @@
 
 namespace Epoch {
 
-  EditorLayer::EditorLayer() : Layer("Example")
+  EditorLayer::EditorLayer() : Layer("Example"), m_CameraController(1.6f / 0.9f)
   {
 
   }
 
   void EditorLayer::OnAttach()
   {
-
 	// Load shader
 	m_ShaderLibrary.Load("Phone", "assets/shaders/Phone.glsl");
 	m_ShaderLibrary.Load("TestShading", "assets/shaders/Phone.glsl");
@@ -38,10 +37,6 @@ namespace Epoch {
 	m_Scene = std::make_shared<Scene>();
 
 	Entity cube = m_Scene->CreatEntity("Cube");
-	if (cube.HasComponent<TagComponent>())
-	{
-	  std::cout << "Yes" << std::endl;
-	}
 	cube.AddComponent<MeshConponent>("assets/models/cube.obj", "assets/models/");
 	cube.AddComponent<TransformComponent>(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.3f, 0.3f, 0.3f)));
 
@@ -85,6 +80,17 @@ namespace Epoch {
   {
 	PROFILE_SCOPE("EditorLayer::OnUpdate");
 
+	// Resize
+	//if (FramebufferSpecification spec = m_Framebuffer->GetSpecification();
+	//	m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f &&
+	//	(spec.Width != m_ViewportSize.x || spec.Height != m_ViewportSize.y))
+	//{
+	//  
+	//}
+
+	if (m_ViewPanelFocused)
+	  m_CameraController.OnUpdate(timestep);
+
 	m_Framebuffer->Bind();
 
 	{
@@ -97,8 +103,11 @@ namespace Epoch {
 	// Begin Rendering
 	{
 	  PROFILE_SCOPE("Rendering::Begin Scene");
+	  Renderer::BeginScene(m_CameraController.GetCamera());
 
 	  m_Scene->OnUpdate(timestep);
+
+	  Renderer::EndScene();
 	}
 
 	m_Framebuffer->UnBind();
@@ -106,6 +115,7 @@ namespace Epoch {
 
   void EditorLayer::OnEvent(Event& event)
   {
+	m_CameraController.OnEvent(event);
   }
 
   void EditorLayer::OnImGuiRender()
@@ -281,6 +291,60 @@ namespace Epoch {
 	  ImGui::End();
 	}
 
+	{
+	  ImGui::Begin("Camera");
+	  const char* projectionTypeStrings[] = { "Perspective", "Orthographic" };
+	  const char* currentProjectionTypeString = projectionTypeStrings[(int)m_CameraController.GetCamera().GetProjectionType()];
+	  if (ImGui::BeginCombo("Projection", currentProjectionTypeString))
+	  {
+		for (int i = 0; i < 2; i++)
+		{
+		  bool isSelected = currentProjectionTypeString == projectionTypeStrings[i];
+		  if (ImGui::Selectable(projectionTypeStrings[i], isSelected))
+		  {
+			currentProjectionTypeString = projectionTypeStrings[i];
+			m_CameraController.GetCamera().SetProjectionType((SceneCamera::ProjectionType)i);
+		  }
+
+		  if (isSelected)
+			ImGui::SetItemDefaultFocus();
+		}
+
+		ImGui::EndCombo();
+	  }
+	  // Setting perspective camera
+	  if (m_CameraController.GetCamera().GetProjectionType() == SceneCamera::ProjectionType::Perspective)
+	  {
+		float persFov = m_CameraController.GetCamera().GetPerspectiveFov();
+		if (ImGui::DragFloat("Fov", &persFov, 0.05f, 0.1f))
+		  m_CameraController.GetCamera().SetPerspectiveFov(persFov);
+
+		float persNear = m_CameraController.GetCamera().GetPerspectiveNear();
+		if (ImGui::DragFloat("Near", &persNear))
+		  m_CameraController.GetCamera().SetPerspectiveNear(persNear);
+
+		float persFar = m_CameraController.GetCamera().GetPerspectiveFar();
+		if (ImGui::DragFloat("Far", &persFar))
+		  m_CameraController.GetCamera().SetPerspectiveFar(persFar);
+	  }
+	  // Setting ortho camera
+	  if (m_CameraController.GetCamera().GetProjectionType() == SceneCamera::ProjectionType::Orthographic)
+	  {
+		float orthoSize = m_CameraController.GetCamera().GetOrthographicSize();
+		if (ImGui::DragFloat("Size", &orthoSize, 0.05f, 0.1f, 50.0f))
+		  m_CameraController.GetCamera().SetOrthographicSize(orthoSize);
+
+		float orthoNear = m_CameraController.GetCamera().GetOrthographicNear();
+		if (ImGui::DragFloat("Near", &orthoNear))
+		  m_CameraController.GetCamera().SetOrthographicNear(orthoNear);
+
+		float orthoFar = m_CameraController.GetCamera().GetOrthographicFar();
+		if (ImGui::DragFloat("Far", &orthoFar))
+		  m_CameraController.GetCamera().SetOrthographicFar(orthoFar);
+	  }
+
+	  ImGui::End();
+	}
 	
 	{
 	  ImGui::Begin("FileDialog");

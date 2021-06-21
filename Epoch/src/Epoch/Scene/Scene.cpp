@@ -69,7 +69,7 @@ namespace Epoch {
 
 	if (mainCamera)
 	{
-	  Renderer::BeginScene(*mainCamera, *CameraTransform);
+	  //Renderer::BeginScene(*mainCamera, *CameraTransform);
 
 
 	  auto group = m_Registry.group<TagComponent>(entt::get<MeshConponent, TransformComponent>);
@@ -89,7 +89,7 @@ namespace Epoch {
 		// ...
 	  }
 
-	  Renderer::EndScene();
+	  //Renderer::EndScene();
 
 	}
 

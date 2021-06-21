@@ -15,7 +15,7 @@
 namespace Epoch {
 
   SceneCameraController::SceneCameraController(float aspectRatio)
-	: m_AspectRatio(aspectRatio), m_Camera(45.0f, 1.6f, 0.9f, 0.1f, 100.0f)
+	: m_AspectRatio(aspectRatio), m_Camera()
   {
 	UpdateCameraVectors();
   }
@@ -40,12 +40,15 @@ namespace Epoch {
 
   void SceneCameraController::OnEvent(Event& e)
   {
-	EventDispatcher dispatcher(e);
-	dispatcher.Dispatch<MouseScrolledEvent>(EP_BIND_EVENT_FN(SceneCameraController::OnMouseScrolledEvent));
-	dispatcher.Dispatch<MouseMovedEvent>(EP_BIND_EVENT_FN(SceneCameraController::OnMouseMovedEvent));
-	dispatcher.Dispatch<MouseButtonPressedEvent>(EP_BIND_EVENT_FN(SceneCameraController::OnMouseButtonPressedEvent));
-	dispatcher.Dispatch<MouseButtonReleasedEvent>(EP_BIND_EVENT_FN(SceneCameraController::OnMouseButtonReleasedEvent));
-	dispatcher.Dispatch<WindowResizeEvent>(EP_BIND_EVENT_FN(SceneCameraController::OnWindowResizeEvent));
+	if (m_Camera.GetProjectionType() == SceneCamera::ProjectionType::Perspective)
+	{
+	  EventDispatcher dispatcher(e);
+	  dispatcher.Dispatch<MouseScrolledEvent>(EP_BIND_EVENT_FN(SceneCameraController::OnMouseScrolledEvent));
+	  dispatcher.Dispatch<MouseMovedEvent>(EP_BIND_EVENT_FN(SceneCameraController::OnMouseMovedEvent));
+	  dispatcher.Dispatch<MouseButtonPressedEvent>(EP_BIND_EVENT_FN(SceneCameraController::OnMouseButtonPressedEvent));
+	  dispatcher.Dispatch<MouseButtonReleasedEvent>(EP_BIND_EVENT_FN(SceneCameraController::OnMouseButtonReleasedEvent));
+	  dispatcher.Dispatch<WindowResizeEvent>(EP_BIND_EVENT_FN(SceneCameraController::OnWindowResizeEvent));
+	}
   }
 
   bool SceneCameraController::OnMouseMovedEvent(MouseMovedEvent& e)
