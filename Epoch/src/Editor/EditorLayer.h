@@ -62,9 +62,6 @@ namespace Epoch {
 	// Scene
 	std::shared_ptr<Scene> m_Scene;
 
-	Entity m_PerspectiveCameraEntity;
-	Entity m_OrthographicCameraEntity;
-
 	bool Perspective = true;
 	// Async Resource
 	std::future<MeshData*> m_Fu;

@@ -36,37 +36,13 @@ namespace Epoch {
 
 	m_Scene = std::make_shared<Scene>();
 
-	Entity cube = m_Scene->CreatEntity("Cube");
-	cube.AddComponent<MeshConponent>("assets/models/cube.obj", "assets/models/");
-	cube.AddComponent<TransformComponent>(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.3f, 0.3f, 0.3f)));
+	Entity redCube = m_Scene->CreatEntity("redCube");
+	redCube.AddComponent<MeshConponent>("assets/models/cube.obj", "assets/models/");
+	redCube.AddComponent<TransformComponent>();
 
-	m_PerspectiveCameraEntity = m_Scene->CreatEntity("PreCamera Entity");
-	m_PerspectiveCameraEntity.AddComponent<CameraComponent>(glm::perspective(glm::radians(45.0f), (1.6f / 0.9f), 0.1f, 100.0f));
-	m_PerspectiveCameraEntity.AddComponent<TransformComponent>();
-
-	class CameraController : public ScriptableEntity
-	{
-	public:
-	  void OnCreate(){}
-
-	  void OnUpdate(Timestep timestep)
-	  {
-		auto& transform = GetComponent<TransformComponent>().Transform;
-
-		float m_CamearTransformationSpeed = 1.0;
-
-		if (Input::IsKeyPressed(EP_KEY_W))
-		  transform[3][2] += m_CamearTransformationSpeed * timestep.GetSeconds();
-		if (Input::IsKeyPressed(EP_KEY_S))
-		  transform[3][2] -= m_CamearTransformationSpeed * timestep.GetSeconds();
-	  }
-
-	  void OnDestroy(){}
-	private:
-
-	};
-
-	m_PerspectiveCameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
+	Entity greeCube = m_Scene->CreatEntity("greeCube");
+	greeCube.AddComponent<MeshConponent>("assets/models/cube.obj", "assets/models/");
+	greeCube.AddComponent<TransformComponent>();
 
 	m_SceneHierarchyPanel.SetContext(m_Scene);
   }
@@ -237,59 +213,34 @@ namespace Epoch {
 	  ImGui::PopStyleVar();
 	}
 
-	{
-	  // Detail
-	  ImGui::Begin("Detail");
-	  //Light Setting
-	  ImGui::ColorEdit3("Ambient", glm::value_ptr(lightData->Ambient), 0.03f);
-	  ImGui::ColorEdit3("Diffuse", glm::value_ptr(lightData->Diffuse), 0.03f);
-	  ImGui::ColorEdit3("Specular", glm::value_ptr(lightData->Specular), 0.03f);
-	  ImGui::DragFloat3("Position", glm::value_ptr(lightData->Position), 0.1f);
-	  ImGui::DragFloat3("Direction", glm::value_ptr(lightData->Direction), 0.1f);
-	  ImGui::DragFloat("Constant", &lightData->Constant, 0.03f);
-	  ImGui::DragFloat("Linear", &lightData->Linear, 0.03f);
-	  ImGui::DragFloat("Quadratic", &lightData->Quadratic, 0.03f);
-	  ImGui::DragFloat("CutOff", &lightData->CutOff, 0.03f);
-	  ImGui::ColorEdit4("ObjectColor", glm::value_ptr(m_ObjectColor), 0.03f);
-	  ImGui::End();
-	}
+	//{
+	//  // Detail
+	//  ImGui::Begin("Detail");
+	//  //Light Setting
+	//  ImGui::ColorEdit3("Ambient", glm::value_ptr(lightData->Ambient), 0.03f);
+	//  ImGui::ColorEdit3("Diffuse", glm::value_ptr(lightData->Diffuse), 0.03f);
+	//  ImGui::ColorEdit3("Specular", glm::value_ptr(lightData->Specular), 0.03f);
+	//  ImGui::DragFloat3("Position", glm::value_ptr(lightData->Position), 0.1f);
+	//  ImGui::DragFloat3("Direction", glm::value_ptr(lightData->Direction), 0.1f);
+	//  ImGui::DragFloat("Constant", &lightData->Constant, 0.03f);
+	//  ImGui::DragFloat("Linear", &lightData->Linear, 0.03f);
+	//  ImGui::DragFloat("Quadratic", &lightData->Quadratic, 0.03f);
+	//  ImGui::DragFloat("CutOff", &lightData->CutOff, 0.03f);
+	//  ImGui::ColorEdit4("ObjectColor", glm::value_ptr(m_ObjectColor), 0.03f);
+	//  ImGui::End();
+	//}
 
-	{
-	  // Texture
-	  ImGui::Begin("Texture");
-	  ImGui::Text("Default Texture");
-	 // if (ImGui::ImageButton((void*)m_DefaultTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
-	 // {
-		//m_DefaultTexture->Bind();
-	 // }
-	 // if (ImGui::ImageButton((void*)m_DiffuseTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
-	 // {
-		//m_DiffuseTexture->Bind(0);
-	 // }
-	 // if (ImGui::ImageButton((void*)m_SpecularTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
-	 // {
-		//m_SpecularTexture->Bind(0);
-	 // }
-	  ImGui::End();
-	}
+	//{
+	//  //material
+	//  ImGui::Begin("Material");
+	//  ImGui::DragFloat3("Ambient", glm::value_ptr(materialData->Ambient), 0.3f);
+	//  ImGui::DragFloat3("Diffuse", glm::value_ptr(materialData->Diffuse), 0.3f);
+	//  ImGui::DragFloat3("Specular", glm::value_ptr(materialData->Specular), 0.3f);
+	//  ImGui::DragFloat("Shininess", &(materialData->Shininess), 0.5f);
 
-	{
-	  //material
-	  ImGui::Begin("Material");
-	  ImGui::DragFloat3("Ambient", glm::value_ptr(materialData->Ambient), 0.3f);
-	  ImGui::DragFloat3("Diffuse", glm::value_ptr(materialData->Diffuse), 0.3f);
-	  ImGui::DragFloat3("Specular", glm::value_ptr(materialData->Specular), 0.3f);
-	  ImGui::DragFloat("Shininess", &(materialData->Shininess), 0.5f);
-
-	  ImGui::Separator();
-	  ImGui::DragFloat3("Camera Transform", glm::value_ptr(m_PerspectiveCameraEntity.GetComponent<TransformComponent>().Transform[3]));
-	  if (ImGui::Checkbox("PerspectiveCamer", &Perspective))
-	  {
-		m_PerspectiveCameraEntity.GetComponent<CameraComponent>()._Perspective = Perspective;
-		m_OrthographicCameraEntity.GetComponent<CameraComponent>()._Perspective = !Perspective;
-	  }
-	  ImGui::End();
-	}
+	//  ImGui::Separator();
+	//  ImGui::End();
+	//}
 
 	{
 	  ImGui::Begin("Camera");
