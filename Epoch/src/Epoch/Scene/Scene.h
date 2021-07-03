@@ -19,6 +19,7 @@ namespace Epoch {
 
 	Entity CreatEntity(const std::string& tagStr = std::string());
 
+	void DestroyEntity(Entity entity);
 	// Temp
 	void OnUpdate(Timestep timestep);
 

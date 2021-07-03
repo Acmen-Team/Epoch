@@ -36,11 +36,44 @@ namespace Epoch {
 	  m_SelectionContext = {};
 	}
 
+	// Add Entity
+	if (ImGui::BeginPopupContextWindow(0, 1, false))
+	{
+	  if (ImGui::MenuItem("Create Empty Entity"))
+		m_Context->CreatEntity("Empty Entity");
+
+	  ImGui::EndPopup();
+	}
+
 	ImGui::End();
 
 	ImGui::Begin("Properties");
-	if(m_SelectionContext)
+	if (m_SelectionContext)
+	{
 	  DrawCommponents(m_SelectionContext);
+
+	  if (ImGui::Button("Add Component"))
+		ImGui::OpenPopup("AddComponent");
+
+	  if (ImGui::BeginPopup("AddComponent"))
+	  {
+		if (ImGui::MenuItem("Transform"))
+		{
+		  m_SelectionContext.AddComponent<TransformComponent>();
+		  ImGui::CloseCurrentPopup();
+		}
+
+		if (ImGui::MenuItem("Mesh"))
+		{
+		  m_SelectionContext.AddComponent<MeshConponent>("assets/models/cube.obj", "assets/models/");
+		  ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::EndPopup();
+	  }
+
+	}
+
 	ImGui::End();
   }
 
@@ -55,9 +88,29 @@ namespace Epoch {
 	  m_SelectionContext = entity;
 	}
 
+	bool entityDeleted = false;
+	if (ImGui::BeginPopupContextItem())
+	{
+	  if (ImGui::MenuItem("Delete Entity"))
+		entityDeleted = true;
+
+	  ImGui::EndPopup();
+	}
+
 	if (opened)
 	{
+	  ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
+	  bool opened = ImGui::TreeNodeEx((void*)758963, flags, tag.c_str());
+	  if (opened)
+		ImGui::TreePop();
 	  ImGui::TreePop();
+	}
+
+	if (entityDeleted)
+	{
+	  m_Context->DestroyEntity(entity);
+	  if (m_SelectionContext == entity)
+		m_SelectionContext = {};
 	}
   }
 
@@ -133,9 +186,11 @@ namespace Epoch {
 	  }
 	}
 
+	const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow;
+
 	if (entity.HasComponent<TransformComponent>())
 	{
-	  if (ImGui::TreeNodeEx((void*)typeid(TransformComponent).hash_code(), ImGuiTreeNodeFlags_DefaultOpen, "Transform"))
+	  if (ImGui::TreeNodeEx((void*)typeid(TransformComponent).hash_code(), treeNodeFlags, "Transform"))
 	  {
 		auto& Translation = entity.GetComponent<TransformComponent>().Translation;
 		auto& Rotation = entity.GetComponent<TransformComponent>().Rotation;
@@ -150,6 +205,37 @@ namespace Epoch {
 		ImGui::TreePop();
 	  }
 	}
+
+	if (entity.HasComponent<MeshConponent>())
+	{
+	  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
+	  bool open = ImGui::TreeNodeEx((void*)typeid(MeshConponent).hash_code(), treeNodeFlags, "Mesh");
+	  ImGui::SameLine(ImGui::GetWindowWidth() - 25.0f);
+
+	  if (ImGui::Button("+", ImVec2{ 20, 20 }))
+	  {
+		ImGui::OpenPopup("ComponentSetting");
+	  }
+
+	  bool removeComponent = false;
+	  if (ImGui::BeginPopup("ComponentSetting"))
+	  {
+		if (ImGui::MenuItem("Remove component"))
+		  removeComponent = true;
+
+		ImGui::EndPopup();
+	  }
+	  ImGui::PopStyleVar();
+
+	  if (open)
+	  {
+		ImGui::TreePop();
+	  }
+
+	  if (removeComponent)
+		entity.RemoveComponent<MeshConponent>();
+	}
+
   }
 
 }
