@@ -1,4 +1,4 @@
-#include "eppch.h"
+﻿#include "eppch.h"
 
 #include "EditorLayer.h"
 
@@ -36,11 +36,11 @@ namespace Epoch {
 
 	m_Scene = std::make_shared<Scene>();
 
-	Entity redCube = m_Scene->CreatEntity("redCube");
+	Entity redCube = m_Scene->CreatEntity("CubeA");
 	redCube.AddComponent<MeshConponent>("assets/models/cube.obj", "assets/models/");
 	redCube.AddComponent<TransformComponent>();
 
-	Entity greeCube = m_Scene->CreatEntity("greeCube");
+	Entity greeCube = m_Scene->CreatEntity("CubeB");
 	greeCube.AddComponent<MeshConponent>("assets/models/cube.obj", "assets/models/");
 	greeCube.AddComponent<TransformComponent>();
 
@@ -141,11 +141,16 @@ namespace Epoch {
 
 	// DockSpace
 	ImGuiIO& io = ImGui::GetIO();
+	ImGuiStyle& style = ImGui::GetStyle();
+	float minWinSizeX = style.WindowMinSize.x;
+	style.WindowMinSize.x = 350.0f;
 	if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
 	{
 	  ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 	  ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 	}
+
+	style.WindowMinSize.x = minWinSizeX;
 
 	if (ImGui::BeginMenuBar())
 	{
@@ -155,6 +160,36 @@ namespace Epoch {
 		// which we can't undo at the moment without finer window depth/z control.
 		if (ImGui::MenuItem("Exit"))
 		  Epoch::Application::Get().Exit();
+
+		ImGui::EndMenu();
+	  }
+
+	  if (ImGui::BeginMenu("Edit"))
+	  {
+		// Disabling fullscreen would allow the window to be moved to the front of other windows,
+		// which we can't undo at the moment without finer window depth/z control.
+		//if (ImGui::MenuItem(u8"�˳�"))
+		  //Epoch::Application::Get().Exit();
+
+		ImGui::EndMenu();
+	  }
+
+	  if (ImGui::BeginMenu("Options"))
+	  {
+		// Disabling fullscreen would allow the window to be moved to the front of other windows,
+		// which we can't undo at the moment without finer window depth/z control.
+		//if (ImGui::MenuItem(u8"�˳�"))
+		  //Epoch::Application::Get().Exit();
+
+		ImGui::EndMenu();
+	  }
+
+	  if (ImGui::BeginMenu("Help"))
+	  {
+		// Disabling fullscreen would allow the window to be moved to the front of other windows,
+		// which we can't undo at the moment without finer window depth/z control.
+		//if (ImGui::MenuItem(u8"�˳�"))
+		  //Epoch::Application::Get().Exit();
 
 		ImGui::EndMenu();
 	  }
@@ -209,6 +244,7 @@ namespace Epoch {
 		m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
 	  }
 	  ImGui::Image((void*)m_Framebuffer->GetColorAttachmentRendererID(), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f });
+
 	  ImGui::End();
 	  ImGui::PopStyleVar();
 	}
@@ -296,7 +332,7 @@ namespace Epoch {
 
 	  ImGui::End();
 	}
-	
+
 	{
 	  ImGui::Begin("FileDialog");
 	  // open Dialog Simple
@@ -323,7 +359,7 @@ namespace Epoch {
 	  }
 	  ImGui::End();
 	}
-	
+
 
 	ImGui::End();
   }

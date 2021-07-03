@@ -51,27 +51,6 @@ namespace Epoch {
 	if (m_SelectionContext)
 	{
 	  DrawCommponents(m_SelectionContext);
-
-	  if (ImGui::Button("Add Component"))
-		ImGui::OpenPopup("AddComponent");
-
-	  if (ImGui::BeginPopup("AddComponent"))
-	  {
-		if (ImGui::MenuItem("Transform"))
-		{
-		  m_SelectionContext.AddComponent<TransformComponent>();
-		  ImGui::CloseCurrentPopup();
-		}
-
-		if (ImGui::MenuItem("Mesh"))
-		{
-		  m_SelectionContext.AddComponent<MeshConponent>("assets/models/cube.obj", "assets/models/");
-		  ImGui::CloseCurrentPopup();
-		}
-
-		ImGui::EndPopup();
-	  }
-
 	}
 
 	ImGui::End();
@@ -82,6 +61,7 @@ namespace Epoch {
 	auto& tag = entity.GetComponent<TagComponent>().Tag;
 
 	ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
+	flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
 	bool opened = ImGui::TreeNodeEx((void*)(uint32_t)entity, flags, tag.c_str());
 	if (ImGui::IsItemClicked())
 	{
@@ -99,7 +79,7 @@ namespace Epoch {
 
 	if (opened)
 	{
-	  ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
+	  ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
 	  bool opened = ImGui::TreeNodeEx((void*)758963, flags, tag.c_str());
 	  if (opened)
 		ImGui::TreePop();
@@ -116,6 +96,9 @@ namespace Epoch {
 
   static void DrawVec3Control(const std::string& label, glm::vec3& value, float resetValue = 0.0f, float columnWidth = 100.0f)
   {
+	ImGuiIO& io = ImGui::GetIO();
+	auto boldFont = io.Fonts->Fonts[1];
+
 	ImGui::PushID(label.c_str());
 
 	ImGui::Columns(2);
@@ -133,8 +116,10 @@ namespace Epoch {
 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+	ImGui::PushFont(boldFont);
 	if (ImGui::Button("X", buttonSize))
 	  value.x = resetValue;
+	ImGui::PopFont();
 	ImGui::PopStyleColor(3);
 
 	ImGui::SameLine();
@@ -145,8 +130,10 @@ namespace Epoch {
 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+	ImGui::PushFont(boldFont);
 	if (ImGui::Button("Y", buttonSize))
 	  value.y = resetValue;
+	ImGui::PopFont();
 	ImGui::PopStyleColor(3);
 
 	ImGui::SameLine();
@@ -157,8 +144,10 @@ namespace Epoch {
 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f });
 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
+	ImGui::PushFont(boldFont);
 	if (ImGui::Button("Z", buttonSize))
 	  value.z = resetValue;
+	ImGui::PopFont();
 	ImGui::PopStyleColor(3);
 
 	ImGui::SameLine();
@@ -171,6 +160,48 @@ namespace Epoch {
 	ImGui::PopID();
   }
 
+  const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding;
+
+  template<typename T, typename UIFunction>
+  static void DrawCommponent(const std::string& name, Entity entity, UIFunction uiFunc)
+  {
+	if (entity.HasComponent<T>())
+	{
+	  auto& component = entity.GetComponent<T>();
+	  ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
+
+	  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
+	  float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+	  ImGui::Separator();
+	  bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), treeNodeFlags, name.c_str());
+	  ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
+
+	  if (ImGui::Button("+", ImVec2{ lineHeight, lineHeight }))
+	  {
+		ImGui::OpenPopup("ComponentSetting");
+	  }
+
+	  bool removeComponent = false;
+	  if (ImGui::BeginPopup("ComponentSetting"))
+	  {
+		if (ImGui::MenuItem("Remove component"))
+		  removeComponent = true;
+
+		ImGui::EndPopup();
+	  }
+	  ImGui::PopStyleVar();
+
+	  if (open)
+	  {
+		uiFunc(component);
+		ImGui::TreePop();
+	  }
+
+	  if (removeComponent)
+		entity.RemoveComponent<T>();
+	}
+  }
+
   void SceneHierarchyPanel::DrawCommponents(Entity entity)
   {
 	if (entity.HasComponent<TagComponent>())
@@ -180,13 +211,36 @@ namespace Epoch {
 	  char buffer[256];
 	  memset(buffer, 0, sizeof(buffer));
 	  strcpy_s(buffer, sizeof(buffer), tag.c_str());
-	  if (ImGui::InputText("Tag", buffer, sizeof(buffer)))
+	  if (ImGui::InputText("##Tag", buffer, sizeof(buffer)))
 	  {
 		tag = std::string(buffer);
 	  }
 	}
 
-	const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow;
+	ImGui::SameLine();
+	ImGui::PushItemWidth(-1);
+
+	if (ImGui::Button("Add Component"))
+	  ImGui::OpenPopup("AddComponent");
+
+	if (ImGui::BeginPopup("AddComponent"))
+	{
+	  if (ImGui::MenuItem("Transform"))
+	  {
+		m_SelectionContext.AddComponent<TransformComponent>();
+		ImGui::CloseCurrentPopup();
+	  }
+
+	  if (ImGui::MenuItem("Mesh"))
+	  {
+		m_SelectionContext.AddComponent<MeshConponent>("assets/models/cube.obj", "assets/models/");
+		ImGui::CloseCurrentPopup();
+	  }
+
+	  ImGui::EndPopup();
+	}
+
+	ImGui::PopItemWidth();
 
 	if (entity.HasComponent<TransformComponent>())
 	{
@@ -206,35 +260,10 @@ namespace Epoch {
 	  }
 	}
 
-	if (entity.HasComponent<MeshConponent>())
+	DrawCommponent<MeshConponent>("Mesh", entity, [](auto& component)
 	{
-	  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
-	  bool open = ImGui::TreeNodeEx((void*)typeid(MeshConponent).hash_code(), treeNodeFlags, "Mesh");
-	  ImGui::SameLine(ImGui::GetWindowWidth() - 25.0f);
 
-	  if (ImGui::Button("+", ImVec2{ 20, 20 }))
-	  {
-		ImGui::OpenPopup("ComponentSetting");
-	  }
-
-	  bool removeComponent = false;
-	  if (ImGui::BeginPopup("ComponentSetting"))
-	  {
-		if (ImGui::MenuItem("Remove component"))
-		  removeComponent = true;
-
-		ImGui::EndPopup();
-	  }
-	  ImGui::PopStyleVar();
-
-	  if (open)
-	  {
-		ImGui::TreePop();
-	  }
-
-	  if (removeComponent)
-		entity.RemoveComponent<MeshConponent>();
-	}
+	});
 
   }
 
