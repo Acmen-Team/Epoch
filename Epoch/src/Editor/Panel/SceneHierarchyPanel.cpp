@@ -8,6 +8,8 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
+#include "Epoch/Resource/ResourceManager.h"
+
 namespace Epoch {
 
   SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene>& context)
@@ -225,17 +227,17 @@ namespace Epoch {
 
 	if (ImGui::BeginPopup("AddComponent"))
 	{
-	  if (ImGui::MenuItem("Transform"))
+	  if (ImGui::MenuItem("Mesh"))
 	  {
-		m_SelectionContext.AddComponent<TransformComponent>();
+		m_SelectionContext.AddComponent<MeshComponent>(ResourceManager::Get().GetAllocator()->GetRes(0));
 		ImGui::CloseCurrentPopup();
 	  }
 
-	  if (ImGui::MenuItem("Mesh"))
+	  if (ImGui::MenuItem("Material"))
 	  {
-		m_SelectionContext.AddComponent<MeshConponent>("assets/models/cube.obj", "assets/models/");
-		ImGui::CloseCurrentPopup();
+
 	  }
+
 
 	  ImGui::EndPopup();
 	}
@@ -260,7 +262,26 @@ namespace Epoch {
 	  }
 	}
 
-	DrawCommponent<MeshConponent>("Mesh", entity, [](auto& component)
+	DrawCommponent<MeshComponent>("Mesh", entity, [](auto& component)
+	{
+	  std::string meshName = "";
+	  int size = ResourceManager::Get().GetAllocator()->GetResSize();
+
+	  for (int i = 0; i < size; i++)
+	  {
+		meshName += ResourceManager::Get().GetAllocator()->GetRes(i)->GetMeshName() + '\0';
+	  }
+
+	  m_CurrentMesh = component._Id;
+
+	  component._Mesh = ResourceManager::Get().GetAllocator()->GetRes(m_CurrentMesh);
+
+	  ImGui::Combo("##MeshResource", &m_CurrentMesh, meshName.c_str());
+
+	  component._Id = m_CurrentMesh;
+	});
+
+	DrawCommponent<MaterialComponent>("Material", entity, [](auto& component)
 	{
 
 	});

@@ -12,27 +12,10 @@
 
 namespace Epoch {
 
-  struct MeshConponent
-  {
-	Ref<Mesh> _Mesh;
-
-	MeshConponent() = default;
-	MeshConponent(const MeshConponent&) = default;
-	MeshConponent(const Ref<Mesh>& mesh)
-	  : _Mesh(mesh) {}
-	MeshConponent(const std::string& file_path, const std::string& base_path)
-	  : _Mesh(Mesh::CreateMesh(file_path, base_path))
-	{
-	}
-
-	//operator std::shared_ptr<VertexArray>& () { return m_VertexArray; }
-	//operator const std::shared_ptr<VertexArray>& () const { return m_VertexArray; }
-  };
-
   struct TagComponent
   {
 	std::string Tag;
-	 
+
 	TagComponent() = default;
 	TagComponent(const TagComponent&) = default;
 	TagComponent(const std::string& tag)
@@ -40,13 +23,12 @@ namespace Epoch {
 
   };
 
-
   struct TransformComponent
   {
 	glm::vec3 Translation = { 0.0f, 0.0f, 0.0f };
 	glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
 	glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
- 
+
 	TransformComponent() = default;
 	TransformComponent(const TransformComponent&) = default;
 	TransformComponent(const glm::vec3& translation, const glm::vec3& rotation, const glm::vec3& scale)
@@ -54,6 +36,38 @@ namespace Epoch {
 	{
 	}
 
+  };
+
+  struct MeshComponent
+  {
+	uint32_t _Id;
+	Ref<Mesh> _Mesh;
+
+	MeshComponent() = default;
+	MeshComponent(const MeshComponent&) = default;
+	MeshComponent(const Ref<Mesh>& mesh)
+	  : _Mesh(mesh), _Id(0) {}
+
+	//operator std::shared_ptr<VertexArray>& () { return m_VertexArray; }
+	//operator const std::shared_ptr<VertexArray>& () const { return m_VertexArray; }
+  };
+
+  struct MaterialComponent
+  {
+	std::string material;
+
+	MaterialComponent() = default;
+	MaterialComponent(const MaterialComponent&) = default;
+	MaterialComponent(const std::string& tag)
+	  : material(tag) {}
+	//Ref<Shader> m_Shader = CreateRef<Shader>();
+
+	//MaterialComponent(const ShaderLibrary& shaderlibrary, const std::string& name)
+	//{
+	//  m_Shader.reset();
+	//}
+
+	//operator std::shared_ptr<Shader>& () { return m_Shader; }
   };
 
   struct CameraComponent
@@ -83,17 +97,5 @@ namespace Epoch {
 	}
 
   };
-
- // struct MaterialComponent
- // {
-	//Ref<Shader> m_Shader = CreateRef<Shader>();
-
-	//MaterialComponent(const ShaderLibrary& shaderlibrary, const std::string& name)
-	//{
-	//  m_Shader.reset();
-	//}
-
-	//operator std::shared_ptr<Shader>& () { return m_Shader; }
- // };
 
 }

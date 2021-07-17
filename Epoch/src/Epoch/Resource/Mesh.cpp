@@ -13,28 +13,25 @@ namespace Epoch {
 
   float Mesh::pro = 0.0f;
 
-  Mesh::Mesh(const std::string& file_path, const std::string& base_path)
+  std::shared_ptr<Epoch::MeshData> Mesh::LoadResFromeFile(const std::string& filePath, const std::string& basePath)
   {
-	CreatVertexArray(ObjLoad(file_path, base_path));
-
-	// can be greate?
-	auto lastSlash = file_path.find_last_of("/\\");
+	// can be create?
+	auto lastSlash = filePath.find_last_of("/\\");
 	lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
-	auto lastDot = file_path.rfind('.');
-	auto count = lastDot == std::string::npos ? file_path.size() - lastSlash : lastDot - lastSlash;
-	m_Name = file_path.substr(lastSlash, count);
+	auto lastDot = filePath.rfind('.');
+	auto count = lastDot == std::string::npos ? filePath.size() - lastSlash : lastDot - lastSlash;
+	m_Name = filePath.substr(lastSlash, count);
+
+	m_MeshData = ObjLoad(filePath, basePath);
+	return m_MeshData;
   }
 
-  Mesh::Mesh(const std::string& file_path, const std::string& base_path, bool triangle)
+  std::shared_ptr<Epoch::VertexArray>& Mesh::GetVertexArray()
   {
-	CreatVertexArray(ObjLoad(file_path, base_path, triangle));
+	if (!m_VertexArray)
+	  CreatVertexArray(m_MeshData);
 
-	// can be greate?
-	auto lastSlash = file_path.find_last_of("/\\");
-	lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
-	auto lastDot = file_path.rfind('.');
-	auto count = lastDot == std::string::npos ? file_path.size() - lastSlash : lastDot - lastSlash;
-	m_Name = file_path.substr(lastSlash, count);
+	return m_VertexArray;
   }
 
   std::shared_ptr<MeshData> Mesh::ObjLoad(const std::string& file_path, const std::string& base_path, bool triangle)

@@ -11,6 +11,8 @@
 
 #include "FileDialog.h"
 
+#include "Epoch/Resource/ResourceManager.h"
+
 #include <thread>
 
 namespace Epoch {
@@ -22,6 +24,8 @@ namespace Epoch {
 
   void EditorLayer::OnAttach()
   {
+	m_Fu = std::async(&ResourceAllocator<Mesh>::AddRes, ResourceManager::Get().GetAllocator(), "assets/models/cube.obj", "assets/models/");
+	m_Fu.wait();
 	// Load shader
 	m_ShaderLibrary.Load("Phone", "assets/shaders/Phone.glsl");
 	m_ShaderLibrary.Load("TestShading", "assets/shaders/Phone.glsl");
@@ -37,12 +41,9 @@ namespace Epoch {
 	m_Scene = std::make_shared<Scene>();
 
 	Entity redCube = m_Scene->CreatEntity("CubeA");
-	redCube.AddComponent<MeshConponent>("assets/models/cube.obj", "assets/models/");
-	redCube.AddComponent<TransformComponent>();
+	redCube.AddComponent<MeshComponent>(ResourceManager::Get().GetAllocator()->GetRes("assets/models/cube.obj"));
 
 	Entity greeCube = m_Scene->CreatEntity("CubeB");
-	greeCube.AddComponent<MeshConponent>("assets/models/cube.obj", "assets/models/");
-	greeCube.AddComponent<TransformComponent>();
 
 	m_SceneHierarchyPanel.SetContext(m_Scene);
   }
@@ -341,7 +342,6 @@ namespace Epoch {
 	  // display
 	  ImGui::ProgressBar(GetPro());
 	  ImGui::ProgressBar(Mesh::GetReadPro());
-	  //EP_CORE_TRACE("Editor pro : {0}", Mesh::GetPro());
 
 	  if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
 	  {
@@ -351,7 +351,16 @@ namespace Epoch {
 		  std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
 		  std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
 		  // action
-		  //m_Fu = std::async(Mesh::CreateMesh, filePathName, filePath, true);
+		  m_Fu = std::async(&ResourceAllocator<Mesh>::AddRes, ResourceManager::Get().GetAllocator(), filePathName, filePath);
+
+		  if (m_Fu._Is_ready())
+		  {
+			int id = m_Fu.get();
+			if (-1 != 0)
+			{
+			  EP_CORE_INFO("Finish Load Resource");
+			}
+		  }
 		}
 
 		// close

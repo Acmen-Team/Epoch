@@ -27,6 +27,8 @@ namespace Epoch {
 	auto& tag = entity.AddComponent<TagComponent>();
 	tag.Tag = tagStr.empty() ? "Entity" : tagStr;
 
+	entity.AddComponent<TransformComponent>();
+
 	return entity;
   }
 
@@ -82,7 +84,7 @@ namespace Epoch {
 	  //Renderer::BeginScene(*mainCamera, *CameraTransform);
 
 
-	  auto group = m_Registry.group<TagComponent>(entt::get<MeshConponent, TransformComponent>);
+	  auto group = m_Registry.group<TagComponent>(entt::get<MeshComponent, TransformComponent>);
 
 	  for (auto entity : group) {
 		// a component at a time ...

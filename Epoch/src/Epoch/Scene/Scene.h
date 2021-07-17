@@ -22,7 +22,6 @@ namespace Epoch {
 	void DestroyEntity(Entity entity);
 	// Temp
 	void OnUpdate(Timestep timestep);
-
   private:
 	entt::registry m_Registry;
 

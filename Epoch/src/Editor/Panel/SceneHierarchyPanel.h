@@ -6,6 +6,8 @@
 
 namespace Epoch {
 
+  static int m_CurrentMesh;
+
   class SceneHierarchyPanel
   {
   public:

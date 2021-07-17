@@ -64,9 +64,7 @@ namespace Epoch {
 
 	bool Perspective = true;
 	// Async Resource
-	std::future<MeshData*> m_Fu;
-
-	MeshData* bunnyData;
+	std::future<int> m_Fu;
 
 	//Light
 	glm::vec3 m_LightColor = { 1.0f, 0.3f, 1.0f };
