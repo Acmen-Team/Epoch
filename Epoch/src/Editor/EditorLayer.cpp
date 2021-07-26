@@ -6,12 +6,16 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include "FileDialog.h"
 
 #include "Epoch/Resource/ResourceManager.h"
+#include "ImGuizmo.h"
 
 #include <thread>
 
@@ -38,6 +42,8 @@ namespace Epoch {
 	fbSpec.Height = 768;
 	m_Framebuffer = Epoch::Framebuffer::Create(fbSpec);
 
+	m_Texture = Texture2D::Create("assets/textures/default_w.jpg");
+
 	m_Scene = std::make_shared<Scene>();
 
 	Entity redCube = m_Scene->CreatEntity("CubeA");
@@ -46,6 +52,8 @@ namespace Epoch {
 	Entity greeCube = m_Scene->CreatEntity("CubeB");
 
 	m_SceneHierarchyPanel.SetContext(m_Scene);
+
+	m_shader = Shader::Create("assets/shaders/Phone.glsl");
   }
 
   void EditorLayer::OnDetach()
@@ -77,11 +85,27 @@ namespace Epoch {
 	  Epoch::RenderCommand::SetRenderModel(m_RenderModel);
 	}
 
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->use();
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformInt("u_Texture1", 0);
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("ObjectColor", m_ObjectColor);
+	//std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("ViewPosition", glm::vec3{ 0.0f, 0.0f, 3.0f });
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("ViewPosition", m_CameraController.GetCameraPosition());
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("material.ambient", materialData->Ambient);
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("material.diffuse", materialData->Diffuse);
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("material.specular", materialData->Specular);
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat("material.shininess", materialData->Shininess);
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("light.ambient", lightData->Ambient);
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("light.diffuse", lightData->Diffuse);
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("light.specular", lightData->Specular);
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("light.position", lightData->Position);
+
 	// Begin Rendering
 	{
 	  PROFILE_SCOPE("Rendering::Begin Scene");
 	  Renderer::BeginScene(m_CameraController.GetCamera());
 
+	  m_Texture->Bind();
+	  m_Scene->SetShader(m_shader);
 	  m_Scene->OnUpdate(timestep);
 
 	  Renderer::EndScene();
@@ -246,38 +270,84 @@ namespace Epoch {
 	  }
 	  ImGui::Image((void*)m_Framebuffer->GetColorAttachmentRendererID(), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f });
 
+
+	  // ImGuizmo
+	  Entity selectEntity = m_SceneHierarchyPanel.GetSelectEntity();
+	  if (selectEntity)
+	  {
+		ImGuizmo::SetOrthographic(false);
+		ImGuizmo::SetDrawlist();
+
+		float windowWidth = (float)ImGui::GetWindowWidth();
+		float windowHeight = (float)ImGui::GetWindowHeight();
+
+		ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+
+		const glm::mat4& cameraProjection = m_CameraController.GetCamera().GetProjectionMatrix();
+		glm::mat4 cameraView = m_CameraController.GetCamera().GetViewMatrix();
+		//glm::mat4 cameraView = glm::inverse(m_CameraController.GetCamera().GetTransform());
+
+		auto& tc = selectEntity.GetComponent<TransformComponent>();
+
+		glm::mat4 transformation = tc.GetTransform();
+		
+		ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr(transformation));
+
+		if (ImGuizmo::IsUsing())
+		{
+		  tc.Translation = glm::vec3(transformation[3]);
+		}
+	  }
+
 	  ImGui::End();
 	  ImGui::PopStyleVar();
 	}
 
+	{
+	  // Detail
+	  ImGui::Begin("Detail");
+	  //Light Setting
+	  ImGui::ColorEdit3("Ambient", glm::value_ptr(lightData->Ambient), 0.03f);
+	  ImGui::ColorEdit3("Diffuse", glm::value_ptr(lightData->Diffuse), 0.03f);
+	  ImGui::ColorEdit3("Specular", glm::value_ptr(lightData->Specular), 0.03f);
+	  ImGui::DragFloat3("Position", glm::value_ptr(lightData->Position), 0.1f);
+	  ImGui::DragFloat3("Direction", glm::value_ptr(lightData->Direction), 0.1f);
+	  ImGui::DragFloat("Constant", &lightData->Constant, 0.03f);
+	  ImGui::DragFloat("Linear", &lightData->Linear, 0.03f);
+	  ImGui::DragFloat("Quadratic", &lightData->Quadratic, 0.03f);
+	  ImGui::DragFloat("CutOff", &lightData->CutOff, 0.03f);
+	  ImGui::ColorEdit4("ObjectColor", glm::value_ptr(m_ObjectColor), 0.03f);
+	  ImGui::End();
+	}
+
 	//{
-	//  // Detail
-	//  ImGui::Begin("Detail");
-	//  //Light Setting
-	//  ImGui::ColorEdit3("Ambient", glm::value_ptr(lightData->Ambient), 0.03f);
-	//  ImGui::ColorEdit3("Diffuse", glm::value_ptr(lightData->Diffuse), 0.03f);
-	//  ImGui::ColorEdit3("Specular", glm::value_ptr(lightData->Specular), 0.03f);
-	//  ImGui::DragFloat3("Position", glm::value_ptr(lightData->Position), 0.1f);
-	//  ImGui::DragFloat3("Direction", glm::value_ptr(lightData->Direction), 0.1f);
-	//  ImGui::DragFloat("Constant", &lightData->Constant, 0.03f);
-	//  ImGui::DragFloat("Linear", &lightData->Linear, 0.03f);
-	//  ImGui::DragFloat("Quadratic", &lightData->Quadratic, 0.03f);
-	//  ImGui::DragFloat("CutOff", &lightData->CutOff, 0.03f);
-	//  ImGui::ColorEdit4("ObjectColor", glm::value_ptr(m_ObjectColor), 0.03f);
+	//  // Texture
+	//  ImGui::Begin("Texture");
+	//  ImGui::Text("Default Texture");
+	//  if (ImGui::ImageButton((void*)m_DefaultTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
+	//  {
+	//	m_DefaultTexture->Bind();
+	//  }
+	//  if (ImGui::ImageButton((void*)m_DiffuseTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
+	//  {
+	//	m_DiffuseTexture->Bind(0);
+	//  }
+	//  if (ImGui::ImageButton((void*)m_SpecularTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
+	//  {
+	//	m_SpecularTexture->Bind(0);
+	//  }
 	//  ImGui::End();
 	//}
 
-	//{
-	//  //material
-	//  ImGui::Begin("Material");
-	//  ImGui::DragFloat3("Ambient", glm::value_ptr(materialData->Ambient), 0.3f);
-	//  ImGui::DragFloat3("Diffuse", glm::value_ptr(materialData->Diffuse), 0.3f);
-	//  ImGui::DragFloat3("Specular", glm::value_ptr(materialData->Specular), 0.3f);
-	//  ImGui::DragFloat("Shininess", &(materialData->Shininess), 0.5f);
-
-	//  ImGui::Separator();
-	//  ImGui::End();
-	//}
+	{
+	  //material
+	  ImGui::Begin("Material");
+	  ImGui::DragFloat3("Ambient", glm::value_ptr(materialData->Ambient), 0.3f);
+	  ImGui::DragFloat3("Diffuse", glm::value_ptr(materialData->Diffuse), 0.3f);
+	  ImGui::DragFloat3("Specular", glm::value_ptr(materialData->Specular), 0.3f);
+	  ImGui::DragFloat("Shininess", &(materialData->Shininess), 0.5f);
+	  ImGui::End();
+	}
 
 	{
 	  ImGui::Begin("Camera");

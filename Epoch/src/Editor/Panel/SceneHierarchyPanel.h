@@ -17,6 +17,8 @@ namespace Epoch {
 	void SetContext(const Ref<Scene>& context);
 
 	void OnImGuiRender();
+
+	Entity GetSelectEntity() { return m_SelectionContext; }
   protected:
 	void DrawEntityNode(Entity entity);
 	void DrawCommponents(Entity entity);

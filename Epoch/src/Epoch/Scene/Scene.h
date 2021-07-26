@@ -22,6 +22,8 @@ namespace Epoch {
 	void DestroyEntity(Entity entity);
 	// Temp
 	void OnUpdate(Timestep timestep);
+
+	void SetShader(Ref<Shader>& shader) { m_shader = shader; }
   private:
 	entt::registry m_Registry;
 
@@ -33,6 +35,7 @@ namespace Epoch {
 	Camera* mainCamera = nullptr;
 
 	glm::mat4* CameraTransform = nullptr;
+
   };
 
 }

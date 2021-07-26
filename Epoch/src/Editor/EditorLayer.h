@@ -78,6 +78,10 @@ namespace Epoch {
 
 	glm::vec2 m_ViewportSize = { 0.0f, 0.0f };
 
+	Ref<Texture> m_Texture;
+
+	Ref<Shader> m_shader;
+
 	MaterialData* materialData = Material::Create();
 	LightData* lightData = Light::Create();
 

@@ -235,7 +235,7 @@ namespace Epoch {
 
 	  if (ImGui::MenuItem("Material"))
 	  {
-
+		m_SelectionContext.AddComponent<MaterialComponent>();
 	  }
 
 
