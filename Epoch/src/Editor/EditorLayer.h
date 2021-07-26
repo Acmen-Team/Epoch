@@ -7,7 +7,7 @@
 template<typename Fn>
 class Timer
 {
-public:	 
+public:
   Timer(const char* name, Fn&& func)
 	: m_Name(name), m_Func(func), m_Stopped(false)
   {
@@ -77,6 +77,10 @@ namespace Epoch {
 	std::shared_ptr<Framebuffer> m_Framebuffer;
 
 	glm::vec2 m_ViewportSize = { 0.0f, 0.0f };
+
+	Ref<Texture> m_Texture;
+
+	Ref<Shader> m_shader;
 
 	MaterialData* materialData = Material::Create();
 	LightData* lightData = Light::Create();

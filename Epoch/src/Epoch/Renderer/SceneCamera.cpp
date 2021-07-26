@@ -68,8 +68,8 @@ namespace Epoch {
 	float orthoBottom = -m_OrthographicSize * 0.5f;
 	float orthoTop = m_OrthographicSize * 0.5f;
 
-	m_ProjectionType == ProjectionType::Perspective ? 
-	  m_ProjectionMatrix = glm::perspective(glm::radians(m_PerspectiveFov), m_Aspectratio, m_PerspectiveNear, m_PerspectiveFar) : 
+	m_ProjectionType == ProjectionType::Perspective ?
+	  m_ProjectionMatrix = glm::perspective(glm::radians(m_PerspectiveFov), m_Aspectratio, m_PerspectiveNear, m_PerspectiveFar) :
 	  m_ProjectionMatrix = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, m_OrthographicNear, m_OrthographicFar);
 
 	m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;

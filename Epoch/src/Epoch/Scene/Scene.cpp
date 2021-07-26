@@ -7,13 +7,15 @@
 
 #include "Epoch/Renderer/Renderer.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 #include "glm/gtc/matrix_transform.hpp"
 
 namespace Epoch {
 
   Scene::Scene()
   {
-	m_shader = Shader::Create("assets/shaders/Color.glsl");
+	//m_shader = Shader::Create("assets/shaders/Phone.glsl");
   }
 
   Scene::~Scene()
@@ -57,11 +59,9 @@ namespace Epoch {
 	  });
 	}
 
-
 	// Render
-	std::dynamic_pointer_cast<Shader>(m_shader)->use();
-	std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("LightColor", glm::vec3(1.0f, 0.5f, 0.3f));
-
+	//std::dynamic_pointer_cast<Shader>(m_shader)->use();
+	//std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("LightColor", glm::vec3(1.0f, 0.5f, 0.3f));
 
 	{
 	  auto view = m_Registry.view<TagComponent, CameraComponent, TransformComponent>();
@@ -95,18 +95,9 @@ namespace Epoch {
 		//auto[pos, vel] = group.get<position, velocity>(entity);
 
 		// ... all components at once
-		auto[tag, mesh, trans] = group.get(entity);
+		auto[tag, mesh, trans] = group.get<TagComponent, MeshComponent, TransformComponent>(entity);
 
-		// calculate transform matrix
-		glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), trans.Rotation.x, { 1, 0, 0 })
-		  * glm::rotate(glm::mat4(1.0f), trans.Rotation.y, { 0, 1, 0 })
-		  * glm::rotate(glm::mat4(1.0f), trans.Rotation.z, { 0, 0, 1 });
-
-		glm::mat4 transformation = glm::translate(glm::mat4(1.0f), trans.Translation) 
-		  * rotation
-		  * glm::scale(glm::mat4(1.0f), trans.Scale);
-
-		Renderer::Submit(m_shader, mesh._Mesh->GetVertexArray(), transformation);
+		Renderer::Submit(m_shader, mesh._Mesh->GetVertexArray(), trans.GetTransform());
 		// ...
 	  }
 
