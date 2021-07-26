@@ -55,9 +55,6 @@ namespace Epoch {
 	const glm::mat4& GetProjectionMatrix() const { return m_ProjectionMatrix; }
 	const glm::mat4& GetViewMatrix() const { return m_ViewMatrix; }
 	const glm::mat4& GetViewProjectionMatrix() const { return m_ViewProjectionMatrix; }
-
-	// Transform
-	glm::mat4 GetTransform() const;
   private:
 	void RecalculateViewMatrix();
 	void RecalculateProjectionMatrix();
@@ -76,7 +73,7 @@ namespace Epoch {
 	float m_PerspectiveFov = 45.0f;
 	float m_PerspectiveWidth = 1.6f, m_PerspectiveHeight = 0.9f, m_PerspectiveNear = 0.1f , m_PerspectiveFar = 100.0f;
 
-	glm::vec3 m_Position = { 0.0f, 0.0f, 3.0f };
+	glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };
 	glm::vec3 m_Rotation = { 0.0f, 0.0f, 0.0f };
   };
 

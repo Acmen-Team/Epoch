@@ -21,7 +21,6 @@ IncludeDir["stb_image"] = "Epoch/vendor/stb_image"
 IncludeDir["tinyobjloader"] = "Epoch/vendor/tinyobjloader"
 IncludeDir["dirent"] = "Epoch/vendor/dirent/include"
 IncludeDir["entt"] = "Epoch/vendor/entt/include"
-IncludeDir["ImGuizmo"] = "Epoch/vendor/ImGuizmo"
 
 group "Dependencies"
 	include "Epoch/vendor/GLFW"
@@ -52,9 +51,7 @@ project "Epoch"
 		"%{prj.name}/vendor/stb_image/**.cpp",
 		"%{prj.name}/vendor/tinyobjloader/**.h",
 		"%{prj.name}/vendor/dirent/include/dirent.h",
-		"%{prj.name}/vendor/entt/include/entt.hpp",
-		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.h",
-		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.cpp"
+		"%{prj.name}/vendor/entt/include/entt.hpp"
 	}
 
 	defines
@@ -73,8 +70,7 @@ project "Epoch"
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.tinyobjloader}",
 		"%{IncludeDir.dirent}",
-		"%{IncludeDir.entt}",
-		"%{IncludeDir.ImGuizmo}"
+		"%{IncludeDir.entt}"
 	}
 
 	links
@@ -84,9 +80,6 @@ project "Epoch"
 		"ImGui",
 		"opengl32.lib"
 	}
-
-	filter "files:Epoch/vendor/ImGuizmo/**.cpp"
-	flags { "NoPCH" }
 
 	filter "system:windows"
 		systemversion "latest"

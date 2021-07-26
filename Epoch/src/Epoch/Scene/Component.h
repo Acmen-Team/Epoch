@@ -10,9 +10,6 @@
 
 #include "Epoch/Scene/ScriptableEntity.h"
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/quaternion.hpp>
-
 namespace Epoch {
 
   struct TagComponent
@@ -39,17 +36,6 @@ namespace Epoch {
 	{
 	}
 
-	glm::mat4 GetTransform() const
-	{
-	  // calculate transform matrix
-	  glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));
-
-	  glm::mat4 transformation = glm::translate(glm::mat4(1.0f), Translation)
-		* rotation
-		* glm::scale(glm::mat4(1.0f), Scale);
-
-	  return transformation;
-	}
   };
 
   struct MeshComponent
@@ -68,13 +54,12 @@ namespace Epoch {
 
   struct MaterialComponent
   {
-	uint32_t _Id;
-	Ref<Shader> _Material;
+	std::string material;
 
 	MaterialComponent() = default;
 	MaterialComponent(const MaterialComponent&) = default;
-	MaterialComponent(const Ref<Shader>& material)
-	  : _Material(material), _Id(0) {}
+	MaterialComponent(const std::string& tag)
+	  : material(tag) {}
 	//Ref<Shader> m_Shader = CreateRef<Shader>();
 
 	//MaterialComponent(const ShaderLibrary& shaderlibrary, const std::string& name)

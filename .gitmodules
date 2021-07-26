@@ -13,6 +13,3 @@
 [submodule "Epoch/vendor/dirent"]
 	path = Epoch/vendor/dirent
 url=https://github.com/Holy-YxY/dirent
-[submodule "Epoch/vendor/ImGuizmo"]
-	path = Epoch/vendor/ImGuizmo
-	url = https://github.com/Holy-YxY/ImGuizmo.git
