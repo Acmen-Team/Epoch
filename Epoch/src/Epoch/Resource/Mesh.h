@@ -31,17 +31,17 @@ namespace Epoch {
   class Mesh
   {
   public:
-	Mesh(const std::string& file_path, const std::string& base_path);
-	Mesh(const std::string& file_path, const std::string& base_path, bool triangle);
-	
+	Mesh() = default;
 	~Mesh() = default;
-
-	static Ref<Mesh> CreateMesh(const std::string& file_path, const std::string& base_path) { return CreateRef<Mesh>(file_path, base_path); }
-
-	static float GetReadPro() { return pro; }
+	
 	static float pro;
+	static float GetReadPro() { return pro; }
 
-	std::shared_ptr<VertexArray>& GetVertexArray() { return m_VertexArray; }
+	std::string GetMeshName() const { return m_Name; }
+	std::shared_ptr<VertexArray>& GetVertexArray();
+
+	std::shared_ptr<MeshData> LoadResFromeFile(const std::string& filePath, const std::string& basePath);
+
 	//static GetName() { return m_Name; }
   private:
 	std::shared_ptr<MeshData> ObjLoad(const std::string& file_path, const std::string& base_path, bool triangle = true);
@@ -49,8 +49,8 @@ namespace Epoch {
 	// TODO
 	//FbxLoad()
   private:
-	std::string m_Name;
-
+	std::string m_Name = "M";
+	std::shared_ptr<MeshData> m_MeshData;
 	std::shared_ptr<VertexArray> m_VertexArray;
   };
 

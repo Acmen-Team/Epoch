@@ -7,7 +7,7 @@
 template<typename Fn>
 class Timer
 {
-public:	 
+public:
   Timer(const char* name, Fn&& func)
 	: m_Name(name), m_Func(func), m_Stopped(false)
   {
@@ -58,17 +58,13 @@ namespace Epoch {
   private:
 	Epoch::ShaderLibrary m_ShaderLibrary;
 
+	SceneCameraController m_CameraController;
 	// Scene
 	std::shared_ptr<Scene> m_Scene;
 
-	Entity m_PerspectiveCameraEntity;
-	Entity m_OrthographicCameraEntity;
-
 	bool Perspective = true;
 	// Async Resource
-	std::future<MeshData*> m_Fu;
-
-	MeshData* bunnyData;
+	std::future<int> m_Fu;
 
 	//Light
 	glm::vec3 m_LightColor = { 1.0f, 0.3f, 1.0f };
@@ -81,6 +77,10 @@ namespace Epoch {
 	std::shared_ptr<Framebuffer> m_Framebuffer;
 
 	glm::vec2 m_ViewportSize = { 0.0f, 0.0f };
+
+	Ref<Texture> m_Texture;
+
+	Ref<Shader> m_shader;
 
 	MaterialData* materialData = Material::Create();
 	LightData* lightData = Light::Create();

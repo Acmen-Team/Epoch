@@ -1,4 +1,4 @@
-#include "eppch.h"
+﻿#include "eppch.h"
 
 #include "EditorLayer.h"
 
@@ -6,23 +6,30 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include "FileDialog.h"
 
+#include "Epoch/Resource/ResourceManager.h"
+#include "ImGuizmo.h"
+
 #include <thread>
 
 namespace Epoch {
 
-  EditorLayer::EditorLayer() : Layer("Example")
+  EditorLayer::EditorLayer() : Layer("Example"), m_CameraController(1.6f / 0.9f)
   {
 
   }
 
   void EditorLayer::OnAttach()
   {
-
+	m_Fu = std::async(&ResourceAllocator<Mesh>::AddRes, ResourceManager::Get().GetAllocator(), "assets/models/cube.obj", "assets/models/");
+	m_Fu.wait();
 	// Load shader
 	m_ShaderLibrary.Load("Phone", "assets/shaders/Phone.glsl");
 	m_ShaderLibrary.Load("TestShading", "assets/shaders/Phone.glsl");
@@ -35,45 +42,18 @@ namespace Epoch {
 	fbSpec.Height = 768;
 	m_Framebuffer = Epoch::Framebuffer::Create(fbSpec);
 
+	m_Texture = Texture2D::Create("assets/textures/default_w.jpg");
+
 	m_Scene = std::make_shared<Scene>();
 
-	Entity cube = m_Scene->CreatEntity("Cube");
-	if (cube.HasComponent<TagComponent>())
-	{
-	  std::cout << "Yes" << std::endl;
-	}
-	cube.AddComponent<MeshConponent>("assets/models/cube.obj", "assets/models/");
-	cube.AddComponent<TransformComponent>(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.3f, 0.3f, 0.3f)));
+	Entity redCube = m_Scene->CreatEntity("CubeA");
+	redCube.AddComponent<MeshComponent>(ResourceManager::Get().GetAllocator()->GetRes("assets/models/cube.obj"));
 
-	m_PerspectiveCameraEntity = m_Scene->CreatEntity("PreCamera Entity");
-	m_PerspectiveCameraEntity.AddComponent<CameraComponent>(glm::perspective(glm::radians(45.0f), (1.6f / 0.9f), 0.1f, 100.0f));
-	m_PerspectiveCameraEntity.AddComponent<TransformComponent>();
-
-	class CameraController : public ScriptableEntity
-	{
-	public:
-	  void OnCreate(){}
-
-	  void OnUpdate(Timestep timestep)
-	  {
-		auto& transform = GetComponent<TransformComponent>().Transform;
-
-		float m_CamearTransformationSpeed = 1.0;
-
-		if (Input::IsKeyPressed(EP_KEY_W))
-		  transform[3][2] += m_CamearTransformationSpeed * timestep.GetSeconds();
-		if (Input::IsKeyPressed(EP_KEY_S))
-		  transform[3][2] -= m_CamearTransformationSpeed * timestep.GetSeconds();
-	  }
-
-	  void OnDestroy(){}
-	private:
-
-	};
-
-	m_PerspectiveCameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
+	Entity greeCube = m_Scene->CreatEntity("CubeB");
 
 	m_SceneHierarchyPanel.SetContext(m_Scene);
+
+	m_shader = Shader::Create("assets/shaders/Phone.glsl");
   }
 
   void EditorLayer::OnDetach()
@@ -85,6 +65,17 @@ namespace Epoch {
   {
 	PROFILE_SCOPE("EditorLayer::OnUpdate");
 
+	// Resize
+	//if (FramebufferSpecification spec = m_Framebuffer->GetSpecification();
+	//	m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f &&
+	//	(spec.Width != m_ViewportSize.x || spec.Height != m_ViewportSize.y))
+	//{
+	//  
+	//}
+
+	if (m_ViewPanelFocused)
+	  m_CameraController.OnUpdate(timestep);
+
 	m_Framebuffer->Bind();
 
 	{
@@ -94,11 +85,30 @@ namespace Epoch {
 	  Epoch::RenderCommand::SetRenderModel(m_RenderModel);
 	}
 
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->use();
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformInt("u_Texture1", 0);
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("ObjectColor", m_ObjectColor);
+	//std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("ViewPosition", glm::vec3{ 0.0f, 0.0f, 3.0f });
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("ViewPosition", m_CameraController.GetCameraPosition());
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("material.ambient", materialData->Ambient);
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("material.diffuse", materialData->Diffuse);
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("material.specular", materialData->Specular);
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat("material.shininess", materialData->Shininess);
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("light.ambient", lightData->Ambient);
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("light.diffuse", lightData->Diffuse);
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("light.specular", lightData->Specular);
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("light.position", lightData->Position);
+
 	// Begin Rendering
 	{
 	  PROFILE_SCOPE("Rendering::Begin Scene");
+	  Renderer::BeginScene(m_CameraController.GetCamera());
 
+	  m_Texture->Bind();
+	  m_Scene->SetShader(m_shader);
 	  m_Scene->OnUpdate(timestep);
+
+	  Renderer::EndScene();
 	}
 
 	m_Framebuffer->UnBind();
@@ -106,6 +116,7 @@ namespace Epoch {
 
   void EditorLayer::OnEvent(Event& event)
   {
+	m_CameraController.OnEvent(event);
   }
 
   void EditorLayer::OnImGuiRender()
@@ -155,11 +166,16 @@ namespace Epoch {
 
 	// DockSpace
 	ImGuiIO& io = ImGui::GetIO();
+	ImGuiStyle& style = ImGui::GetStyle();
+	float minWinSizeX = style.WindowMinSize.x;
+	style.WindowMinSize.x = 350.0f;
 	if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
 	{
 	  ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 	  ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 	}
+
+	style.WindowMinSize.x = minWinSizeX;
 
 	if (ImGui::BeginMenuBar())
 	{
@@ -169,6 +185,36 @@ namespace Epoch {
 		// which we can't undo at the moment without finer window depth/z control.
 		if (ImGui::MenuItem("Exit"))
 		  Epoch::Application::Get().Exit();
+
+		ImGui::EndMenu();
+	  }
+
+	  if (ImGui::BeginMenu("Edit"))
+	  {
+		// Disabling fullscreen would allow the window to be moved to the front of other windows,
+		// which we can't undo at the moment without finer window depth/z control.
+		//if (ImGui::MenuItem(u8"�˳�"))
+		  //Epoch::Application::Get().Exit();
+
+		ImGui::EndMenu();
+	  }
+
+	  if (ImGui::BeginMenu("Options"))
+	  {
+		// Disabling fullscreen would allow the window to be moved to the front of other windows,
+		// which we can't undo at the moment without finer window depth/z control.
+		//if (ImGui::MenuItem(u8"�˳�"))
+		  //Epoch::Application::Get().Exit();
+
+		ImGui::EndMenu();
+	  }
+
+	  if (ImGui::BeginMenu("Help"))
+	  {
+		// Disabling fullscreen would allow the window to be moved to the front of other windows,
+		// which we can't undo at the moment without finer window depth/z control.
+		//if (ImGui::MenuItem(u8"�˳�"))
+		  //Epoch::Application::Get().Exit();
 
 		ImGui::EndMenu();
 	  }
@@ -223,6 +269,36 @@ namespace Epoch {
 		m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
 	  }
 	  ImGui::Image((void*)m_Framebuffer->GetColorAttachmentRendererID(), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f });
+
+
+	  // ImGuizmo
+	  Entity selectEntity = m_SceneHierarchyPanel.GetSelectEntity();
+	  if (selectEntity)
+	  {
+		ImGuizmo::SetOrthographic(false);
+		ImGuizmo::SetDrawlist();
+
+		float windowWidth = (float)ImGui::GetWindowWidth();
+		float windowHeight = (float)ImGui::GetWindowHeight();
+
+		ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+
+		const glm::mat4& cameraProjection = m_CameraController.GetCamera().GetProjectionMatrix();
+		glm::mat4 cameraView = m_CameraController.GetCamera().GetViewMatrix();
+		//glm::mat4 cameraView = glm::inverse(m_CameraController.GetCamera().GetTransform());
+
+		auto& tc = selectEntity.GetComponent<TransformComponent>();
+
+		glm::mat4 transformation = tc.GetTransform();
+
+		ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr(transformation));
+
+		if (ImGuizmo::IsUsing())
+		{
+		  tc.Translation = glm::vec3(transformation[3]);
+		}
+	  }
+
 	  ImGui::End();
 	  ImGui::PopStyleVar();
 	}
@@ -244,24 +320,24 @@ namespace Epoch {
 	  ImGui::End();
 	}
 
-	{
-	  // Texture
-	  ImGui::Begin("Texture");
-	  ImGui::Text("Default Texture");
-	 // if (ImGui::ImageButton((void*)m_DefaultTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
-	 // {
-		//m_DefaultTexture->Bind();
-	 // }
-	 // if (ImGui::ImageButton((void*)m_DiffuseTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
-	 // {
-		//m_DiffuseTexture->Bind(0);
-	 // }
-	 // if (ImGui::ImageButton((void*)m_SpecularTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
-	 // {
-		//m_SpecularTexture->Bind(0);
-	 // }
-	  ImGui::End();
-	}
+	//{
+	//  // Texture
+	//  ImGui::Begin("Texture");
+	//  ImGui::Text("Default Texture");
+	//  if (ImGui::ImageButton((void*)m_DefaultTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
+	//  {
+	//	m_DefaultTexture->Bind();
+	//  }
+	//  if (ImGui::ImageButton((void*)m_DiffuseTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
+	//  {
+	//	m_DiffuseTexture->Bind(0);
+	//  }
+	//  if (ImGui::ImageButton((void*)m_SpecularTexture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f }))
+	//  {
+	//	m_SpecularTexture->Bind(0);
+	//  }
+	//  ImGui::End();
+	//}
 
 	{
 	  //material
@@ -270,18 +346,64 @@ namespace Epoch {
 	  ImGui::DragFloat3("Diffuse", glm::value_ptr(materialData->Diffuse), 0.3f);
 	  ImGui::DragFloat3("Specular", glm::value_ptr(materialData->Specular), 0.3f);
 	  ImGui::DragFloat("Shininess", &(materialData->Shininess), 0.5f);
-
-	  ImGui::Separator();
-	  ImGui::DragFloat3("Camera Transform", glm::value_ptr(m_PerspectiveCameraEntity.GetComponent<TransformComponent>().Transform[3]));
-	  if (ImGui::Checkbox("PerspectiveCamer", &Perspective))
-	  {
-		m_PerspectiveCameraEntity.GetComponent<CameraComponent>()._Perspective = Perspective;
-		m_OrthographicCameraEntity.GetComponent<CameraComponent>()._Perspective = !Perspective;
-	  }
 	  ImGui::End();
 	}
 
-	
+	{
+	  ImGui::Begin("Camera");
+	  const char* projectionTypeStrings[] = { "Perspective", "Orthographic" };
+	  const char* currentProjectionTypeString = projectionTypeStrings[(int)m_CameraController.GetCamera().GetProjectionType()];
+	  if (ImGui::BeginCombo("Projection", currentProjectionTypeString))
+	  {
+		for (int i = 0; i < 2; i++)
+		{
+		  bool isSelected = currentProjectionTypeString == projectionTypeStrings[i];
+		  if (ImGui::Selectable(projectionTypeStrings[i], isSelected))
+		  {
+			currentProjectionTypeString = projectionTypeStrings[i];
+			m_CameraController.GetCamera().SetProjectionType((SceneCamera::ProjectionType)i);
+		  }
+
+		  if (isSelected)
+			ImGui::SetItemDefaultFocus();
+		}
+
+		ImGui::EndCombo();
+	  }
+	  // Setting perspective camera
+	  if (m_CameraController.GetCamera().GetProjectionType() == SceneCamera::ProjectionType::Perspective)
+	  {
+		float persFov = m_CameraController.GetCamera().GetPerspectiveFov();
+		if (ImGui::DragFloat("Fov", &persFov, 0.05f, 0.1f))
+		  m_CameraController.GetCamera().SetPerspectiveFov(persFov);
+
+		float persNear = m_CameraController.GetCamera().GetPerspectiveNear();
+		if (ImGui::DragFloat("Near", &persNear))
+		  m_CameraController.GetCamera().SetPerspectiveNear(persNear);
+
+		float persFar = m_CameraController.GetCamera().GetPerspectiveFar();
+		if (ImGui::DragFloat("Far", &persFar))
+		  m_CameraController.GetCamera().SetPerspectiveFar(persFar);
+	  }
+	  // Setting ortho camera
+	  if (m_CameraController.GetCamera().GetProjectionType() == SceneCamera::ProjectionType::Orthographic)
+	  {
+		float orthoSize = m_CameraController.GetCamera().GetOrthographicSize();
+		if (ImGui::DragFloat("Size", &orthoSize, 0.05f, 0.1f, 50.0f))
+		  m_CameraController.GetCamera().SetOrthographicSize(orthoSize);
+
+		float orthoNear = m_CameraController.GetCamera().GetOrthographicNear();
+		if (ImGui::DragFloat("Near", &orthoNear))
+		  m_CameraController.GetCamera().SetOrthographicNear(orthoNear);
+
+		float orthoFar = m_CameraController.GetCamera().GetOrthographicFar();
+		if (ImGui::DragFloat("Far", &orthoFar))
+		  m_CameraController.GetCamera().SetOrthographicFar(orthoFar);
+	  }
+
+	  ImGui::End();
+	}
+
 	{
 	  ImGui::Begin("FileDialog");
 	  // open Dialog Simple
@@ -290,7 +412,6 @@ namespace Epoch {
 	  // display
 	  ImGui::ProgressBar(GetPro());
 	  ImGui::ProgressBar(Mesh::GetReadPro());
-	  //EP_CORE_TRACE("Editor pro : {0}", Mesh::GetPro());
 
 	  if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
 	  {
@@ -300,7 +421,16 @@ namespace Epoch {
 		  std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
 		  std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
 		  // action
-		  //m_Fu = std::async(Mesh::CreateMesh, filePathName, filePath, true);
+		  m_Fu = std::async(&ResourceAllocator<Mesh>::AddRes, ResourceManager::Get().GetAllocator(), filePathName, filePath);
+
+		  if (m_Fu._Is_ready())
+		  {
+			int id = m_Fu.get();
+			if (-1 != 0)
+			{
+			  EP_CORE_INFO("Finish Load Resource");
+			}
+		  }
 		}
 
 		// close
@@ -308,7 +438,7 @@ namespace Epoch {
 	  }
 	  ImGui::End();
 	}
-	
+
 
 	ImGui::End();
   }

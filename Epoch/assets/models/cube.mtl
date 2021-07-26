@@ -1,14 +1,3 @@
-# Default material file.  Created by Morgan McGuire and released into
-# the Public Domain on July 16, 2011.
-#
-# http://graphics.cs.williams.edu/data
-
-newmtl default
-  Ns 10.0000
-  Ni 1.5000
-  Tr 0  illum 2
-  Ka 1 1 1
-  Kd 1 1 1
-  Ks 0.2 0.2 0.2
-  Ke 0 0 0
-  map_Kd default.png
+version https://git-lfs.github.com/spec/v1
+oid sha256:417664c7f67303aab8b30aace5e8a40c340deb9df25703fee084fa4f1d767cd3
+size 291

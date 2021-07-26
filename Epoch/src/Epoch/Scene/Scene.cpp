@@ -7,11 +7,15 @@
 
 #include "Epoch/Renderer/Renderer.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
+#include "glm/gtc/matrix_transform.hpp"
+
 namespace Epoch {
 
   Scene::Scene()
   {
-	m_shader = Shader::Create("assets/shaders/Color.glsl");
+	//m_shader = Shader::Create("assets/shaders/Phone.glsl");
   }
 
   Scene::~Scene()
@@ -25,7 +29,14 @@ namespace Epoch {
 	auto& tag = entity.AddComponent<TagComponent>();
 	tag.Tag = tagStr.empty() ? "Entity" : tagStr;
 
+	entity.AddComponent<TransformComponent>();
+
 	return entity;
+  }
+
+  void Scene::DestroyEntity(Entity entity)
+  {
+	m_Registry.destroy(entity);
   }
 
   void Scene::OnUpdate(Timestep timestep)
@@ -48,11 +59,9 @@ namespace Epoch {
 	  });
 	}
 
-
 	// Render
-	std::dynamic_pointer_cast<Shader>(m_shader)->use();
-	std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("LightColor", glm::vec3(1.0f, 0.5f, 0.3f));
-
+	//std::dynamic_pointer_cast<Shader>(m_shader)->use();
+	//std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("LightColor", glm::vec3(1.0f, 0.5f, 0.3f));
 
 	{
 	  auto view = m_Registry.view<TagComponent, CameraComponent, TransformComponent>();
@@ -62,17 +71,20 @@ namespace Epoch {
 		if (camera._Perspective)
 		{
 		  mainCamera = &camera._Camera;
-		  CameraTransform = &transform.Transform;
+
+		  // TODO: recalculate camera entity transform
+		  //CameraTransform = &transform.Transform;
 		}
 	  }
 	}
 
-	if (mainCamera)
+	// TODO: review mainCamera entity in scene 
+	if (!mainCamera)
 	{
-	  Renderer::BeginScene(*mainCamera, *CameraTransform);
+	  //Renderer::BeginScene(*mainCamera, *CameraTransform);
 
 
-	  auto group = m_Registry.group<TagComponent>(entt::get<MeshConponent, TransformComponent>);
+	  auto group = m_Registry.group<TagComponent>(entt::get<MeshComponent, TransformComponent>);
 
 	  for (auto entity : group) {
 		// a component at a time ...
@@ -83,13 +95,13 @@ namespace Epoch {
 		//auto[pos, vel] = group.get<position, velocity>(entity);
 
 		// ... all components at once
-		auto[tag, mesh, trans] = group.get(entity);
+		auto[tag, mesh, trans] = group.get<TagComponent, MeshComponent, TransformComponent>(entity);
 
-		Renderer::Submit(m_shader, mesh._Mesh->GetVertexArray(), trans.Transform);
+		Renderer::Submit(m_shader, mesh._Mesh->GetVertexArray(), trans.GetTransform());
 		// ...
 	  }
 
-	  Renderer::EndScene();
+	  //Renderer::EndScene();
 
 	}
 
