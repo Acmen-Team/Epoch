@@ -4,6 +4,10 @@
 
 #include <chrono>
 
+#include <imgui.h>
+#define IMGUI_DEFINE_MATH_OPERATORS
+#include <imgui_internal.h>
+
 template<typename Fn>
 class Timer
 {
@@ -55,6 +59,8 @@ namespace Epoch {
 	virtual void OnEvent(Event& event) override;
 
 	virtual void OnImGuiRender() override;
+
+	void DockingToolbar(const char* name, ImGuiAxis* p_toolbar_axis);
   private:
 	Epoch::ShaderLibrary m_ShaderLibrary;
 
@@ -79,6 +85,11 @@ namespace Epoch {
 	glm::vec2 m_ViewportSize = { 0.0f, 0.0f };
 
 	Ref<Texture> m_Texture;
+
+	Ref<Texture> m_PlayBarTexture;
+	Ref<Texture> m_PauseBarTexture;
+	Ref<Texture> m_StopBarTexture;
+	Ref<Texture> m_DownloadBarTexture;
 
 	Ref<Shader> m_shader;
 
