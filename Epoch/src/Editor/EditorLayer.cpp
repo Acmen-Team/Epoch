@@ -2,7 +2,6 @@
 
 #include "EditorLayer.h"
 
-#include <imgui.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -43,6 +42,11 @@ namespace Epoch {
 	m_Framebuffer = Epoch::Framebuffer::Create(fbSpec);
 
 	m_Texture = Texture2D::Create("assets/textures/default_w.jpg");
+	m_PlayBarTexture = Texture2D::Create("assets/textures/toolbar/PlayBar.png");
+	m_PauseBarTexture = Texture2D::Create("assets/textures/toolbar/PauseBar.png");
+	m_StopBarTexture = Texture2D::Create("assets/textures/toolbar/StopBar.png");
+	m_DownloadBarTexture = Texture2D::Create("assets/textures/toolbar/DownloadBar.png");
+	//m_PlayBarTexture = Texture2D::Create("assets/textures/face.png");
 
 	m_Scene = std::make_shared<Scene>();
 
@@ -88,7 +92,6 @@ namespace Epoch {
 	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->use();
 	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformInt("u_Texture1", 0);
 	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("ObjectColor", m_ObjectColor);
-	//std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("ViewPosition", glm::vec3{ 0.0f, 0.0f, 3.0f });
 	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("ViewPosition", m_CameraController.GetCameraPosition());
 	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("material.ambient", materialData->Ambient);
 	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("material.diffuse", materialData->Diffuse);
@@ -169,6 +172,9 @@ namespace Epoch {
 	ImGuiStyle& style = ImGui::GetStyle();
 	float minWinSizeX = style.WindowMinSize.x;
 	style.WindowMinSize.x = 350.0f;
+
+	auto menubareHeight = ImGui::GetCurrentWindow()->MenuBarHeight();
+
 	if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
 	{
 	  ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
@@ -219,8 +225,43 @@ namespace Epoch {
 		ImGui::EndMenu();
 	  }
 
+	  ImGuiAxis toolbar1_axis = ImGuiAxis_X;
+	  DockingToolbar("Toolbar1", &toolbar1_axis);
+
+	  // ImGuiViewport* viewport = ImGui::GetMainViewport();
+	  // ImGui::SetNextWindowPos(ImVec2(viewport->Pos.x, viewport->Pos.y + ImGui::GetWindowHeight()));
+	  // ImGui::SetNextWindowSize(ImVec2(viewport->Size.x, viewport->Size.y - ImGui::GetWindowHeight()));
+	  // ImGui::SetNextWindowViewport(viewport->ID);
+
+	  // ImGuiWindowFlags flags = 0
+		 //| ImGuiWindowFlags_NoDocking
+		 //| ImGuiWindowFlags_NoTitleBar
+		 //| ImGuiWindowFlags_NoResize
+		 //| ImGuiWindowFlags_NoMove
+		 //| ImGuiWindowFlags_NoScrollbar
+		 //| ImGuiWindowFlags_NoSavedSettings
+		 //;
+	  // ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
+	  // ImGui::Begin("TOOLBAR", NULL, flags);
+	  // ImGui::PopStyleVar();
+
+	  // ImGui::SameLine();
+	  // ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
+	  // if (ImGui::ImageButton((void*)m_PlayBarTexture->GetRendererID(), ImVec2(m_PlayBarTexture->GetWidth(), m_PlayBarTexture->GetHeight())))
+	  // {
+		 ////make_visible();
+	  // }
+	  // ImGui::PopStyleColor();
+
+	  // ImGui::End();
+
 	  ImGui::EndMenuBar();
 	}
+
+
+	//if (1) { ImGui::ShowMetricsWindow(); }
+	//if (1) { ImGui::Begin("Style Editor", nullptr, ImGuiWindowFlags_NoDocking); ImGui::ShowStyleEditor(); ImGui::End(); }
+	//if (1) { ImGui::ShowDemoWindow(); }
 
 	m_SceneHierarchyPanel.OnImGuiRender();
 
@@ -256,10 +297,13 @@ namespace Epoch {
 	  ImGui::End();
 	}
 
+
+
 	{
 	  // Scene
 	  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0, 0.0 });
 	  ImGui::Begin("Scene");
+
 	  m_ViewPanelFocused = ImGui::IsWindowFocused();
 	  m_ViewPanelHovered = ImGui::IsWindowHovered();
 	  ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
@@ -441,6 +485,148 @@ namespace Epoch {
 
 
 	ImGui::End();
+  }
+
+  void EditorLayer::DockingToolbar(const char* name, ImGuiAxis* p_toolbar_axis)
+  {
+	// [Option] Automatically update axis based on parent split (inside of doing it via right-click on the toolbar)
+	// Pros:
+	// - Less user intervention.
+	// - Avoid for need for saving the toolbar direction, since it's automatic.
+	// Cons: 
+	// - This is currently leading to some glitches.
+	// - Some docking setup won't return the axis the user would expect.
+	const bool TOOLBAR_AUTO_DIRECTION_WHEN_DOCKED = true;
+
+	// ImGuiAxis_X = horizontal toolbar
+	// ImGuiAxis_Y = vertical toolbar
+	ImGuiAxis toolbar_axis = *p_toolbar_axis;
+
+	// 1. We request auto-sizing on one axis
+	// Note however this will only affect the toolbar when NOT docked.
+	ImVec2 requested_size = (toolbar_axis == ImGuiAxis_X) ? ImVec2(-1.0f, 0.0f) : ImVec2(0.0f, -1.0f);
+	ImGui::SetNextWindowSize(requested_size);
+
+	// 2. Specific docking options for toolbars.
+	// Currently they add some constraint we ideally wouldn't want, but this is simplifying our first implementation
+	ImGuiWindowClass window_class;
+	window_class.DockingAllowUnclassed = true;
+	window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoCloseButton;
+	window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_HiddenTabBar; // ImGuiDockNodeFlags_NoTabBar // FIXME: Will need a working Undock widget for _NoTabBar to work
+	window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoDockingSplitMe;
+	window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoDockingOverMe;
+	window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoDockingOverOther;
+	if (toolbar_axis == ImGuiAxis_X)
+	  window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoResizeY;
+	else
+	  window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoResizeX;
+	ImGui::SetNextWindowClass(&window_class);
+
+	// 3. Begin into the window
+	const float font_size = ImGui::GetFontSize();
+	const ImVec2 icon_size(ImFloor(font_size * 1.7f), ImFloor(font_size * 1.7f));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+	ImGui::Begin(name, NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize);
+	// 4. Overwrite node size
+	ImGuiDockNode* node = ImGui::GetWindowDockNode();
+	if (node != NULL)
+	{
+	  // Overwrite size of the node
+	  ImGuiStyle& style = ImGui::GetStyle();
+	  const ImGuiAxis toolbar_axis_perp = (ImGuiAxis)(toolbar_axis ^ 1);
+	  const float TOOLBAR_SIZE_WHEN_DOCKED = style.WindowPadding[toolbar_axis_perp] * 2.0f + icon_size[toolbar_axis_perp];
+	  node->WantLockSizeOnce = true;
+	  node->Size[toolbar_axis_perp] = node->SizeRef[toolbar_axis_perp] = TOOLBAR_SIZE_WHEN_DOCKED;
+
+	  if (TOOLBAR_AUTO_DIRECTION_WHEN_DOCKED)
+		if (node->ParentNode && node->ParentNode->SplitAxis != ImGuiAxis_None)
+		  toolbar_axis = (ImGuiAxis)(node->ParentNode->SplitAxis ^ 1);
+	}
+
+	// 5. Dummy populate tab bar
+	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
+	//ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, 1.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5.0f, 5.0f));
+	//UndockWidget(icon_size, toolbar_axis);
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 0.0f });
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 0.0f });
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.9f, 0.2f, 0.2f, 0.0f });
+	//ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+
+	ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
+
+	static int current = 0;
+	uint32_t currentBar;
+	if (current % 2)
+	{
+	  currentBar = m_PauseBarTexture->GetRendererID();
+	}
+	else
+	{
+	  currentBar = m_PlayBarTexture->GetRendererID();
+	}
+
+	ImGui::SameLine(contentRegionAvailable.x / 2 - m_PlayBarTexture->GetWidth());
+	//ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
+	if (ImGui::ImageButton((void*)currentBar, ImVec2(m_PlayBarTexture->GetWidth(), m_PlayBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), ImVec4(1.0f, 1.0f, 1.0f, 0.5f)))
+	{
+	  current++;
+	}
+
+	ImGui::SameLine();
+
+	//ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
+	if (ImGui::ImageButton((void*)m_StopBarTexture->GetRendererID(), ImVec2(m_StopBarTexture->GetWidth(), m_StopBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), ImVec4(1.0f, 1.0f, 1.0f, 0.5f)))
+	{
+	  //make_visible();
+	}
+
+	ImGui::SameLine();
+	ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4{ 0.1f, 0.105f, 0.11f, 1.0f });
+	ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4{ 0.35f, 0.85f, 0.15f, 0.3f });
+	int ProgressBarWidth = contentRegionAvailable.x / 2 - m_PlayBarTexture->GetWidth() - m_StopBarTexture->GetWidth() - 10;
+	ImGui::ProgressBar(0.5f, ImVec2(ProgressBarWidth, m_PlayBarTexture->GetWidth()), "");
+	ImGui::PopStyleColor(2);
+
+	ImGui::SameLine(contentRegionAvailable.x - m_DownloadBarTexture->GetWidth());
+	if (ImGui::ImageButton((void*)m_DownloadBarTexture->GetRendererID(), ImVec2(m_DownloadBarTexture->GetWidth(), m_DownloadBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), ImVec4(0.0f, 1.0f, 0.0f, 0.5f)))
+	{
+
+	}
+
+	//ImGui::PopStyleColor(2);
+	ImGui::PopStyleColor(3);
+
+	// for (int icon_n = 0; icon_n < 10; icon_n++)
+	// {
+	   //char label[32];
+	   //ImFormatString(label, IM_ARRAYSIZE(label), "%02d", icon_n);
+	   //if (icon_n > 0 && toolbar_axis == ImGuiAxis_X)
+	   //  ImGui::SameLine();
+	   //ImGui::Button(label, icon_size);
+	// }
+	ImGui::PopStyleVar(2);
+
+	// 6. Context-menu to change axis
+	if (node == NULL || !TOOLBAR_AUTO_DIRECTION_WHEN_DOCKED)
+	{
+	  if (ImGui::BeginPopupContextWindow())
+	  {
+		ImGui::TextUnformatted(name);
+		ImGui::Separator();
+		if (ImGui::MenuItem("Horizontal", "", (toolbar_axis == ImGuiAxis_X)))
+		  toolbar_axis = ImGuiAxis_X;
+		if (ImGui::MenuItem("Vertical", "", (toolbar_axis == ImGuiAxis_Y)))
+		  toolbar_axis = ImGuiAxis_Y;
+		ImGui::EndPopup();
+	  }
+	}
+
+	ImGui::End();
+	ImGui::PopStyleVar();
+
+	// Output user stored data
+	*p_toolbar_axis = toolbar_axis;
   }
 
 }
