@@ -581,9 +581,15 @@ namespace Epoch {
 	  //make_visible();
 	}
 
-	ImGui::SameLine(contentRegionAvailable.x - m_DownloadBarTexture->GetWidth());
+	ImGui::SameLine();
+	ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4{ 0.1f, 0.105f, 0.11f, 1.0f });
+	ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4{ 0.35f, 0.85f, 0.15f, 0.3f });
+	int ProgressBarWidth = contentRegionAvailable.x / 2 - m_PlayBarTexture->GetWidth() - m_StopBarTexture->GetWidth() - 10;
+	ImGui::ProgressBar(0.5f, ImVec2(ProgressBarWidth, m_PlayBarTexture->GetWidth()), "");
+	ImGui::PopStyleColor(2);
 
-	if (ImGui::ImageButton((void*)m_DownloadBarTexture->GetRendererID(), ImVec2(m_DownloadBarTexture->GetWidth(), m_DownloadBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), ImVec4(1.0f, 1.0f, 1.0f, 0.5f)))
+	ImGui::SameLine(contentRegionAvailable.x - m_DownloadBarTexture->GetWidth());
+	if (ImGui::ImageButton((void*)m_DownloadBarTexture->GetRendererID(), ImVec2(m_DownloadBarTexture->GetWidth(), m_DownloadBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), ImVec4(0.0f, 1.0f, 0.0f, 0.5f)))
 	{
 
 	}
