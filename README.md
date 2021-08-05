@@ -5,6 +5,19 @@
 
 Epoch is primarily an early-stage interactive application and rendering engine for Windows. Currently not much is implemented.
 
+## New Feature Now
+### v0.0.1-Alpha
+![v0.0.1](docs/images/Epoch-Alpha-v0.0.1.png)
+### v0.0.2-Alpha
+![v0.0.2](docs/images/Epoch-Alpha-v0.0.2.png)
+### v0.0.3-Alpha
+![v0.0.3](docs/images/Epoch-Alpha-v0.0.3.png)
+### v0.0.4-Alpha
+- Run-time Rendering
+- Off-line Rendering
+- Resource System(Mesh) -- plan -> Texture, Material ...
+- Something else
+![v0.0.4](docs/images/Epoch-Alpha-v0.0.4.png)
 ## Getting Started
 
 Visual Studio 2017 or 2019 is recommended, Epoch is officially untested on other development environments whilst we focus on a Windows build.
