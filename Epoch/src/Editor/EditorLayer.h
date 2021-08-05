@@ -72,6 +72,7 @@ namespace Epoch {
 	// Async Resource
 	std::future<int> m_Fu;
 
+	Offline *m_Offline;
 	//Light
 	glm::vec3 m_LightColor = { 1.0f, 0.3f, 1.0f };
 	glm::vec3 m_LightPosition = { 1.0f, 0.0f, 1.0f };
@@ -90,6 +91,7 @@ namespace Epoch {
 	Ref<Texture> m_PauseBarTexture;
 	Ref<Texture> m_StopBarTexture;
 	Ref<Texture> m_DownloadBarTexture;
+	Ref<Texture> m_OfflineTexture;
 
 	Ref<Shader> m_shader;
 

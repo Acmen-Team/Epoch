@@ -27,6 +27,8 @@ namespace Epoch {
 
   void EditorLayer::OnAttach()
   {
+	m_Offline = new Offline();
+
 	m_Fu = std::async(&ResourceAllocator<Mesh>::AddRes, ResourceManager::Get().GetAllocator(), "assets/models/cube.obj", "assets/models/");
 	m_Fu.wait();
 	// Load shader
@@ -382,6 +384,12 @@ namespace Epoch {
 	//  }
 	//  ImGui::End();
 	//}
+	{
+	  ImGui::Begin("Offline");
+	  if (m_OfflineTexture)
+		ImGui::Image((void*)m_OfflineTexture->GetRendererID(), ImVec2(m_OfflineTexture->GetWidth(), m_OfflineTexture->GetHeight()), ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f });
+	  ImGui::End();
+	}
 
 	{
 	  //material
@@ -571,6 +579,11 @@ namespace Epoch {
 	if (ImGui::ImageButton((void*)currentBar, ImVec2(m_PlayBarTexture->GetWidth(), m_PlayBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), ImVec4(1.0f, 1.0f, 1.0f, 0.5f)))
 	{
 	  current++;
+	  if (m_Offline->BeginScene())
+	  {
+		m_OfflineTexture = Texture2D::Create("assets/textures/Offline.png");
+		current++;
+	  }
 	}
 
 	ImGui::SameLine();
@@ -585,11 +598,11 @@ namespace Epoch {
 	ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4{ 0.1f, 0.105f, 0.11f, 1.0f });
 	ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4{ 0.35f, 0.85f, 0.15f, 0.3f });
 	int ProgressBarWidth = contentRegionAvailable.x / 2 - m_PlayBarTexture->GetWidth() - m_StopBarTexture->GetWidth() - 10;
-	ImGui::ProgressBar(0.5f, ImVec2(ProgressBarWidth, m_PlayBarTexture->GetWidth()), "");
+	ImGui::ProgressBar(m_Offline->Progress, ImVec2(ProgressBarWidth, m_PlayBarTexture->GetWidth()), "");
 	ImGui::PopStyleColor(2);
 
 	ImGui::SameLine(contentRegionAvailable.x - m_DownloadBarTexture->GetWidth());
-	if (ImGui::ImageButton((void*)m_DownloadBarTexture->GetRendererID(), ImVec2(m_DownloadBarTexture->GetWidth(), m_DownloadBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), ImVec4(0.0f, 1.0f, 0.0f, 0.5f)))
+	if (ImGui::ImageButton((void*)m_DownloadBarTexture->GetRendererID(), ImVec2(m_DownloadBarTexture->GetWidth(), m_DownloadBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), ImVec4(0.0f, 1.0f, 0.0f, std::max(0.5f, m_Offline->Progress))))
 	{
 
 	}
