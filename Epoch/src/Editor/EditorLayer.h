@@ -71,6 +71,7 @@ namespace Epoch {
 	bool Perspective = true;
 	// Async Resource
 	std::future<int> m_Fu;
+	std::future<bool>* m_OfflineFu = nullptr;
 
 	Offline *m_Offline;
 	//Light

@@ -579,17 +579,22 @@ namespace Epoch {
 	if (ImGui::ImageButton((void*)currentBar, ImVec2(m_PlayBarTexture->GetWidth(), m_PlayBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), ImVec4(1.0f, 1.0f, 1.0f, 0.5f)))
 	{
 	  current++;
-	  if (m_Offline->BeginScene())
-	  {
-		m_OfflineTexture = Texture2D::Create("assets/textures/Offline.png");
-		current++;
-	  }
+	  m_OfflineFu = new std::future(std::async(std::launch::async, &Offline::BeginScene, m_Offline));
+	}
+
+	if (m_OfflineFu && m_OfflineFu->_Is_ready())
+	{
+	  m_OfflineTexture = Texture2D::Create("assets/textures/Offline.png");
+	  current++;
+	  m_OfflineFu->~future();
+	  delete m_OfflineFu;
+	  m_OfflineFu = nullptr;
 	}
 
 	ImGui::SameLine();
 
 	//ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
-	if (ImGui::ImageButton((void*)m_StopBarTexture->GetRendererID(), ImVec2(m_StopBarTexture->GetWidth(), m_StopBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), ImVec4(1.0f, 1.0f, 1.0f, 0.5f)))
+	if (ImGui::ImageButton((void*)m_PlayBarTexture->GetRendererID(), ImVec2(m_PlayBarTexture->GetWidth(), m_PlayBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), ImVec4(1.0f, 1.0f, 1.0f, 0.5f)))
 	{
 	  //make_visible();
 	}
@@ -602,7 +607,7 @@ namespace Epoch {
 	ImGui::PopStyleColor(2);
 
 	ImGui::SameLine(contentRegionAvailable.x - m_DownloadBarTexture->GetWidth());
-	if (ImGui::ImageButton((void*)m_DownloadBarTexture->GetRendererID(), ImVec2(m_DownloadBarTexture->GetWidth(), m_DownloadBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), ImVec4(0.0f, 1.0f, 0.0f, std::max(0.5f, m_Offline->Progress))))
+	if (ImGui::ImageButton((void*)m_DownloadBarTexture->GetRendererID(), ImVec2(m_DownloadBarTexture->GetWidth(), m_DownloadBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), ImVec4(0.0f, 1.0f, 0.0f, std::max(0.3f, m_Offline->Progress))))
 	{
 
 	}

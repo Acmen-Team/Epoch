@@ -17,6 +17,10 @@ namespace Epoch {
 	float y() const { return e[1]; }
 	float z() const { return e[2]; }
 
+	Vec3 operator-() const { return Vec3(-e[0], -e[1], -e[2]); }
+	float operator[](int i) const { return e[i]; }
+	float& operator[](int i) { return e[i]; }
+
 	Vec3& operator+=(const Vec3& v)
 	{
 	  e[0] += v.e[0];

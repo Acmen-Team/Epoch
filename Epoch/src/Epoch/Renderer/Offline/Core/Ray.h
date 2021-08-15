@@ -17,7 +17,7 @@ namespace Epoch {
 	Point GetOrigin() const { return m_origin; }
 	Vec3 GetDirection() const { return m_direction; }
 
-	Point At(float time)
+	Point At(float time) const
 	{
 	  return m_origin + time * m_direction;
 	}

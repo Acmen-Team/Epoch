@@ -1,6 +1,6 @@
 #pragma once
 #include "Epoch/Math/Vec.h"
-#include "Epoch/Renderer/Offline/Core/Ray.h"
+#include "Epoch/Renderer/Offline/Core/Rtweeked.h"
 
 namespace Epoch {
 
@@ -13,7 +13,7 @@ namespace Epoch {
 
 	bool BeginScene();
 
-	Color RayColor(const Ray& ray);
+	Color RayColor(const Ray& ray, const Hittable& world);
 
 	char *m_RendererID;
 

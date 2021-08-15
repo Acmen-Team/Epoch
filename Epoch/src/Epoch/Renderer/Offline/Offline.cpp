@@ -5,8 +5,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-#include "Epoch/Math/Vec.h"
-#include "Epoch/Renderer/Offline/Core/Ray.h"
+#include "Epoch/Renderer/Offline/Object/Sphere.h"
 
 namespace Epoch {
 
@@ -29,11 +28,18 @@ namespace Epoch {
 	auto vertical = Vec3(0, viewport_height, 0);
 	auto lower_left_corner = origin - horizontal / 2 - vertical / 2 - Vec3(0, 0, focal_length);
 
+	// World
+	HittableList world;
+	world.Add(std::make_shared<Sphere>(Point(0, 0, -1), 0.5));
+	world.Add(std::make_shared<Sphere>(Point(0, -100.5, -1), 100));
+
+	// Render
+
 	int x = 0;
 
 	for (int j = image_height - 1; j >= 0; --j)
 	{
-	  Progress = 1 - j / image_height - 1;
+	  Progress = 1.0f - ((float)j / (float)(image_height - 1));
 
 	  for (int i = 0; i < image_width; ++i)
 	  {
@@ -42,7 +48,7 @@ namespace Epoch {
 
 		Ray ray(origin, lower_left_corner + u * horizontal + v * vertical - origin);
 
-		Color pixel_color = RayColor(ray);
+		Color pixel_color = RayColor(ray, world);
 
 		float ir = 255.999 * pixel_color.x();
 		float ig = 255.999 * pixel_color.y();
@@ -72,11 +78,26 @@ namespace Epoch {
 	return true;
   }
 
-  Color Offline::RayColor(const Ray& ray)
+  Color Offline::RayColor(const Ray& ray, const Hittable& world)
   {
-	Vec3 dirNormalize = normalize(ray.GetDirection());
-	auto t = 0.5 * (dirNormalize.y() + 1.0);
-	return (1.0 - t) * Color(1.0f, 1.0f, 1.0f) + t * Color(0.5f, 0.7f, 1.0f);
+	HitRecord rec;
+	if (world.Hit(ray, 0, infinity, rec)) {
+	  return 0.5 * (rec.normal + Color(1, 1, 1));
+	}
+	Vec3 unit_direction = normalize(ray.GetDirection());
+	auto t = 0.5 * (unit_direction.y() + 1.0);
+	return (1.0 - t) * Color(1.0, 1.0, 1.0) + t * Color(0.5, 0.7, 1.0);
+
+	//if (t > 0.0f)
+	//{
+	//  Vec3 normal = normalize(ray.At(t) - Point(0, 0, -1));
+	//  return 0.5 * Color(normal.x() + 1, normal.y() + 1, normal.z() + 1);
+	//}
+
+	//Vec3 dirNormalize = normalize(ray.GetDirection());
+	//t = 0.5 * (dirNormalize.y() + 1.0);
+	//return (1.0 - t) * Color(1.0f, 1.0f, 1.0f) + t * Color(0.5f, 0.7f, 1.0f);
   }
+
 
 }
