@@ -26,12 +26,20 @@ namespace Epoch {
 	return m_MeshData;
   }
 
-  std::shared_ptr<Epoch::VertexArray>& Mesh::GetVertexArray()
+  std::map<std::string, std::shared_ptr<Epoch::VertexArray>>& Mesh::GetMesh()
   {
-	if (!m_VertexArray)
-	  CreatVertexArray(m_MeshData);
+	if (m_VertexArrayList.size() == 0)
+	  CreatVertexArrayList(m_MeshData);
 
-	return m_VertexArray;
+	return m_VertexArrayList;
+  }
+
+  std::shared_ptr<Epoch::VertexArray>& Mesh::GetVertexArray(std::string& name)
+  {
+	if (m_VertexArrayList.size() == 0)
+	  CreatVertexArrayList(m_MeshData);
+
+	return m_VertexArrayList.find(name)->second;
   }
 
   std::shared_ptr<MeshData> Mesh::ObjLoad(const std::string& file_path, const std::string& base_path, bool triangle)
@@ -64,6 +72,10 @@ namespace Epoch {
 	// Loop over shapes
 	for (size_t s = 0; s < shapes.size(); s++) {
 	  // Loop over faces(polygon)
+	  ShapeData *shape = new ShapeData();
+
+	  shape->name = shapes[s].name;
+
 	  size_t index_offset = 0;
 	  for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
 
@@ -100,14 +112,15 @@ namespace Epoch {
 		  // tinyobj::real_t blue  = attrib.colors[3*size_t(idx.vertex_index)+2];
 
 		  Vertex vertices(pos, normal, texCoord);
-		  meshData->vertices_list.push_back(vertices);
-		  meshData->indices_list.push_back(index_offset + v);
+		  shape->indices_list.push_back(index_offset + v);
+		  shape->vertices_list.push_back(vertices);
 		}
 		index_offset += fv;
 
 		// per-face material
 		shapes[s].mesh.material_ids[f];
 	  }
+	  meshData->shapes.push_back(shape);
 
 	}
 	pro = 0.0f;
@@ -115,26 +128,33 @@ namespace Epoch {
 	return meshData;
   }
 
-  void Mesh::CreatVertexArray(std::shared_ptr<MeshData>& mehsData)
+  void Mesh::CreatVertexArrayList(std::shared_ptr<MeshData>& meshData)
   {
-	m_VertexArray.reset(VertexArray::Create());
+	std::shared_ptr<VertexArray> m_VertexArray;
 
-	std::shared_ptr<Epoch::VertexBuffer> m_VertexBuffer;
+	for (auto shape : meshData->shapes)
+	{
+	  m_VertexArray.reset(VertexArray::Create());
 
-	m_VertexBuffer.reset(Epoch::VertexBuffer::Create((float*)&mehsData->vertices_list[0], sizeof(float) * 8 * mehsData->vertices_list.size()));
+	  std::shared_ptr<Epoch::VertexBuffer> m_VertexBuffer;
 
-	BufferLayout MeshLayout = {
-	  { ShaderDataType::Float3, "a_Pos" },
-	  { ShaderDataType::Float3, "a_Normal" },
-	  { ShaderDataType::Float2, "a_TexCoord" }
-	};
+	  m_VertexBuffer.reset(Epoch::VertexBuffer::Create((float*)&shape->vertices_list[0], sizeof(float) * 8 * shape->vertices_list.size()));
 
-	m_VertexBuffer->SetLayout(MeshLayout);
-	m_VertexArray->AddVertexBuffer(m_VertexBuffer);
+	  BufferLayout MeshLayout = {
+		{ ShaderDataType::Float3, "a_Pos" },
+		{ ShaderDataType::Float3, "a_Normal" },
+		{ ShaderDataType::Float2, "a_TexCoord" }
+	  };
 
-	std::shared_ptr<Epoch::IndexBuffer> m_IndexBuffer;
-	m_IndexBuffer.reset(Epoch::IndexBuffer::Create((uint32_t*)&mehsData->indices_list[0], mehsData->indices_list.size()));
-	m_VertexArray->SetIndexBuffer(m_IndexBuffer);
+	  m_VertexBuffer->SetLayout(MeshLayout);
+	  m_VertexArray->AddVertexBuffer(m_VertexBuffer);
+
+	  std::shared_ptr<Epoch::IndexBuffer> m_IndexBuffer;
+	  m_IndexBuffer.reset(Epoch::IndexBuffer::Create((uint32_t*)&shape->indices_list[0], shape->indices_list.size()));
+	  m_VertexArray->SetIndexBuffer(m_IndexBuffer);
+
+	  m_VertexArrayList.insert(std::pair<std::string, std::shared_ptr<VertexArray>>(shape->name, m_VertexArray));
+	}
   }
 
 }
