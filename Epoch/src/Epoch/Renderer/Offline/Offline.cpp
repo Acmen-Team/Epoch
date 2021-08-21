@@ -15,6 +15,8 @@ namespace Epoch {
 	const auto aspect_ratio = 16.0 / 9.0;
 	const int image_width = 1080;
 	const int image_height = static_cast<int>(image_width / aspect_ratio);
+	const int max_depth = 50;
+	const int samples_per_pixel = 50;
 
 	m_RendererID = new char[image_width * image_height * 3];
 	// Camera
@@ -30,7 +32,8 @@ namespace Epoch {
 
 	// World
 	HittableList world;
-	world.Add(std::make_shared<Sphere>(Point(0, 0, -1), 0.5));
+	world.Add(std::make_shared<Sphere>(Point(0.5, 0, -1), 0.5));
+	world.Add(std::make_shared<Sphere>(Point(-0.5, 0, -1), 0.5));
 	world.Add(std::make_shared<Sphere>(Point(0, -100.5, -1), 100));
 
 	// Render
@@ -40,19 +43,35 @@ namespace Epoch {
 	for (int j = image_height - 1; j >= 0; --j)
 	{
 	  Progress = 1.0f - ((float)j / (float)(image_height - 1));
-
 	  for (int i = 0; i < image_width; ++i)
 	  {
-		auto u = float(i) / (image_width - 1);
-		auto v = float(j) / (image_height - 1);
+		Color pixel_color(0, 0, 0);
+		for (int s = 0; s < samples_per_pixel; ++s)
+		{
+		  auto u = float(i + random_float()) / (image_width - 1);
+		  auto v = float(j + random_float()) / (image_height - 1);
 
-		Ray ray(origin, lower_left_corner + u * horizontal + v * vertical - origin);
+		  Ray ray(origin, lower_left_corner + u * horizontal + v * vertical - origin);
 
-		Color pixel_color = RayColor(ray, world);
+		  pixel_color += RayColor(ray, world, max_depth);
+		}
 
-		float ir = 255.999 * pixel_color.x();
-		float ig = 255.999 * pixel_color.y();
-		float ib = 255.999 * pixel_color.z();
+		auto r = pixel_color.x();
+		auto g = pixel_color.y();
+		auto b = pixel_color.z();
+
+		// Divide the color by the number of samples.
+		auto scale = 1.0 / samples_per_pixel;
+		//r *= scale;
+		//g *= scale;
+		//b *= scale;
+		r = sqrt(r * scale);
+		g = sqrt(g * scale);
+		b = sqrt(b * scale);
+
+		float ir = 256 * clamp(r, 0.0, 0.999);
+		float ig = 256 * clamp(g, 0.0, 0.999);
+		float ib = 256 * clamp(b, 0.0, 0.999);
 
 		m_RendererID[x * 3 + 0] = ir;
 		m_RendererID[x * 3 + 1] = ig;
@@ -78,11 +97,17 @@ namespace Epoch {
 	return true;
   }
 
-  Color Offline::RayColor(const Ray& ray, const Hittable& world)
+  Color Offline::RayColor(const Ray& ray, const Hittable& world, int depth)
   {
 	HitRecord rec;
-	if (world.Hit(ray, 0, infinity, rec)) {
-	  return 0.5 * (rec.normal + Color(1, 1, 1));
+
+	if (depth <= 0)
+	  return Color(0, 0, 0);
+
+	if (world.Hit(ray, 0.001, infinity, rec)) {
+	  //return 0.5 * (rec.normal + Color(1, 1, 1));
+	  Point target = rec.p + rec.normal + Random_in_unit_sphere();
+	  return 0.5 * RayColor(Ray(rec.p, target - rec.p), world, depth - 1);
 	}
 	Vec3 unit_direction = normalize(ray.GetDirection());
 	auto t = 0.5 * (unit_direction.y() + 1.0);

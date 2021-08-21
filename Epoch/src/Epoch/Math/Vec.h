@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Epoch/Renderer/Offline/Core/Rtweeked.h"
+
 namespace Epoch {
 
   class Vec3
@@ -11,6 +13,16 @@ namespace Epoch {
 
 	Vec3(float x, float y, float z) : e{ x, y, z }
 	{
+	}
+
+	inline static Vec3 Random()
+	{
+	  return Vec3(random_float(), random_float(), random_float());
+	}
+
+	inline static Vec3 Random(float min, float max)
+	{
+	  return Vec3(random_float(min, max), random_float(min, max), random_float(min, max));
 	}
 
 	float x() const { return e[0]; }
@@ -44,9 +56,15 @@ namespace Epoch {
 	  return *this *= 1 / t;
 	}
 
-	float Length() const;
+	float Length() const
+	{
+	  return sqrt(LengthSquared());
+	}
 
-	float LengthSquared() const;
+	float LengthSquared() const
+	{
+	  return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
+	}
 
   public:
 	float e[3];
@@ -95,6 +113,16 @@ namespace Epoch {
   inline Vec3 normalize(Vec3 v)
   {
 	return v / v.Length();
+  }
+
+  inline Vec3 Random_in_unit_sphere()
+  {
+	while (true)
+	{
+	  auto p = Vec3::Random(-1, 1);
+	  if (p.LengthSquared() >= 1) continue;
+	  return p;
+	}
   }
 
 }
