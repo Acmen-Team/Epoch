@@ -41,8 +41,9 @@ namespace Epoch {
 	float GetOrthographicFar() const { return m_OrthographicFar; }
 	void SetOrthographicFar(float farClip) { m_OrthographicFar = farClip; RecalculateProjectionMatrix(); }
 
+	void OnViewportResize(uint32_t width, uint32_t height);
+
 	// Set matrix
-	void SetProjectionMatrix(float fov, float aspectRatio, float nearPlan, float farPlan);
 	void SetViewMatrix(const glm::mat4 viewMatrix);
 
 	// Set view matrix value
@@ -58,6 +59,8 @@ namespace Epoch {
 
 	// Transform
 	glm::mat4 GetTransform() const;
+
+	bool fixedAspectration;
   private:
 	void RecalculateViewMatrix();
 	void RecalculateProjectionMatrix();

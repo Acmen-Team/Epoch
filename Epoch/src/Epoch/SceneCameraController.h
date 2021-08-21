@@ -21,6 +21,8 @@ namespace Epoch {
 
 	glm::vec3& GetCameraPosition() { return m_CameraPosition; }
 	glm::vec3& GetCameraFront() { return m_CameraFront; }
+
+	void OnViewportResize(uint32_t width, uint32_t height);
   private:
 	bool OnMouseMovedEvent(MouseMovedEvent& e);
 	bool OnMouseScrolledEvent(MouseScrolledEvent& e);

@@ -71,6 +71,14 @@ namespace Epoch {
   {
 	PROFILE_SCOPE("EditorLayer::OnUpdate");
 
+	if (FramebufferSpecification spec = m_Framebuffer->GetSpecification();
+	  m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && // zero sized framebuffer is invalid
+	  (spec.Width != m_ViewportSize.x || spec.Height != m_ViewportSize.y))
+	{
+	  m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+
+	  m_CameraController.OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+	}
 	// Resize
 	//if (FramebufferSpecification spec = m_Framebuffer->GetSpecification();
 	//	m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f &&
@@ -309,11 +317,8 @@ namespace Epoch {
 	  m_ViewPanelFocused = ImGui::IsWindowFocused();
 	  m_ViewPanelHovered = ImGui::IsWindowHovered();
 	  ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-	  if (m_ViewportSize != *((glm::vec2*)&viewportPanelSize))
-	  {
-		m_Framebuffer->Resize((uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);
-		m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
-	  }
+	  m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
+
 	  ImGui::Image((void*)m_Framebuffer->GetColorAttachmentRendererID(), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f });
 
 
@@ -405,6 +410,9 @@ namespace Epoch {
 	  ImGui::Begin("Camera");
 	  const char* projectionTypeStrings[] = { "Perspective", "Orthographic" };
 	  const char* currentProjectionTypeString = projectionTypeStrings[(int)m_CameraController.GetCamera().GetProjectionType()];
+
+	  ImGui::Checkbox("Fixed Aspect Ratio", &(m_CameraController.GetCamera().fixedAspectration));
+
 	  if (ImGui::BeginCombo("Projection", currentProjectionTypeString))
 	  {
 		for (int i = 0; i < 2; i++)
