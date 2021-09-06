@@ -1,6 +1,7 @@
 #pragma once
 #include "Epoch.h"
 #include "Panel/SceneHierarchyPanel.h"
+#include "Epoch/Events/KeyEvent.h"
 
 #include <chrono>
 
@@ -62,6 +63,9 @@ namespace Epoch {
 
 	void DockingToolbar(const char* name, ImGuiAxis* p_toolbar_axis);
   private:
+	bool OnKeyPressed(KeyPressedEvent& e);
+
+  private:
 	Epoch::ShaderLibrary m_ShaderLibrary;
 
 	SceneCameraController m_CameraController;
@@ -103,6 +107,8 @@ namespace Epoch {
 	RenderModel m_RenderModel = RenderModel::Fill;
 
 	int lightType = 0;
+
+	int m_GizmoType = 0;
 
 	bool m_ViewPanelFocused = true;
 	bool m_ViewPanelHovered = true;

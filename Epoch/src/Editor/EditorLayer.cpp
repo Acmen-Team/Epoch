@@ -14,6 +14,8 @@
 #include "FileDialog.h"
 
 #include "Epoch/Resource/ResourceManager.h"
+#include "Epoch/Math/Math.h"
+#include "Epoch/Core/KeyCodes.h"
 #include "ImGuizmo.h"
 
 #include <thread>
@@ -129,6 +131,11 @@ namespace Epoch {
 
   void EditorLayer::OnEvent(Event& event)
   {
+	//EP_CORE_INFO("{0}", event.GetName());
+
+	EventDispatcher dispatcher(event);
+	dispatcher.Dispatch<KeyPressedEvent>(EP_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
+
 	m_CameraController.OnEvent(event);
   }
 
@@ -342,11 +349,18 @@ namespace Epoch {
 
 		glm::mat4 transformation = tc.GetTransform();
 
-		ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr(transformation));
+		ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transformation));
 
 		if (ImGuizmo::IsUsing())
 		{
-		  tc.Translation = glm::vec3(transformation[3]);
+		  glm::vec3 translation, rotation, scale;
+		  Math::DecomposeTransform(transformation, translation, rotation, scale);
+
+		  tc.Translation = translation;
+		  glm::vec3 deltaRotation = rotation - tc.Rotation;
+		  tc.Rotation += deltaRotation;
+		  tc.Scale = scale;
+		  
 		}
 	  }
 
@@ -501,6 +515,25 @@ namespace Epoch {
 
 
 	ImGui::End();
+  }
+
+  bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
+  {
+	if (e.GetRepeatCount() > 0)
+	  return false;
+
+	switch (e.GetKeyCode())
+	{
+	  case EP_KEY_SPACE:
+	  {
+	    if (m_GizmoType < 2)
+	  	  ++m_GizmoType;
+	    else
+	  	  m_GizmoType = 0;
+
+		break;
+	  }
+	}
   }
 
   void EditorLayer::DockingToolbar(const char* name, ImGuiAxis* p_toolbar_axis)

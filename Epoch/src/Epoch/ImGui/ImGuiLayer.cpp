@@ -71,7 +71,7 @@ namespace Epoch {
   {
 	ImGuiIO& io = ImGui::GetIO();
 
-	event.Handled |= event.IsInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
+	//event.Handled |= event.IsInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
 	//event.Handled |= event.IsInCategory(EventCategoryMouse) & io.WantCaptureMouse;
   }
 
