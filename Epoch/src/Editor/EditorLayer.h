@@ -1,6 +1,7 @@
 #pragma once
 #include "Epoch.h"
 #include "Panel/SceneHierarchyPanel.h"
+#include "Panel/ContentBrowserPanel.h"
 #include "Epoch/Events/KeyEvent.h"
 
 #include <chrono>
@@ -61,7 +62,9 @@ namespace Epoch {
 
 	virtual void OnImGuiRender() override;
 
+  protected:
 	void DockingToolbar(const char* name, ImGuiAxis* p_toolbar_axis);
+
   private:
 	bool OnKeyPressed(KeyPressedEvent& e);
 
@@ -97,6 +100,9 @@ namespace Epoch {
 	Ref<Texture> m_StopBarTexture;
 	Ref<Texture> m_DownloadBarTexture;
 	Ref<Texture> m_OfflineTexture;
+	Ref<Texture> m_TransTexture;
+	Ref<Texture> m_RotateTexture;
+	Ref<Texture> m_ScaleTexture;
 
 	Ref<Shader> m_shader;
 
@@ -115,6 +121,7 @@ namespace Epoch {
 
 	// Panels
 	SceneHierarchyPanel m_SceneHierarchyPanel;
+	ContentBrowserPanel m_ContentBrowserPanel;
 
 	struct ProfileResult
 	{

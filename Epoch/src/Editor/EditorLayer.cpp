@@ -22,6 +22,8 @@
 
 namespace Epoch {
 
+  extern const std::filesystem::path g_AssetPath;
+
   EditorLayer::EditorLayer() : Layer("Example"), m_CameraController(1.6f / 0.9f)
   {
 
@@ -50,6 +52,10 @@ namespace Epoch {
 	m_PauseBarTexture = Texture2D::Create("assets/textures/toolbar/PauseBar.png");
 	m_StopBarTexture = Texture2D::Create("assets/textures/toolbar/StopBar.png");
 	m_DownloadBarTexture = Texture2D::Create("assets/textures/toolbar/DownloadBar.png");
+
+	m_TransTexture = Texture2D::Create("assets/Resource/Icon/TransIcon.png");
+	m_RotateTexture = Texture2D::Create("assets/Resource/Icon/RotateIcon.png");
+	m_ScaleTexture = Texture2D::Create("assets/Resource/Icon/ScaleIcon.png");
 	//m_PlayBarTexture = Texture2D::Create("assets/textures/face.png");
 
 	m_Scene = std::make_shared<Scene>();
@@ -188,7 +194,7 @@ namespace Epoch {
 	ImGuiIO& io = ImGui::GetIO();
 	ImGuiStyle& style = ImGui::GetStyle();
 	float minWinSizeX = style.WindowMinSize.x;
-	style.WindowMinSize.x = 350.0f;
+	style.WindowMinSize.x = 250.0f;
 
 	auto menubareHeight = ImGui::GetCurrentWindow()->MenuBarHeight();
 
@@ -282,6 +288,8 @@ namespace Epoch {
 
 	m_SceneHierarchyPanel.OnImGuiRender();
 
+	m_ContentBrowserPanel.OnImGuiRender();
+
 	{
 	  //Setting
 	  ImGui::Begin("Setting");
@@ -314,12 +322,14 @@ namespace Epoch {
 	  ImGui::End();
 	}
 
-
-
 	{
 	  // Scene
 	  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0, 0.0 });
 	  ImGui::Begin("Scene");
+
+	  ImGuiDockNode* node = ImGui::GetWindowDockNode();
+	  node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
+	
 
 	  m_ViewPanelFocused = ImGui::IsWindowFocused();
 	  m_ViewPanelHovered = ImGui::IsWindowHovered();
@@ -364,6 +374,135 @@ namespace Epoch {
 		}
 	  }
 
+	  const float DISTANCE = 10.0f;
+	  static int corner = 1;
+	  ImGuiIO& io = ImGui::GetIO();
+	  ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+
+	  ImVec2 work_area_pos = node->Pos;
+	  ImVec2 work_area_size = node->Size;
+
+	  if (corner != -1)
+	  {
+		window_flags |= ImGuiWindowFlags_NoMove;
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+		
+		ImVec2 window_pos = ImVec2((corner & 1) ? (work_area_pos.x + work_area_size.x - DISTANCE) : (work_area_pos.x + DISTANCE), (corner & 2) ? (work_area_pos.y + work_area_size.y - DISTANCE) : (work_area_pos.y + DISTANCE));
+		ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
+		ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+		ImGui::SetNextWindowViewport(node->ID);
+	  }
+	  ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
+
+	  ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
+	  float buttonSize = 25.0f;
+	  if (ImGui::Begin("Example: Simple overlay", p_open, window_flags))
+	  {
+		if (work_area_size.x < 100)
+		{
+		  buttonSize = work_area_size.x / 4;
+		}
+		//if (ImGui::CollapsingHeader("##Setting", ImGuiTreeNodeFlags_None))
+		//{
+		//  ImGui::BeginChild(ImGui::GetID("##Setting"), ImVec2(100, 70), true, ImGuiWindowFlags_None);
+		//  const char* projectionTypeStrings[] = { "Perspective", "Orthographic" };
+		//  const char* currentProjectionTypeString = projectionTypeStrings[(int)m_CameraController.GetCamera//().GetProjectionType()];
+		//
+		//  ImGui::Checkbox("Fixed Aspect Ratio", &(m_CameraController.GetCamera().fixedAspectration));
+		//
+		//  if (ImGui::BeginCombo("Projection", currentProjectionTypeString))
+		//  {
+		//	for (int i = 0; i < 2; i++)
+		//	{
+		//	  bool isSelected = currentProjectionTypeString == projectionTypeStrings[i];
+		//	  if (ImGui::Selectable(projectionTypeStrings[i], isSelected))
+		//	  {
+		//		currentProjectionTypeString = projectionTypeStrings[i];
+		//		m_CameraController.GetCamera().SetProjectionType((SceneCamera::ProjectionType)i);
+		//	  }
+		//
+		//	  if (isSelected)
+		//		ImGui::SetItemDefaultFocus();
+		//	}
+		//
+		//	ImGui::EndCombo();
+		//  }
+		//  // Setting perspective camera
+		//  if (m_CameraController.GetCamera().GetProjectionType() == SceneCamera::ProjectionType::Perspective)
+		//  {
+		//	float persFov = m_CameraController.GetCamera().GetPerspectiveFov();
+		//	if (ImGui::DragFloat("Fov", &persFov, 0.05f, 0.1f))
+		//	  m_CameraController.GetCamera().SetPerspectiveFov(persFov);
+		//
+		//	float persNear = m_CameraController.GetCamera().GetPerspectiveNear();
+		//	if (ImGui::DragFloat("Near", &persNear))
+		//	  m_CameraController.GetCamera().SetPerspectiveNear(persNear);
+		//
+		//	float persFar = m_CameraController.GetCamera().GetPerspectiveFar();
+		//	if (ImGui::DragFloat("Far", &persFar))
+		//	  m_CameraController.GetCamera().SetPerspectiveFar(persFar);
+		//  }
+		//  // Setting ortho camera
+		//  if (m_CameraController.GetCamera().GetProjectionType() == SceneCamera::ProjectionType::Orthographic)
+		//  {
+		//	float orthoSize = m_CameraController.GetCamera().GetOrthographicSize();
+		//	if (ImGui::DragFloat("Size", &orthoSize, 0.05f, 0.1f, 50.0f))
+		//	  m_CameraController.GetCamera().SetOrthographicSize(orthoSize);
+		//
+		//	float orthoNear = m_CameraController.GetCamera().GetOrthographicNear();
+		//	if (ImGui::DragFloat("Near", &orthoNear))
+		//	  m_CameraController.GetCamera().SetOrthographicNear(orthoNear);
+		//
+		//	float orthoFar = m_CameraController.GetCamera().GetOrthographicFar();
+		//	if (ImGui::DragFloat("Far", &orthoFar))
+		//	  m_CameraController.GetCamera().SetOrthographicFar(orthoFar);
+		//  }
+		//  ImGui::EndChild();
+		//}
+		//ImGui::SameLine();
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));
+
+		if (ImGui::ImageButton((void*)m_TransTexture->GetRendererID(), ImVec2(m_PlayBarTexture->GetWidth(), m_PlayBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), m_GizmoType == 0 ? ImVec4(1.0f, 1.0f, 0.0f, 0.9f) : ImVec4(1.0f, 1.0f, 0.0f, 0.5f)))
+		{
+		  m_GizmoType = 0;
+		}
+		ImGui::SameLine();
+		if (ImGui::ImageButton((void*)m_RotateTexture->GetRendererID(), ImVec2(m_PlayBarTexture->GetWidth(), m_PlayBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), m_GizmoType == 1 ? ImVec4(1.0f, 1.0f, 0.0f, 0.9f) : ImVec4(1.0f, 1.0f, 0.0f, 0.5f)))
+		{
+		  m_GizmoType = 1;
+		}
+		ImGui::SameLine();
+		if (ImGui::ImageButton((void*)m_ScaleTexture->GetRendererID(), ImVec2(m_PlayBarTexture->GetWidth(), m_PlayBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), m_GizmoType == 2 ? ImVec4(1.0f, 1.0f, 0.0f, 0.9f) : ImVec4(1.0f, 1.0f, 0.0f, 0.5f)))
+		{
+		  m_GizmoType = 2;
+		}
+		ImGui::PopStyleColor(3);
+
+		//ImGui::Text("Simple overlay\n" "in the corner of the screen.\n" "(right-click to change position)");
+		//ImGui::Separator();
+		//if (ImGui::IsMousePosValid())
+		//  ImGui::Text("Mouse Position: (%.1f,%.1f)", io.MousePos.x, io.MousePos.y);
+		//else
+		//  ImGui::Text("Mouse Position: <invalid>");
+		if (ImGui::BeginPopupContextWindow())
+		{
+		  if (ImGui::MenuItem("Custom", NULL, corner == -1)) corner = -1;
+		  if (ImGui::MenuItem("Top-left", NULL, corner == 0)) corner = 0;
+		  if (ImGui::MenuItem("Top-right", NULL, corner == 1)) corner = 1;
+		  if (ImGui::MenuItem("Bottom-left", NULL, corner == 2)) corner = 2;
+		  if (ImGui::MenuItem("Bottom-right", NULL, corner == 3)) corner = 3;
+		  if (p_open && ImGui::MenuItem("Close")) *p_open = false;
+		  ImGui::EndPopup();
+		}
+	  }
+
+
+	  ImGui::End();
+	  ImGui::PopStyleVar();
+
 	  ImGui::End();
 	  ImGui::PopStyleVar();
 	}
@@ -405,6 +544,9 @@ namespace Epoch {
 	//}
 	{
 	  ImGui::Begin("Offline");
+	  ImGuiDockNode* node = ImGui::GetWindowDockNode();
+	  node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
+
 	  if (m_OfflineTexture)
 		ImGui::Image((void*)m_OfflineTexture->GetRendererID(), ImVec2(m_OfflineTexture->GetWidth(), m_OfflineTexture->GetHeight()), ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f });
 	  ImGui::End();
