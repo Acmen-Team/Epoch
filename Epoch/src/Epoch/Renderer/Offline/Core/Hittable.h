@@ -1,14 +1,19 @@
 #pragma once
 
 #include "Ray.h"
+#include "Rtweeked.h"
 
 namespace Epoch {
+
+  class RayMaterial;
 
   struct HitRecord
   {
 	Point p;
 	Vec3 normal;
 	float time;
+	//RayMaterial* material;
+	std::shared_ptr<RayMaterial> material;
 	bool frontFace;
 
 	inline void SetFaceNormal(const Ray& ray, const Vec3& outwardNormal)

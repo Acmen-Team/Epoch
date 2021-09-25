@@ -9,13 +9,17 @@ namespace Epoch {
   {
   public:
 	Sphere() {}
-	Sphere(Point center, float r) : m_Center(center), m_Radius(r) {};
+	Sphere(Point center, float r, std::shared_ptr<RayMaterial> material)
+	  : m_Center(center), m_Radius(r), m_Material(material)
+	{
+	}
 
 	virtual bool Hit(const Ray& ray, float timeMin, float timeMax, HitRecord& rec) const override;
 
   public:
 	Point m_Center;
 	float m_Radius;
+	std::shared_ptr<RayMaterial> m_Material;
   };
 
   bool Sphere::Hit(const Ray& ray, float timeMin, float timeMax, HitRecord& rec) const
@@ -43,6 +47,7 @@ namespace Epoch {
 	rec.p = ray.At(rec.time);
 	Vec3 outwardNormal = (rec.p - m_Center) / m_Radius;
 	rec.SetFaceNormal(ray, outwardNormal);
+	rec.material = m_Material;
 
 	return true;
   }

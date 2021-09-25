@@ -66,6 +66,13 @@ namespace Epoch {
 	  return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
 	}
 
+	bool NearZero() const
+	{
+	  const auto s = 1e-8;
+
+	  return (std::fabs(e[0]) < s) && (std::fabs(e[1]) < s) && (std::fabs(e[2]) < s);
+	}
+
   public:
 	float e[3];
   };
@@ -123,6 +130,16 @@ namespace Epoch {
 	  if (p.LengthSquared() >= 1) continue;
 	  return p;
 	}
+  }
+
+  inline Vec3 Random_unit_vector()
+  {
+	return normalize(Random_in_unit_sphere());
+  }
+
+  inline Vec3 Reflect(const Vec3& v, const Vec3& n)
+  {
+	return v - 2 * dot(v, n) * n;
   }
 
 }

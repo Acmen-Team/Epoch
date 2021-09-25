@@ -1,11 +1,12 @@
 #include "eppch.h"
 #include "Offline.h"
 
+#include "Epoch/Renderer/Offline/Object/Sphere.h"
+#include "Epoch/Renderer/Offline/Core/RayMaterial.h"
+
 #define STB_IMAGE_WRITE_STATIC
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
-
-#include "Epoch/Renderer/Offline/Object/Sphere.h"
 
 namespace Epoch {
 
@@ -16,7 +17,7 @@ namespace Epoch {
 	const int image_width = 1080;
 	const int image_height = static_cast<int>(image_width / aspect_ratio);
 	const int max_depth = 50;
-	const int samples_per_pixel = 50;
+	const int samples_per_pixel = 100;
 
 	m_RendererID = new char[image_width * image_height * 3];
 	// Camera
@@ -30,11 +31,22 @@ namespace Epoch {
 	auto vertical = Vec3(0, viewport_height, 0);
 	auto lower_left_corner = origin - horizontal / 2 - vertical / 2 - Vec3(0, 0, focal_length);
 
+	// Material
+	auto material_ground = std::make_shared<Lambertian>(Color(0.8, 0.8, 0.0));
+	auto material_center = std::make_shared<Lambertian>(Color(0.7, 0.3, 0.3));
+	auto material_left = std::make_shared<Metal>(Color(0.8, 0.8, 0.8), 0.3);
+	auto material_right = std::make_shared<Metal>(Color(0.8, 0.6, 0.2), 1.0);
+
 	// World
 	HittableList world;
-	world.Add(std::make_shared<Sphere>(Point(0.5, 0, -1), 0.5));
-	world.Add(std::make_shared<Sphere>(Point(-0.5, 0, -1), 0.5));
-	world.Add(std::make_shared<Sphere>(Point(0, -100.5, -1), 100));
+	world.Add(std::make_shared<Sphere>(Point(0.0, -100.5, -1.0), 100.0, material_ground));
+	world.Add(std::make_shared<Sphere>(Point(0.0, 0.0, -1.0), 0.5, material_center));
+	world.Add(std::make_shared<Sphere>(Point(-1.0, 0.0, -1.0), 0.5, material_left));
+	world.Add(std::make_shared<Sphere>(Point(1.0, 0.0, -1.0), 0.5, material_right));
+
+	//world.Add(std::make_shared<Sphere>(Point(0.5, 0, -1), 0.5, material_ground));
+	//world.Add(std::make_shared<Sphere>(Point(-0.5, 0, -1), 0.5));
+	//world.Add(std::make_shared<Sphere>(Point(0, -100.5, -1), 100));
 
 	// Render
 
@@ -106,8 +118,15 @@ namespace Epoch {
 
 	if (world.Hit(ray, 0.001, infinity, rec)) {
 	  //return 0.5 * (rec.normal + Color(1, 1, 1));
-	  Point target = rec.p + rec.normal + Random_in_unit_sphere();
-	  return 0.5 * RayColor(Ray(rec.p, target - rec.p), world, depth - 1);
+
+	  Ray scattered;
+	  Color attenuation;
+	  if (rec.material->Scatter(ray, rec, attenuation, scattered))
+		return attenuation * RayColor(scattered, world, depth - 1);
+	  return Color(0, 0, 0);
+
+	  //Point target = rec.p + rec.normal + Random_unit_vector();
+	  //return 0.5 * RayColor(Ray(rec.p, target - rec.p), world, depth - 1);
 	}
 	Vec3 unit_direction = normalize(ray.GetDirection());
 	auto t = 0.5 * (unit_direction.y() + 1.0);
