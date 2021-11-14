@@ -22,10 +22,18 @@ namespace Epoch {
 	}
   };
 
+  struct ShapeData
+  {
+	ShapeData() = default;
+
+	std::string name;
+	std::vector<unsigned int> indices_list;
+	std::vector<Vertex> vertices_list;
+  };
+
   struct MeshData
   {
-	std::vector<Vertex> vertices_list;
-	std::vector<unsigned int> indices_list;
+	std::vector<ShapeData*> shapes;
   };
 
   class Mesh
@@ -38,20 +46,21 @@ namespace Epoch {
 	static float GetReadPro() { return pro; }
 
 	std::string GetMeshName() const { return m_Name; }
-	std::shared_ptr<VertexArray>& GetVertexArray();
+	std::map<std::string, std::shared_ptr<VertexArray>>& GetMesh();
+	std::shared_ptr<VertexArray>& GetVertexArray(std::string& name);
 
 	std::shared_ptr<MeshData> LoadResFromeFile(const std::string& filePath, const std::string& basePath);
 
 	//static GetName() { return m_Name; }
   private:
 	std::shared_ptr<MeshData> ObjLoad(const std::string& file_path, const std::string& base_path, bool triangle = true);
-	void CreatVertexArray(std::shared_ptr<MeshData>& mehsData);
+	void CreatVertexArrayList(std::shared_ptr<MeshData>& meshData);
 	// TODO
 	//FbxLoad()
   private:
 	std::string m_Name = "M";
 	std::shared_ptr<MeshData> m_MeshData;
-	std::shared_ptr<VertexArray> m_VertexArray;
+	std::map<std::string, std::shared_ptr<VertexArray>> m_VertexArrayList;
   };
 
 }

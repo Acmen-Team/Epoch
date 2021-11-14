@@ -12,6 +12,7 @@ namespace Epoch {
 	m_ProjectionMatrix = glm::perspective(glm::radians(m_PerspectiveFov), m_Aspectratio, m_PerspectiveNear, m_PerspectiveFar);
 	m_ViewMatrix = glm::mat4(1.0f);
 	m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
+	fixedAspectration = false;
   }
 
   void SceneCamera::SetPerspective(float fov, float width, float height, float nearPlan, float farPlan)
@@ -38,13 +39,10 @@ namespace Epoch {
 	RecalculateProjectionMatrix();
   }
 
-  void SceneCamera::SetProjectionMatrix(float fov, float aspectRatio, float nearPlan, float farPlan)
+  void SceneCamera::OnViewportResize(uint32_t width, uint32_t height)
   {
-	//m_ProjectionMatrix = glm::perspective(glm::radians(fov), aspectRatio, nearPlan, farPlan);
-	//m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
-
-	//m_Aspectratio = aspectRatio;
-	//RecalculateProjectionMatrix();
+	m_Aspectratio = (float)width / (float)height;
+	RecalculateProjectionMatrix();
   }
 
   void SceneCamera::SetViewMatrix(const glm::mat4 viewMatrix)

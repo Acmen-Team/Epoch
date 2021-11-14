@@ -51,6 +51,12 @@ namespace Epoch {
 	}
   }
 
+  void SceneCameraController::OnViewportResize(uint32_t width, uint32_t height)
+  {
+	if (!m_Camera.fixedAspectration)
+	  m_Camera.OnViewportResize(width, height);
+  }
+
   bool SceneCameraController::OnMouseMovedEvent(MouseMovedEvent& e)
   {
 	if (RightMouseButtonPressed)
@@ -114,9 +120,13 @@ namespace Epoch {
 
   bool SceneCameraController::OnWindowResizeEvent(WindowResizeEvent& e)
   {
-	m_AspectRatio = 1.6 / 0.9;
+	//m_AspectRatio = 1.6 / 0.9;
 	//m_AspectRatio = e.GetWidth() / e.GetHeight();
-	m_Camera.SetProjectionMatrix(45.0f, m_AspectRatio, 0.1f, 100.0f);
+	//if (m_Camera.fixedAspectration)
+	//{
+	//
+	//}
+	//m_Camera.SetProjectionMatrix(45.0f, m_AspectRatio, 0.1f, 100.0f);
 
 	return false;
   }

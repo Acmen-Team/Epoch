@@ -1,4 +1,3 @@
-#pragma once
 #include "eppch.h"
 
 #include "Log.h"

@@ -22,6 +22,7 @@ IncludeDir["tinyobjloader"] = "Epoch/vendor/tinyobjloader"
 IncludeDir["dirent"] = "Epoch/vendor/dirent/include"
 IncludeDir["entt"] = "Epoch/vendor/entt/include"
 IncludeDir["ImGuizmo"] = "Epoch/vendor/ImGuizmo"
+IncludeDir["Vulkan"] = "Epoch/vendor/Vulkan/include"
 
 group "Dependencies"
 	include "Epoch/vendor/GLFW"
@@ -54,7 +55,9 @@ project "Epoch"
 		"%{prj.name}/vendor/dirent/include/dirent.h",
 		"%{prj.name}/vendor/entt/include/entt.hpp",
 		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.h",
-		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.cpp"
+		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.cpp",
+		"%{prj.name}/vendor/Vulkan/include/vulkan/**.h",
+		"%{prj.name}/vendor/Vulkan/include/vulkan/**.hpp"
 	}
 
 	defines
@@ -74,15 +77,19 @@ project "Epoch"
 		"%{IncludeDir.tinyobjloader}",
 		"%{IncludeDir.dirent}",
 		"%{IncludeDir.entt}",
-		"%{IncludeDir.ImGuizmo}"
+		"%{IncludeDir.ImGuizmo}",
+		"%{IncludeDir.Vulkan}"
 	}
+
+	libdirs { "Epoch/vendor/Vulkan/Lib" }
 
 	links
 	{
 		"GLFW",
 		"Glad",
 		"ImGui",
-		"opengl32.lib"
+		"opengl32.lib",
+		"vulkan-1.lib"
 	}
 
 	filter "files:Epoch/vendor/ImGuizmo/**.cpp"

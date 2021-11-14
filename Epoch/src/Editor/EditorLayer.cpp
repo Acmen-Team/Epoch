@@ -14,11 +14,15 @@
 #include "FileDialog.h"
 
 #include "Epoch/Resource/ResourceManager.h"
+#include "Epoch/Math/Math.h"
+#include "Epoch/Core/KeyCodes.h"
 #include "ImGuizmo.h"
 
 #include <thread>
 
 namespace Epoch {
+
+  extern const std::filesystem::path g_AssetPath;
 
   EditorLayer::EditorLayer() : Layer("Example"), m_CameraController(1.6f / 0.9f)
   {
@@ -27,6 +31,8 @@ namespace Epoch {
 
   void EditorLayer::OnAttach()
   {
+	m_Offline = new Offline();
+
 	m_Fu = std::async(&ResourceAllocator<Mesh>::AddRes, ResourceManager::Get().GetAllocator(), "assets/models/cube.obj", "assets/models/");
 	m_Fu.wait();
 	// Load shader
@@ -46,6 +52,10 @@ namespace Epoch {
 	m_PauseBarTexture = Texture2D::Create("assets/textures/toolbar/PauseBar.png");
 	m_StopBarTexture = Texture2D::Create("assets/textures/toolbar/StopBar.png");
 	m_DownloadBarTexture = Texture2D::Create("assets/textures/toolbar/DownloadBar.png");
+
+	m_TransTexture = Texture2D::Create("assets/Resource/Icon/TransIcon.png");
+	m_RotateTexture = Texture2D::Create("assets/Resource/Icon/RotateIcon.png");
+	m_ScaleTexture = Texture2D::Create("assets/Resource/Icon/ScaleIcon.png");
 	//m_PlayBarTexture = Texture2D::Create("assets/textures/face.png");
 
 	m_Scene = std::make_shared<Scene>();
@@ -69,6 +79,14 @@ namespace Epoch {
   {
 	PROFILE_SCOPE("EditorLayer::OnUpdate");
 
+	if (FramebufferSpecification spec = m_Framebuffer->GetSpecification();
+	  m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && // zero sized framebuffer is invalid
+	  (spec.Width != m_ViewportSize.x || spec.Height != m_ViewportSize.y))
+	{
+	  m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+
+	  m_CameraController.OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+	}
 	// Resize
 	//if (FramebufferSpecification spec = m_Framebuffer->GetSpecification();
 	//	m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f &&
@@ -119,6 +137,11 @@ namespace Epoch {
 
   void EditorLayer::OnEvent(Event& event)
   {
+	//EP_CORE_INFO("{0}", event.GetName());
+
+	EventDispatcher dispatcher(event);
+	dispatcher.Dispatch<KeyPressedEvent>(EP_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
+
 	m_CameraController.OnEvent(event);
   }
 
@@ -171,7 +194,7 @@ namespace Epoch {
 	ImGuiIO& io = ImGui::GetIO();
 	ImGuiStyle& style = ImGui::GetStyle();
 	float minWinSizeX = style.WindowMinSize.x;
-	style.WindowMinSize.x = 350.0f;
+	style.WindowMinSize.x = 250.0f;
 
 	auto menubareHeight = ImGui::GetCurrentWindow()->MenuBarHeight();
 
@@ -265,6 +288,8 @@ namespace Epoch {
 
 	m_SceneHierarchyPanel.OnImGuiRender();
 
+	m_ContentBrowserPanel.OnImGuiRender();
+
 	{
 	  //Setting
 	  ImGui::Begin("Setting");
@@ -297,21 +322,20 @@ namespace Epoch {
 	  ImGui::End();
 	}
 
-
-
 	{
 	  // Scene
 	  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0, 0.0 });
 	  ImGui::Begin("Scene");
 
+	  ImGuiDockNode* node = ImGui::GetWindowDockNode();
+	  node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
+	
+
 	  m_ViewPanelFocused = ImGui::IsWindowFocused();
 	  m_ViewPanelHovered = ImGui::IsWindowHovered();
 	  ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-	  if (m_ViewportSize != *((glm::vec2*)&viewportPanelSize))
-	  {
-		m_Framebuffer->Resize((uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);
-		m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
-	  }
+	  m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
+
 	  ImGui::Image((void*)m_Framebuffer->GetColorAttachmentRendererID(), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f });
 
 
@@ -335,13 +359,149 @@ namespace Epoch {
 
 		glm::mat4 transformation = tc.GetTransform();
 
-		ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr(transformation));
+		ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transformation));
 
 		if (ImGuizmo::IsUsing())
 		{
-		  tc.Translation = glm::vec3(transformation[3]);
+		  glm::vec3 translation, rotation, scale;
+		  Math::DecomposeTransform(transformation, translation, rotation, scale);
+
+		  tc.Translation = translation;
+		  glm::vec3 deltaRotation = rotation - tc.Rotation;
+		  tc.Rotation += deltaRotation;
+		  tc.Scale = scale;
+		  
 		}
 	  }
+
+	  const float DISTANCE = 10.0f;
+	  static int corner = 1;
+	  ImGuiIO& io = ImGui::GetIO();
+	  ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+
+	  ImVec2 work_area_pos = node->Pos;
+	  ImVec2 work_area_size = node->Size;
+
+	  if (corner != -1)
+	  {
+		window_flags |= ImGuiWindowFlags_NoMove;
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+		
+		ImVec2 window_pos = ImVec2((corner & 1) ? (work_area_pos.x + work_area_size.x - DISTANCE) : (work_area_pos.x + DISTANCE), (corner & 2) ? (work_area_pos.y + work_area_size.y - DISTANCE) : (work_area_pos.y + DISTANCE));
+		ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
+		ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+		ImGui::SetNextWindowViewport(node->ID);
+	  }
+	  ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
+
+	  ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
+	  float buttonSize = 25.0f;
+	  if (ImGui::Begin("Example: Simple overlay", p_open, window_flags))
+	  {
+		if (work_area_size.x < 100)
+		{
+		  buttonSize = work_area_size.x / 4;
+		}
+		//if (ImGui::CollapsingHeader("##Setting", ImGuiTreeNodeFlags_None))
+		//{
+		//  ImGui::BeginChild(ImGui::GetID("##Setting"), ImVec2(100, 70), true, ImGuiWindowFlags_None);
+		//  const char* projectionTypeStrings[] = { "Perspective", "Orthographic" };
+		//  const char* currentProjectionTypeString = projectionTypeStrings[(int)m_CameraController.GetCamera//().GetProjectionType()];
+		//
+		//  ImGui::Checkbox("Fixed Aspect Ratio", &(m_CameraController.GetCamera().fixedAspectration));
+		//
+		//  if (ImGui::BeginCombo("Projection", currentProjectionTypeString))
+		//  {
+		//	for (int i = 0; i < 2; i++)
+		//	{
+		//	  bool isSelected = currentProjectionTypeString == projectionTypeStrings[i];
+		//	  if (ImGui::Selectable(projectionTypeStrings[i], isSelected))
+		//	  {
+		//		currentProjectionTypeString = projectionTypeStrings[i];
+		//		m_CameraController.GetCamera().SetProjectionType((SceneCamera::ProjectionType)i);
+		//	  }
+		//
+		//	  if (isSelected)
+		//		ImGui::SetItemDefaultFocus();
+		//	}
+		//
+		//	ImGui::EndCombo();
+		//  }
+		//  // Setting perspective camera
+		//  if (m_CameraController.GetCamera().GetProjectionType() == SceneCamera::ProjectionType::Perspective)
+		//  {
+		//	float persFov = m_CameraController.GetCamera().GetPerspectiveFov();
+		//	if (ImGui::DragFloat("Fov", &persFov, 0.05f, 0.1f))
+		//	  m_CameraController.GetCamera().SetPerspectiveFov(persFov);
+		//
+		//	float persNear = m_CameraController.GetCamera().GetPerspectiveNear();
+		//	if (ImGui::DragFloat("Near", &persNear))
+		//	  m_CameraController.GetCamera().SetPerspectiveNear(persNear);
+		//
+		//	float persFar = m_CameraController.GetCamera().GetPerspectiveFar();
+		//	if (ImGui::DragFloat("Far", &persFar))
+		//	  m_CameraController.GetCamera().SetPerspectiveFar(persFar);
+		//  }
+		//  // Setting ortho camera
+		//  if (m_CameraController.GetCamera().GetProjectionType() == SceneCamera::ProjectionType::Orthographic)
+		//  {
+		//	float orthoSize = m_CameraController.GetCamera().GetOrthographicSize();
+		//	if (ImGui::DragFloat("Size", &orthoSize, 0.05f, 0.1f, 50.0f))
+		//	  m_CameraController.GetCamera().SetOrthographicSize(orthoSize);
+		//
+		//	float orthoNear = m_CameraController.GetCamera().GetOrthographicNear();
+		//	if (ImGui::DragFloat("Near", &orthoNear))
+		//	  m_CameraController.GetCamera().SetOrthographicNear(orthoNear);
+		//
+		//	float orthoFar = m_CameraController.GetCamera().GetOrthographicFar();
+		//	if (ImGui::DragFloat("Far", &orthoFar))
+		//	  m_CameraController.GetCamera().SetOrthographicFar(orthoFar);
+		//  }
+		//  ImGui::EndChild();
+		//}
+		//ImGui::SameLine();
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));
+
+		if (ImGui::ImageButton((void*)m_TransTexture->GetRendererID(), ImVec2(m_PlayBarTexture->GetWidth(), m_PlayBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), m_GizmoType == 0 ? ImVec4(1.0f, 1.0f, 0.0f, 0.9f) : ImVec4(1.0f, 1.0f, 0.0f, 0.5f)))
+		{
+		  m_GizmoType = 0;
+		}
+		ImGui::SameLine();
+		if (ImGui::ImageButton((void*)m_RotateTexture->GetRendererID(), ImVec2(m_PlayBarTexture->GetWidth(), m_PlayBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), m_GizmoType == 1 ? ImVec4(1.0f, 1.0f, 0.0f, 0.9f) : ImVec4(1.0f, 1.0f, 0.0f, 0.5f)))
+		{
+		  m_GizmoType = 1;
+		}
+		ImGui::SameLine();
+		if (ImGui::ImageButton((void*)m_ScaleTexture->GetRendererID(), ImVec2(m_PlayBarTexture->GetWidth(), m_PlayBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), m_GizmoType == 2 ? ImVec4(1.0f, 1.0f, 0.0f, 0.9f) : ImVec4(1.0f, 1.0f, 0.0f, 0.5f)))
+		{
+		  m_GizmoType = 2;
+		}
+		ImGui::PopStyleColor(3);
+
+		//ImGui::Text("Simple overlay\n" "in the corner of the screen.\n" "(right-click to change position)");
+		//ImGui::Separator();
+		//if (ImGui::IsMousePosValid())
+		//  ImGui::Text("Mouse Position: (%.1f,%.1f)", io.MousePos.x, io.MousePos.y);
+		//else
+		//  ImGui::Text("Mouse Position: <invalid>");
+		if (ImGui::BeginPopupContextWindow())
+		{
+		  if (ImGui::MenuItem("Custom", NULL, corner == -1)) corner = -1;
+		  if (ImGui::MenuItem("Top-left", NULL, corner == 0)) corner = 0;
+		  if (ImGui::MenuItem("Top-right", NULL, corner == 1)) corner = 1;
+		  if (ImGui::MenuItem("Bottom-left", NULL, corner == 2)) corner = 2;
+		  if (ImGui::MenuItem("Bottom-right", NULL, corner == 3)) corner = 3;
+		  if (p_open && ImGui::MenuItem("Close")) *p_open = false;
+		  ImGui::EndPopup();
+		}
+	  }
+
+
+	  ImGui::End();
+	  ImGui::PopStyleVar();
 
 	  ImGui::End();
 	  ImGui::PopStyleVar();
@@ -382,6 +542,15 @@ namespace Epoch {
 	//  }
 	//  ImGui::End();
 	//}
+	{
+	  ImGui::Begin("Offline");
+	  ImGuiDockNode* node = ImGui::GetWindowDockNode();
+	  node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
+
+	  if (m_OfflineTexture)
+		ImGui::Image((void*)m_OfflineTexture->GetRendererID(), ImVec2(m_OfflineTexture->GetWidth(), m_OfflineTexture->GetHeight()), ImVec2{ 0.0f, 1.0f }, ImVec2{ 1.0f, 0.0f });
+	  ImGui::End();
+	}
 
 	{
 	  //material
@@ -397,6 +566,9 @@ namespace Epoch {
 	  ImGui::Begin("Camera");
 	  const char* projectionTypeStrings[] = { "Perspective", "Orthographic" };
 	  const char* currentProjectionTypeString = projectionTypeStrings[(int)m_CameraController.GetCamera().GetProjectionType()];
+
+	  ImGui::Checkbox("Fixed Aspect Ratio", &(m_CameraController.GetCamera().fixedAspectration));
+
 	  if (ImGui::BeginCombo("Projection", currentProjectionTypeString))
 	  {
 		for (int i = 0; i < 2; i++)
@@ -487,6 +659,25 @@ namespace Epoch {
 	ImGui::End();
   }
 
+  bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
+  {
+	if (e.GetRepeatCount() > 0)
+	  return false;
+
+	switch (e.GetKeyCode())
+	{
+	  case EP_KEY_SPACE:
+	  {
+	    if (m_GizmoType < 2)
+	  	  ++m_GizmoType;
+	    else
+	  	  m_GizmoType = 0;
+
+		break;
+	  }
+	}
+  }
+
   void EditorLayer::DockingToolbar(const char* name, ImGuiAxis* p_toolbar_axis)
   {
 	// [Option] Automatically update axis based on parent split (inside of doing it via right-click on the toolbar)
@@ -571,12 +762,22 @@ namespace Epoch {
 	if (ImGui::ImageButton((void*)currentBar, ImVec2(m_PlayBarTexture->GetWidth(), m_PlayBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), ImVec4(1.0f, 1.0f, 1.0f, 0.5f)))
 	{
 	  current++;
+	  m_OfflineFu = new std::future(std::async(std::launch::async, &Offline::BeginScene, m_Offline));
+	}
+
+	if (m_OfflineFu && m_OfflineFu->_Is_ready())
+	{
+	  m_OfflineTexture = Texture2D::Create("assets/textures/Offline.png");
+	  current++;
+	  m_OfflineFu->~future();
+	  delete m_OfflineFu;
+	  m_OfflineFu = nullptr;
 	}
 
 	ImGui::SameLine();
 
 	//ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
-	if (ImGui::ImageButton((void*)m_StopBarTexture->GetRendererID(), ImVec2(m_StopBarTexture->GetWidth(), m_StopBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), ImVec4(1.0f, 1.0f, 1.0f, 0.5f)))
+	if (ImGui::ImageButton((void*)m_PlayBarTexture->GetRendererID(), ImVec2(m_PlayBarTexture->GetWidth(), m_PlayBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), ImVec4(1.0f, 1.0f, 1.0f, 0.5f)))
 	{
 	  //make_visible();
 	}
@@ -585,11 +786,11 @@ namespace Epoch {
 	ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4{ 0.1f, 0.105f, 0.11f, 1.0f });
 	ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4{ 0.35f, 0.85f, 0.15f, 0.3f });
 	int ProgressBarWidth = contentRegionAvailable.x / 2 - m_PlayBarTexture->GetWidth() - m_StopBarTexture->GetWidth() - 10;
-	ImGui::ProgressBar(0.5f, ImVec2(ProgressBarWidth, m_PlayBarTexture->GetWidth()), "");
+	ImGui::ProgressBar(m_Offline->Progress, ImVec2(ProgressBarWidth, m_PlayBarTexture->GetWidth()), "");
 	ImGui::PopStyleColor(2);
 
 	ImGui::SameLine(contentRegionAvailable.x - m_DownloadBarTexture->GetWidth());
-	if (ImGui::ImageButton((void*)m_DownloadBarTexture->GetRendererID(), ImVec2(m_DownloadBarTexture->GetWidth(), m_DownloadBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), ImVec4(0.0f, 1.0f, 0.0f, 0.5f)))
+	if (ImGui::ImageButton((void*)m_DownloadBarTexture->GetRendererID(), ImVec2(m_DownloadBarTexture->GetWidth(), m_DownloadBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), ImVec4(0.0f, 1.0f, 0.0f, std::max(0.3f, m_Offline->Progress))))
 	{
 
 	}

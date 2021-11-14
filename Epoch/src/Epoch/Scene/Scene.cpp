@@ -97,7 +97,10 @@ namespace Epoch {
 		// ... all components at once
 		auto[tag, mesh, trans] = group.get<TagComponent, MeshComponent, TransformComponent>(entity);
 
-		Renderer::Submit(m_shader, mesh._Mesh->GetVertexArray(), trans.GetTransform());
+		for (auto shap : mesh._Mesh->GetMesh())
+		{
+		  Renderer::Submit(m_shader, shap.second, trans.GetTransform());
+		}
 		// ...
 	  }
 

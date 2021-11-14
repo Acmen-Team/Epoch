@@ -22,6 +22,8 @@
 #include "Epoch/Renderer/VertexArray.h"
 #include "Epoch/Renderer/PrespectiveCamera.h"
 #include "Epoch/Renderer/Framebuffer.h"
+
+#include "Epoch/Renderer/Offline/Offline.h"
 // -----------------------------------
 
 #include "Epoch/SceneCameraController.h"

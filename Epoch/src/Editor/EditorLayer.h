@@ -1,6 +1,8 @@
 #pragma once
 #include "Epoch.h"
 #include "Panel/SceneHierarchyPanel.h"
+#include "Panel/ContentBrowserPanel.h"
+#include "Epoch/Events/KeyEvent.h"
 
 #include <chrono>
 
@@ -60,7 +62,12 @@ namespace Epoch {
 
 	virtual void OnImGuiRender() override;
 
+  protected:
 	void DockingToolbar(const char* name, ImGuiAxis* p_toolbar_axis);
+
+  private:
+	bool OnKeyPressed(KeyPressedEvent& e);
+
   private:
 	Epoch::ShaderLibrary m_ShaderLibrary;
 
@@ -71,7 +78,9 @@ namespace Epoch {
 	bool Perspective = true;
 	// Async Resource
 	std::future<int> m_Fu;
+	std::future<bool>* m_OfflineFu = nullptr;
 
+	Offline *m_Offline;
 	//Light
 	glm::vec3 m_LightColor = { 1.0f, 0.3f, 1.0f };
 	glm::vec3 m_LightPosition = { 1.0f, 0.0f, 1.0f };
@@ -90,6 +99,10 @@ namespace Epoch {
 	Ref<Texture> m_PauseBarTexture;
 	Ref<Texture> m_StopBarTexture;
 	Ref<Texture> m_DownloadBarTexture;
+	Ref<Texture> m_OfflineTexture;
+	Ref<Texture> m_TransTexture;
+	Ref<Texture> m_RotateTexture;
+	Ref<Texture> m_ScaleTexture;
 
 	Ref<Shader> m_shader;
 
@@ -101,11 +114,14 @@ namespace Epoch {
 
 	int lightType = 0;
 
+	int m_GizmoType = 0;
+
 	bool m_ViewPanelFocused = true;
 	bool m_ViewPanelHovered = true;
 
 	// Panels
 	SceneHierarchyPanel m_SceneHierarchyPanel;
+	ContentBrowserPanel m_ContentBrowserPanel;
 
 	struct ProfileResult
 	{
