@@ -80,7 +80,7 @@ namespace Epoch {
 	std::future<int> m_Fu;
 	std::future<bool>* m_OfflineFu = nullptr;
 
-	Offline *m_Offline;
+	Offline *m_Offline = nullptr;
 	//Light
 	glm::vec3 m_LightColor = { 1.0f, 0.3f, 1.0f };
 	glm::vec3 m_LightPosition = { 1.0f, 0.0f, 1.0f };

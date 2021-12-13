@@ -759,6 +759,15 @@ namespace Epoch {
 
 	ImGui::SameLine(contentRegionAvailable.x / 2 - m_PlayBarTexture->GetWidth());
 	//ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
+	if (ImGui::ImageButton((void*)m_StopBarTexture->GetRendererID(), ImVec2(m_PlayBarTexture->GetWidth(), m_PlayBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), ImVec4(1.0f, 1.0f, 1.0f, 0.5f)))
+	{
+	  //current++;
+	  //m_OfflineFu = new std::future(std::async(std::launch::async, &Offline::BeginScene, m_Offline));
+	}
+
+	ImGui::SameLine();
+
+	//ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
 	if (ImGui::ImageButton((void*)currentBar, ImVec2(m_PlayBarTexture->GetWidth(), m_PlayBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), ImVec4(1.0f, 1.0f, 1.0f, 0.5f)))
 	{
 	  current++;
@@ -772,14 +781,6 @@ namespace Epoch {
 	  m_OfflineFu->~future();
 	  delete m_OfflineFu;
 	  m_OfflineFu = nullptr;
-	}
-
-	ImGui::SameLine();
-
-	//ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
-	if (ImGui::ImageButton((void*)m_PlayBarTexture->GetRendererID(), ImVec2(m_PlayBarTexture->GetWidth(), m_PlayBarTexture->GetHeight()), ImVec2(0, 1), ImVec2(1, 0), 0.0f, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), ImVec4(1.0f, 1.0f, 1.0f, 0.5f)))
-	{
-	  //make_visible();
 	}
 
 	ImGui::SameLine();

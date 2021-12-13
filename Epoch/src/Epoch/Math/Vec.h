@@ -117,6 +117,13 @@ namespace Epoch {
 	  + u.e[2] * v.e[2];
   }
 
+  inline Vec3 Cross(const Vec3& u, const Vec3& v)
+  {
+	return Vec3(u.e[1] * v.e[2] - u.e[2] * v.e[1],
+				u.e[2] * v.e[0] - u.e[0] * v.e[2],
+				u.e[0] * v.e[1] - u.e[1] * v.e[0]);
+  }
+
   inline Vec3 normalize(Vec3 v)
   {
 	return v / v.Length();
@@ -135,6 +142,14 @@ namespace Epoch {
   inline Vec3 Random_unit_vector()
   {
 	return normalize(Random_in_unit_sphere());
+  }
+
+  inline Vec3 random_in_unit_disk() {
+	while (true) {
+	  auto p = Vec3(random_float(-1, 1), random_float(-1, 1), 0);
+	  if (p.LengthSquared() >= 1) continue;
+	  return p;
+	}
   }
 
   inline Vec3 Reflect(const Vec3& v, const Vec3& n)
