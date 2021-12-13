@@ -10,7 +10,7 @@ namespace Epoch {
   ContentBrowserPanel::ContentBrowserPanel()
 	: m_CurrentDirectory(g_AssetPath)
   {
-	m_DirectoryIcon = Texture2D::Create("assets/Resource/Icon/DirectoryIcon.png");
+	m_DirectoryIcon = Texture2D::Create("assets/Resource/Icon/DirectoryIcon3.png");
   }
 
   void ContentBrowserPanel::OnImGuiRender()
