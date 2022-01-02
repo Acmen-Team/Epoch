@@ -4,7 +4,7 @@
 #include "Epoch/Events/ApplicationEvent.h"
 #include "Epoch/Events/MouseEvent.h"
 
-#include "Epoch/Renderer/SceneCamera.h"
+#include "Epoch/Graphics/Renderer/SceneCamera.h"
 
 namespace Epoch {
 

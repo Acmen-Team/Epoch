@@ -1,9 +1,9 @@
 #include "eppch.h"
 #include "Offline.h"
 
-#include "Epoch/Renderer/Offline/Object/Sphere.h"
-#include "Epoch/Renderer/Offline/Core/RayMaterial.h"
-#include "Epoch/Renderer/Offline/Core/RayCamera.h"
+#include "Epoch/Graphics/Renderer/Offline/Object/Sphere.h"
+#include "Epoch/Graphics/Renderer/Offline/Core/RayMaterial.h"
+#include "Epoch/Graphics/Renderer/Offline/Core/RayCamera.h"
 
 #define STB_IMAGE_WRITE_STATIC
 #define STB_IMAGE_WRITE_IMPLEMENTATION

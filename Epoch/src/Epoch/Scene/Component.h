@@ -2,11 +2,11 @@
 
 #include <glm/glm.hpp>
 
-#include "Epoch/Renderer/VertexArray.h"
-#include "Epoch/Renderer/Camera.h"
+#include "Epoch/Graphics/Renderer/VertexArray.h"
+#include "Epoch/Graphics/Renderer/Camera.h"
 
 #include "Epoch/Resource/Mesh.h"
-#include "Epoch/Renderer/Shader.h"
+#include "Epoch/Graphics/Renderer/Shader.h"
 
 #include "Epoch/Scene/ScriptableEntity.h"
 

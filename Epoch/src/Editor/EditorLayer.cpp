@@ -14,7 +14,7 @@
 #include "FileDialog.h"
 
 #include "Epoch/Resource/ResourceManager.h"
-#include "Epoch/Math/Math.h"
+#include "Epoch/Core/Math/Math.h"
 #include "Epoch/Core/KeyCodes.h"
 #include "ImGuizmo.h"
 

@@ -2,8 +2,8 @@
 
 #include "Epoch/Core/Timestep.h"
 
-#include "Epoch/Renderer/Shader.h"
-#include "Epoch/Renderer/Camera.h"
+#include "Epoch/Graphics/Renderer/Shader.h"
+#include "Epoch/Graphics/Renderer/Camera.h"
 
 #include "entt.hpp"
 

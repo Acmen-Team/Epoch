@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Epoch/Renderer/Texture.h"
+#include "Epoch/Graphics/Renderer/Texture.h"
 
 namespace Epoch {
 

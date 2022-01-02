@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Epoch/Core/Window.h"
-#include "Epoch/Renderer/RendererContext.h"
+#include "Epoch/Graphics/Renderer/RendererContext.h"
 
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>

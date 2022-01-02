@@ -1,5 +1,5 @@
 #pragma once
-#include "Epoch/Renderer/Buffer.h"
+#include "Epoch/Graphics/Renderer/Buffer.h"
 
 #include <memory>
 

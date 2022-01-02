@@ -1,5 +1,5 @@
 #pragma once
-#include "Epoch/Renderer/Shader.h"
+#include "Epoch/Graphics/Renderer/Shader.h"
 
 #include <glm/glm.hpp>
 

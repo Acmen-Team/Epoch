@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Epoch/Renderer/Offline/Core/Hittable.h"
-#include "Epoch/Math/Vec.h"
+#include "Epoch/Graphics/Renderer/Offline/Core/Hittable.h"
+#include "Epoch/Core/Math/Vec.h"
 
 namespace Epoch {
 

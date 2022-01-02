@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Epoch/Renderer/Framebuffer.h"
+#include "Epoch/Graphics/Renderer/Framebuffer.h"
 
 namespace Epoch {
 

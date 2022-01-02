@@ -1,5 +1,5 @@
 #pragma once
-#include "Epoch/Math/Vec.h"
+#include "Epoch/Core/Math/Vec.h"
 
 namespace Epoch {
 

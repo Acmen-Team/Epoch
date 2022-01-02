@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Epoch/Renderer/VertexArray.h"
+#include "Epoch/Graphics/Renderer/VertexArray.h"
 
 namespace Epoch {
 

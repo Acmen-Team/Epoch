@@ -5,7 +5,7 @@
 
 #include "Entity.h"
 
-#include "Epoch/Renderer/Renderer.h"
+#include "Epoch/Graphics/Renderer/Renderer.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>

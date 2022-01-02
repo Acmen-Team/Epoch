@@ -1,6 +1,6 @@
 #pragma once
-#include "Epoch/Renderer/Offline/Core/Rtweeked.h"
-#include "Epoch/Renderer/Offline/Core/HitManager.h"
+#include "Epoch/Graphics/Renderer/Offline/Core/Rtweeked.h"
+#include "Epoch/Graphics/Renderer/Offline/Core/HitManager.h"
 
 namespace Epoch {
 

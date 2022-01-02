@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Epoch/Renderer/RendererContext.h"
+#include "Epoch/Graphics/Renderer/RendererContext.h"
 
 struct GLFWwindow;
 

@@ -3,7 +3,7 @@
 #include "Log.h"
 
 #include "Epoch/Core/Timestep.h"
-#include "Epoch/Renderer/Renderer.h"
+#include "Epoch/Graphics/Renderer/Renderer.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>

@@ -7,7 +7,7 @@
 #include "Epoch/Events/Event.h"
 #include "Epoch/Events/ApplicationEvent.h"
 
-#include "Epoch/ImGui/ImGuiLayer.h"
+#include "Epoch/Graphics/ImGui/ImGuiLayer.h"
 
 namespace Epoch {
 

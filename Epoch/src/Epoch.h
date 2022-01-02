@@ -9,21 +9,21 @@
 #include "Epoch/Core/MouseButtonCodes.h"
 #include "Epoch/Core/Timestep.h"
 
-#include "Epoch/ImGui/ImGuiLayer.h"
+#include "Epoch/Graphics/ImGui/ImGuiLayer.h"
 
 // ----------Renderer---------------
-#include "Epoch/Renderer/Renderer.h"
-#include "Epoch/Renderer/RenderCommand.h"
-#include "Epoch/Renderer/RenderData.h"
+#include "Epoch/Graphics/Renderer/Renderer.h"
+#include "Epoch/Graphics/Renderer/RenderCommand.h"
+#include "Epoch/Graphics/Renderer/RenderData.h"
 
-#include "Epoch/Renderer/Buffer.h"
-#include "Epoch/Renderer/Shader.h"
-#include "Epoch/Renderer/Texture.h"
-#include "Epoch/Renderer/VertexArray.h"
-#include "Epoch/Renderer/PrespectiveCamera.h"
-#include "Epoch/Renderer/Framebuffer.h"
+#include "Epoch/Graphics/Renderer/Buffer.h"
+#include "Epoch/Graphics/Renderer/Shader.h"
+#include "Epoch/Graphics/Renderer/Texture.h"
+#include "Epoch/Graphics/Renderer/VertexArray.h"
+#include "Epoch/Graphics/Renderer/PrespectiveCamera.h"
+#include "Epoch/Graphics/Renderer/Framebuffer.h"
 
-#include "Epoch/Renderer/Offline/Offline.h"
+#include "Epoch/Graphics/Renderer/Offline/Offline.h"
 // -----------------------------------
 
 #include "Epoch/SceneCameraController.h"
