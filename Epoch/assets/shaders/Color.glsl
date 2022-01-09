@@ -11,18 +11,16 @@ uniform mat4 u_Transform;
 
 void main()
 {
-	gl_Position = u_ViewProjection * u_Transform * vec4(a_Pos, 1.0);
+	gl_Position = u_ViewProjection * u_Transform * vec4(a_Pos + a_Normal * 0.0, 1.0);
 }
 
 #type FRAGMENT
 
 #version 430 core
 
-uniform vec3 LightColor;
-
 out vec4 FragColor;
 
 void main()
 {
-	FragColor = vec4(LightColor, 1.0);
+	FragColor = vec4(0.7, 0.7, 0.15, 1.0);
 }

@@ -16,6 +16,7 @@ namespace Epoch {
 	virtual void SetRenderModel(RenderModel& model) = 0;
 	virtual void Clear() = 0;
 
+	virtual void SetRenderState() = 0;
 	virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray) = 0;
   };
 

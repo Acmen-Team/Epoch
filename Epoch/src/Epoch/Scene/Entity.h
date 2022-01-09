@@ -11,6 +11,11 @@ namespace Epoch {
 	Entity(const Entity& other) = default;
 	Entity(entt::entity handle, Scene* scene);
 
+	bool IsNullEntity() const
+	{
+	  return m_EntityHandle == entt::null;
+	}
+
 	template<typename T>
 	bool HasComponent()
 	{
@@ -59,6 +64,11 @@ namespace Epoch {
 	bool operator!=(const Entity& other) const
 	{
 	  return !(*this == other);
+	}
+
+	entt::entity GetHandle() const
+	{
+	  return m_EntityHandle;
 	}
 
   private:

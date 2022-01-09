@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 
 #include "Epoch/Graphics/Renderer/RendererAPI.h"
 
@@ -17,6 +16,7 @@ namespace Epoch {
 	virtual void SetRenderModel(RenderModel& model) override;
 	virtual void Clear() override;
 
+	virtual void SetRenderState() override;
 	virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray) override;
   };
 

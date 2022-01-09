@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Epoch/Core/Timestep.h"
 
 #include "Epoch/Graphics/Renderer/Shader.h"
@@ -24,6 +23,7 @@ namespace Epoch {
 	void OnUpdate(Timestep timestep);
 
 	void SetShader(Ref<Shader>& shader) { m_shader = shader; }
+	void SetSelectEntity(Entity entity);
   private:
 	entt::registry m_Registry;
 

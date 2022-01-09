@@ -13,6 +13,8 @@
 
 namespace Epoch {
 
+  Entity m_SelectEntity;
+
   Scene::Scene()
   {
 	//m_shader = Shader::Create("assets/shaders/Phone.glsl");
@@ -83,7 +85,6 @@ namespace Epoch {
 	{
 	  //Renderer::BeginScene(*mainCamera, *CameraTransform);
 
-
 	  auto group = m_Registry.group<TagComponent>(entt::get<MeshComponent, TransformComponent>);
 
 	  for (auto entity : group) {
@@ -95,6 +96,10 @@ namespace Epoch {
 		//auto[pos, vel] = group.get<position, velocity>(entity);
 
 		// ... all components at once
+
+		if (entity == m_SelectEntity.GetHandle())
+		  continue;
+
 		auto[tag, mesh, trans] = group.get<TagComponent, MeshComponent, TransformComponent>(entity);
 
 		for (auto shap : mesh._Mesh->GetMesh())
@@ -104,10 +109,28 @@ namespace Epoch {
 		// ...
 	  }
 
+	  if (!m_SelectEntity.IsNullEntity() && m_SelectEntity.HasComponent<MeshComponent>())
+	  {
+		Renderer::SetRenderState();
+
+		auto mesh = m_SelectEntity.GetComponent<MeshComponent>();
+		auto trans = m_SelectEntity.GetComponent<TransformComponent>();
+
+		for (auto shap : mesh._Mesh->GetMesh())
+		{
+		  Renderer::Submit(m_shader, shap.second, trans.GetTransform());
+		}
+	  }
+
 	  //Renderer::EndScene();
 
 	}
 
+  }
+
+  void Scene::SetSelectEntity(Entity entity)
+  {
+	m_SelectEntity = entity;
   }
 
 }

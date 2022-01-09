@@ -68,6 +68,7 @@ namespace Epoch {
 	m_SceneHierarchyPanel.SetContext(m_Scene);
 
 	m_shader = Shader::Create("assets/shaders/Phone.glsl");
+	m_colShader = m_ShaderLibrary.Get("ColorShading");
   }
 
   void EditorLayer::OnDetach()
@@ -125,9 +126,39 @@ namespace Epoch {
 	  PROFILE_SCOPE("Rendering::Begin Scene");
 	  Renderer::BeginScene(m_CameraController.GetCamera());
 
+	  Entity selectEntity = m_SceneHierarchyPanel.GetSelectEntity();
+
 	  m_Texture->Bind();
 	  m_Scene->SetShader(m_shader);
+	  m_Scene->SetSelectEntity(selectEntity);
 	  m_Scene->OnUpdate(timestep);
+
+	  if (!selectEntity.IsNullEntity() && selectEntity.HasComponent<MeshComponent>())
+	  {
+		auto mesh = selectEntity.GetComponent<MeshComponent>();
+		auto trans = selectEntity.GetComponent<TransformComponent>();
+
+		glEnable(GL_STENCIL_TEST);
+
+		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		glStencilMask(0x00); // 禁止模板缓冲的写入
+		glDisable(GL_DEPTH_TEST);
+		m_colShader->use();
+		std::dynamic_pointer_cast<Shader>(m_colShader)->UploadUniformMat4("u_ViewProjection", m_CameraController.GetCamera().GetViewProjectionMatrix());
+		trans.Scale += glm::vec3(0.02, 0.02, 0.02);
+
+		std::dynamic_pointer_cast<Shader>(m_colShader)->UploadUniformMat4("u_Transform", trans.GetTransform());
+
+		for (auto shap : mesh._Mesh->GetMesh())
+		{
+		  shap.second->Bind();
+		  glDrawElements(GL_TRIANGLES, shap.second->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
+		}
+		glStencilMask(0xFF);
+		glStencilFunc(GL_ALWAYS, 0, 0xFF);
+
+		glDisable(GL_STENCIL_TEST);
+	  }
 
 	  Renderer::EndScene();
 	}

@@ -34,10 +34,21 @@ namespace Epoch {
 
   void OpenGLRendererAPI::Clear()
   {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   }
 
-  
+  void OpenGLRendererAPI::SetRenderState()
+  {
+	glClearStencil(0x00);
+	glClear(GL_STENCIL_BUFFER_BIT);
+
+	glEnable(GL_STENCIL_TEST);
+
+	glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
+
+	glStencilFunc(GL_ALWAYS, 1, 0xFF);
+	glStencilMask(0xFF);
+  }
 
   void OpenGLRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray)
   {
@@ -45,6 +56,8 @@ namespace Epoch {
 	glEnable(GL_CULL_FACE);
 
 	glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
+
+	glDisable(GL_STENCIL_TEST);
   }
 
 }

@@ -28,6 +28,11 @@ namespace Epoch {
 	  s_RendererAPI->Clear();
 	}
 
+	inline static void SetRenderState()
+	{
+	  s_RendererAPI->SetRenderState();
+	}
+
 	inline static void DrawIndexed(const std::shared_ptr<VertexArray>& VertexArray)
 	{
 	  s_RendererAPI->DrawIndexed(VertexArray);

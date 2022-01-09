@@ -105,6 +105,7 @@ namespace Epoch {
 	Ref<Texture> m_ScaleTexture;
 
 	Ref<Shader> m_shader;
+	Ref<Shader> m_colShader;
 
 	MaterialData* materialData = Material::Create();
 	LightData* lightData = Light::Create();
