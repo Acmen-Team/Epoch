@@ -44,6 +44,17 @@ public:
 	}
   }
 
+  int GetResId(const std::shared_ptr<ResourceType> mesh)
+  {
+	for (auto res : m_Resources)
+	{
+	  if (mesh == res.second.second)
+		return res.second.first;
+	}
+	
+	return -1;
+  }
+
   std::shared_ptr<ResourceType> GetRes(int id)
   {
 	for (auto it = m_Resources.begin(); it != m_Resources.end(); ++it)

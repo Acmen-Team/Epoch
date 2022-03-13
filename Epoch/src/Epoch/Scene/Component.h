@@ -59,8 +59,7 @@ namespace Epoch {
 
 	MeshComponent() = default;
 	MeshComponent(const MeshComponent&) = default;
-	MeshComponent(const Ref<Mesh>& mesh)
-	  : _Mesh(mesh), _Id(0) {}
+	MeshComponent(const Ref<Mesh>& mesh);
 
 	//operator std::shared_ptr<VertexArray>& () { return m_VertexArray; }
 	//operator const std::shared_ptr<VertexArray>& () const { return m_VertexArray; }
