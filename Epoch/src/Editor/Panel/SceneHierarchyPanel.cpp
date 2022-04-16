@@ -26,6 +26,10 @@ namespace Epoch {
   {
 	ImGui::Begin("Scene Hierarchy");
 
+	ImGuiDockNode* nodeScene = ImGui::GetWindowDockNode();
+	if(nodeScene)
+	  nodeScene->LocalFlags |= ImGuiDockNodeFlags_NoCloseButton;
+
 	m_Context->m_Registry.each([&](auto entityID)
 	{
 	  Entity entity{ entityID, m_Context.get() };
@@ -50,6 +54,11 @@ namespace Epoch {
 	ImGui::End();
 
 	ImGui::Begin("Properties");
+
+	ImGuiDockNode* nodeProperties = ImGui::GetWindowDockNode();
+	if (nodeProperties)
+	  nodeProperties->LocalFlags |= ImGuiDockNodeFlags_NoCloseButton;
+
 	if (m_SelectionContext)
 	{
 	  DrawCommponents(m_SelectionContext);
@@ -125,7 +134,7 @@ namespace Epoch {
 	ImGui::PopStyleColor(3);
 
 	ImGui::SameLine();
-	ImGui::DragFloat("##X", &value.x, 0.1f, 0.0f, 0.0f, "%.2f");
+	ImGui::DragFloat("##X", &value.x, 0.1f, 0.0f, 0.0f, "%.3f");
 	ImGui::PopItemWidth();
 	ImGui::SameLine();
 
@@ -139,7 +148,7 @@ namespace Epoch {
 	ImGui::PopStyleColor(3);
 
 	ImGui::SameLine();
-	ImGui::DragFloat("##Y", &value.y, 0.1f, 0.0f, 0.0f, "%.2f");
+	ImGui::DragFloat("##Y", &value.y, 0.1f, 0.0f, 0.0f, "%.3f");
 	ImGui::PopItemWidth();
 	ImGui::SameLine();
 
@@ -153,7 +162,7 @@ namespace Epoch {
 	ImGui::PopStyleColor(3);
 
 	ImGui::SameLine();
-	ImGui::DragFloat("##Z", &value.z, 0.1f, 0.0f, 0.0f, "%.2f");
+	ImGui::DragFloat("##Z", &value.z, 0.1f, 0.0f, 0.0f, "%.3f");
 	ImGui::PopItemWidth();
 
 	ImGui::PopStyleVar();
