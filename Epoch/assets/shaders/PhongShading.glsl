@@ -35,6 +35,8 @@ struct Material {
     float shininess;
 }; 
 
+
+
 struct Light {
 	vec3 position;
 	vec3 direction;
@@ -48,6 +50,10 @@ struct Light {
 	float quadratic;
 
 	float cutOff;
+
+	// type of light...
+	// ... Different light types correspond to different light shards.
+	int type;
 };
 
 uniform int LightModel;
@@ -168,19 +174,19 @@ void main()
 {
 	vec3 LightColor;
 
-	if(LightModel == 0)
+	if(light.type == 0)
 	{
 		LightColor = LightCalculate();
 	}
-	else if(LightModel == 1)
+	else if(light.type == 1)
 	{
 		LightColor = DirectionalLightCalculate();
 	}
-	else if(LightModel == 2)
+	else if(light.type == 2)
 	{
 		LightColor = PointLightCalculate();
 	}
-	else if(LightModel == 3)
+	else if(light.type == 3)
 	{
 		LightColor = SpotLightCalculate();
 	}

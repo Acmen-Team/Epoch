@@ -4,6 +4,12 @@
 
 namespace Epoch {
 
+	enum LightType {
+		Light_Dir,
+		Light_Point,
+		Light_Spot
+	};
+
   struct LightData
   {
 	glm::vec3 Position;
