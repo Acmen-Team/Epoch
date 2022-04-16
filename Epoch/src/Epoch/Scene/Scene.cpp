@@ -25,17 +25,6 @@ namespace Epoch {
 
   }
 
-  Entity Scene::CreatEntity(const std::string& tagStr)
-  {
-	Entity entity = { m_Registry.create(), this };
-	auto& tag = entity.AddComponent<TagComponent>();
-	tag.Tag = tagStr.empty() ? "Entity" : tagStr;
-
-	entity.AddComponent<TransformComponent>();
-
-	return entity;
-  }
-
   void Scene::DestroyEntity(Entity entity)
   {
 	m_Registry.destroy(entity);
@@ -64,6 +53,19 @@ namespace Epoch {
 	// Render
 	//std::dynamic_pointer_cast<Shader>(m_shader)->use();
 	//std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("LightColor", glm::vec3(1.0f, 0.5f, 0.3f));
+
+	{
+	  auto view = m_Registry.view<TransformComponent, LightPropertyComponent>();
+	  for (auto entity : view)
+	  {
+		auto [transform, lightProperty] = view.get<TransformComponent, LightPropertyComponent>(entity);
+		//std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("light.ambient", lightProperty._Property->Ambient);
+		//std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("light.diffuse", lightProperty._Property->Diffuse);
+		//std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("light.specular", lightProperty._Property->Specular);
+		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("light.position", transform.Translation);
+		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("light.direction", transform.Rotation);
+	  }
+	}
 
 	{
 	  auto view = m_Registry.view<TagComponent, CameraComponent, TransformComponent>();

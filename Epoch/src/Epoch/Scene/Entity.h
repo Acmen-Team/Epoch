@@ -10,6 +10,7 @@ namespace Epoch {
 	Entity() = default;
 	Entity(const Entity& other) = default;
 	Entity(entt::entity handle, Scene* scene);
+	virtual ~Entity() = default;
 
 	bool IsNullEntity() const
 	{

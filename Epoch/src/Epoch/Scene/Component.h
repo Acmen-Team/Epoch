@@ -9,6 +9,7 @@
 #include "Epoch/Graphics/Renderer/Shader.h"
 
 #include "Epoch/Scene/ScriptableEntity.h"
+#include "Epoch/Scene/LightEntity.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
@@ -110,6 +111,19 @@ namespace Epoch {
 	  DestroyScript = [](NativeScriptComponent* nsc) { delete nsc->Instance; nsc->Instance = nullptr; };
 	}
 
+  };
+
+  struct LightPropertyComponent
+  {
+	 LightProperty* _Property;
+
+	LightPropertyComponent() = default;
+	LightPropertyComponent(const LightPropertyComponent&) = default;
+	LightPropertyComponent(LightProperty* p)
+	  : _Property(p)
+	{
+
+	}
   };
 
 }

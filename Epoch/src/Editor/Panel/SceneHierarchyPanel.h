@@ -3,6 +3,7 @@
 #include "Epoch/Core/Core.h"
 #include "Epoch/Scene/Scene.h"
 #include "Epoch/Scene/Entity.h"
+#include "Epoch/Scene/LightEntity.h"
 
 namespace Epoch {
 

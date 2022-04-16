@@ -65,10 +65,11 @@ namespace Epoch {
 
 	m_Scene = std::make_shared<Scene>();
 
-	Entity redCube = m_Scene->CreatEntity("CubeA");
+	Entity redCube = m_Scene->CreatEntity<Entity>("CubeA");
+	//LightEntity light = m_Scene->CreatEntity<LightEntity>();
 	redCube.AddComponent<MeshComponent>(ResourceManager::Get().GetAllocator()->GetRes("assets/models/cube.obj"));
 
-	Entity greeCube = m_Scene->CreatEntity("CubeB");
+	Entity greeCube = m_Scene->CreatEntity<Entity>("CubeB");
 
 	m_SceneHierarchyPanel.SetContext(m_Scene);
 

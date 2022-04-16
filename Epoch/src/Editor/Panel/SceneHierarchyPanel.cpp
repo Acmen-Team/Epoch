@@ -46,8 +46,13 @@ namespace Epoch {
 	if (ImGui::BeginPopupContextWindow(0, 1, false))
 	{
 	  if (ImGui::MenuItem("Create Empty Entity"))
-		m_Context->CreatEntity("Empty Entity");
+		m_Context->CreatEntity<Entity>("Empty Entity");
+	  if (ImGui::MenuItem("Create Light"))
+	  {
+		LightEntity light = m_Context->CreatEntity<LightEntity>("Light");
 
+		light.AddComponent<LightPropertyComponent>(light.GetProperty());
+	  }
 	  ImGui::EndPopup();
 	}
 
@@ -294,6 +299,19 @@ namespace Epoch {
 	{
 
 	});
+
+	DrawCommponent<LightPropertyComponent>("LightProperty", entity, [](auto& component) {
+	  static float col1[3] = { 1.0f, 0.0f, 0.2f };
+	  static float col2[4] = { 0.4f, 0.7f, 0.0f, 0.5f };
+	  ImGui::ColorEdit3("color 1", col1);
+	  ImGui::ColorEdit4("color 2", col2);
+
+	  ImGui::DragFloat("Constant", &component._Property->Constant, 0.03f);
+	  ImGui::DragFloat("Linear", &component._Property->Linear, 0.03f);
+	  ImGui::DragFloat("Quadratic", &component._Property->Quadratic, 0.03f);
+	  ImGui::DragFloat("CutOff", &component._Property->CutOff, 0.03f);
+
+	  });
 
   }
 

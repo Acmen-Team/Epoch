@@ -16,7 +16,17 @@ namespace Epoch {
 	Scene();
 	~Scene();
 
-	Entity CreatEntity(const std::string& tagStr = std::string());
+	template<typename EntityT>
+	EntityT CreatEntity(const std::string& tagStr = std::string())
+	{
+	  EntityT entity = { m_Registry.create(), this };
+	  auto& tag = entity.AddComponent<TagComponent>();
+	  tag.Tag = tagStr.empty() ? "Entity" : tagStr;
+
+	  entity.AddComponent<TransformComponent>();
+
+	  return entity;
+	}
 
 	void DestroyEntity(Entity entity);
 	// Temp
