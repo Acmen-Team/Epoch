@@ -38,8 +38,6 @@ namespace Epoch {
 	// Load module resource
 	m_Fu = std::async(&ResourceAllocator<Mesh>::AddRes, ResourceManager::Get().GetAllocator(), "assets/models/cube.obj", "assets/models/");
 	m_Fu.wait();
-	m_Fu = std::async(&ResourceAllocator<Mesh>::AddRes, ResourceManager::Get().GetAllocator(), "assets/models/file.obj", "assets/models/");
-	m_Fu.wait();
 
 	// Load shader resource
 	m_ShaderLibrary.Load("Phone", "assets/shaders/Phone.glsl");
