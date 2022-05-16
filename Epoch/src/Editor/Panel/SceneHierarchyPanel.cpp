@@ -52,6 +52,8 @@ namespace Epoch {
 		LightEntity light = m_Context->CreatEntity<LightEntity>("Light");
 
 		light.AddComponent<LightPropertyComponent>(light.GetProperty());
+		light.AddComponent<MeshComponent>(ResourceManager::Get().GetAllocator()->GetRes("assets/models/bulb.obj"));
+		light.GetComponent<TransformComponent>().Scale -= glm::vec3(0.9, 0.9, 0.9);
 	  }
 	  ImGui::EndPopup();
 	}
@@ -301,16 +303,15 @@ namespace Epoch {
 	});
 
 	DrawCommponent<LightPropertyComponent>("LightProperty", entity, [](auto& component) {
-	  static float col1[3] = { 1.0f, 0.0f, 0.2f };
-	  static float col2[4] = { 0.4f, 0.7f, 0.0f, 0.5f };
-	  ImGui::ColorEdit3("color 1", col1);
-	  ImGui::ColorEdit4("color 2", col2);
+	  ImGui::ColorEdit3("Ambient", glm::value_ptr(component._Property->Ambient));
+	  ImGui::ColorEdit3("Diffuse", glm::value_ptr(component._Property->Diffuse));
+	  ImGui::ColorEdit3("Specular", glm::value_ptr(component._Property->Specular));
 
 	  ImGui::DragFloat("Constant", &component._Property->Constant, 0.03f);
 	  ImGui::DragFloat("Linear", &component._Property->Linear, 0.03f);
 	  ImGui::DragFloat("Quadratic", &component._Property->Quadratic, 0.03f);
 	  ImGui::DragFloat("CutOff", &component._Property->CutOff, 0.03f);
-
+	  ImGui::DragInt("Type", &component._Property->LifhtType);
 	  });
 
   }

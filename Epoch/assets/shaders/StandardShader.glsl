@@ -35,13 +35,12 @@ struct Sampler_Material {
     float shininess;
 }; 
 
-
 struct Vector_Material {
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
     float shininess;
-}; 
+};
 
 struct Light {
     vec3 position;
@@ -62,11 +61,8 @@ struct Light {
 	int type;
 };
 
-
-uniform vec3 LightPosition;
 uniform vec3 ObjectColor;
 uniform vec3 ViewPosition;
-
 uniform sampler2D u_Texture1;
 
 uniform Vector_Material v_material;
@@ -74,12 +70,7 @@ uniform Sampler_Material s_material;
 
 uniform Light lights[6];
 
-
-
 out vec4 FragColor;
-
-
-
 
 vec3 LightCalculate(Light light)
 {
@@ -182,54 +173,49 @@ vec3 SpotLightCalculate(Light light)
 
 }
 
-
-
-
-
 void main()
 {
-
 	vec3 LightColor;
 	vec3 result;
 	for(int i = 0; i < 6; ++i) {
-		vec3 ambient = lights[i].ambient * v_material.ambient;
 
+		vec3 ambient = lights[i].ambient * v_material.ambient;
+		
 		//
 		vec3 norm = normalize(v_Normal);
 		vec3 lightDir = normalize(lights[i].position - v_WorldPos);
 		float diff = max(dot(norm, lightDir), 0.0);
 		vec3 diffuse = lights[i].diffuse * (diff * v_material.diffuse);
-
+		
 		//
 		float specularStrength = 0.5;
 		vec3 viewDir = normalize(ViewPosition - v_WorldPos);
 		vec3 reflectDir = reflect(-lightDir, norm);
 		float spec = pow(max(dot(viewDir, reflectDir), 0.0), v_material.shininess);
 		vec3 specular = lights[i].specular * (spec * v_material.specular);
-
+		
 		result += (ambient + diffuse + specular) * ObjectColor * texture(u_Texture1, v_TexCoord).rgb;
 
-		if(lights[i].type == 0)
-		{
-			LightColor = LightCalculate(lights[i]);
-		}
-		else if(lights[i].type == 1)
-		{
-			LightColor = DirectionalLightCalculate(lights[i]);
-		}
-		else if(lights[i].type == 2)
-		{
-			LightColor = PointLightCalculate(lights[i]);
-		}
-		else if(lights[i].type == 3)
-		{
-			LightColor = SpotLightCalculate(lights[i]);
-		}
+		//if(lights[i].type == 0)
+		//{
+		//	LightColor = LightCalculate(lights[i]);
+		//}
+		//else if(lights[i].type == 1)
+		//{
+		//	LightColor = DirectionalLightCalculate(lights[i]);
+		//}
+		//else if(lights[i].type == 2)
+		//{
+		//	LightColor = PointLightCalculate(lights[i]);
+		//}
+		//else if(lights[i].type == 3)
+		//{
+		//	LightColor = SpotLightCalculate(lights[i]);
+		//}
+		//LightColor = DirectionalLightCalculate(lights[i]);
 
-		//LightColor = PointLightCalculate();
 		result += LightColor * ObjectColor * texture(u_Texture1, v_TexCoord).rgb;
 	}
-
 
 	FragColor = vec4(result, 1.0);
 }

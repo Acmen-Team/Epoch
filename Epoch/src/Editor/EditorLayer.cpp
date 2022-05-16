@@ -39,11 +39,18 @@ namespace Epoch {
 	m_Fu = std::async(&ResourceAllocator<Mesh>::AddRes, ResourceManager::Get().GetAllocator(), "assets/models/cube.obj", "assets/models/");
 	m_Fu.wait();
 
+	m_Fu = std::async(&ResourceAllocator<Mesh>::AddRes, ResourceManager::Get().GetAllocator(), "assets/models/bulb.obj", "assets/models/");
+	m_Fu.wait();
+
+	//m_Fu = std::async(&ResourceAllocator<Mesh>::AddRes, ResourceManager::Get().GetAllocator(), "assets/models/viking_room.obj", "assets/models/");
+	//m_Fu.wait();
+
+	m_ShaderLibrary = ShaderLibrary::Get();
+
 	// Load shader resource
-	m_ShaderLibrary.Load("Phone", "assets/shaders/Phone.glsl");
-	m_ShaderLibrary.Load("TestShading", "assets/shaders/Phone.glsl");
-	m_ShaderLibrary.Load("ColorShading", "assets/shaders/Color.glsl");
-	m_ShaderLibrary.Load("PhoneShading", "assets/shaders/PhongShading.glsl");
+	m_ShaderLibrary->Load("ColorShading", "assets/shaders/Color.glsl");
+	m_ShaderLibrary->Load("ColorShader", "assets/shaders/Color.glsl");
+	m_ShaderLibrary->Load("StandardShader", "assets/shaders/StandardShader.glsl");
 
 	// Create Framebuffer
 	Epoch::FramebufferSpecification fbSpec;
@@ -65,16 +72,21 @@ namespace Epoch {
 
 	m_Scene = std::make_shared<Scene>();
 
+	LightEntity light = m_Scene->CreatEntity<LightEntity>("Lights");
+	light.AddComponent<LightPropertyComponent>(light.GetProperty());
+	light.AddComponent<MeshComponent>(ResourceManager::Get().GetAllocator()->GetRes("assets/models/bulb.obj"));
+	light.GetComponent<TransformComponent>().Scale -= glm::vec3(0.9, 0.9, 0.9);
+
 	Entity redCube = m_Scene->CreatEntity<Entity>("CubeA");
-	//LightEntity light = m_Scene->CreatEntity<LightEntity>();
 	redCube.AddComponent<MeshComponent>(ResourceManager::Get().GetAllocator()->GetRes("assets/models/cube.obj"));
+	redCube.AddComponent<MaterialComponent>();
 
 	Entity greeCube = m_Scene->CreatEntity<Entity>("CubeB");
 
 	m_SceneHierarchyPanel.SetContext(m_Scene);
 
-	m_shader = Shader::Create("assets/shaders/Phone.glsl");
-	m_colShader = m_ShaderLibrary.Get("ColorShading");
+	m_shader = Shader::Create("assets/shaders/StandardShader.glsl");
+	m_colShader = m_ShaderLibrary->GetShader("ColorShading");
   }
 
   void EditorLayer::OnDetach()
@@ -118,14 +130,12 @@ namespace Epoch {
 	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformInt("u_Texture1", 0);
 	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("ObjectColor", m_ObjectColor);
 	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("ViewPosition", m_CameraController.GetCameraPosition());
-	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("material.ambient", materialData->Ambient);
-	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("material.diffuse", materialData->Diffuse);
-	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("material.specular", materialData->Specular);
-	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat("material.shininess", materialData->Shininess);
-	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("light.ambient", lightData->Ambient);
-	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("light.diffuse", lightData->Diffuse);
-	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("light.specular", lightData->Specular);
-	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("light.position", lightData->Position);
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("v_material.ambient", materialData->Ambient);
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("v_material.diffuse", materialData->Diffuse);
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat3("v_material.specular", materialData->Specular);
+	std::dynamic_pointer_cast<Epoch::Shader>(m_shader)->UploadUniformFloat("v_material.shininess", materialData->Shininess);
+
+	//std::dynamic_pointer_cast<Shader>(m_ShaderLibrary->GetShader("ColorShader"))->UploadUniformMat4("u_ViewProjection", m_CameraController.GetCamera().GetViewProjectionMatrix());
 
 	// Begin Rendering
 	{
@@ -155,6 +165,8 @@ namespace Epoch {
 
 		std::dynamic_pointer_cast<Shader>(m_colShader)->UploadUniformMat4("u_Transform", trans.GetTransform());
 
+		std::dynamic_pointer_cast<Shader>(m_colShader)->UploadUniformFloat4("u_Color", glm::vec4(0.7, 0.7, 0.15, 1.0));
+
 		for (auto shap : mesh._Mesh->GetMesh())
 		{
 		  shap.second->Bind();
@@ -179,7 +191,8 @@ namespace Epoch {
 	EventDispatcher dispatcher(event);
 	dispatcher.Dispatch<KeyPressedEvent>(EP_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
 
-	m_CameraController.OnEvent(event);
+	if(m_ViewPanelHovered)
+	  m_CameraController.OnEvent(event);
   }
 
   template<typename UIFunction>
@@ -690,16 +703,6 @@ namespace Epoch {
 	  // Detail
 	  ImGui::Begin("Detail");
 	  //Light Setting
-	  ImGui::ColorEdit3("Ambient", glm::value_ptr(lightData->Ambient), 0.03f);
-	  ImGui::ColorEdit3("Diffuse", glm::value_ptr(lightData->Diffuse), 0.03f);
-	  ImGui::ColorEdit3("Specular", glm::value_ptr(lightData->Specular), 0.03f);
-	  ImGui::DragFloat3("Position", glm::value_ptr(lightData->Position), 0.1f);
-	  ImGui::DragFloat3("Direction", glm::value_ptr(lightData->Direction), 0.1f);
-	  ImGui::DragFloat("Constant", &lightData->Constant, 0.03f);
-	  ImGui::DragFloat("Linear", &lightData->Linear, 0.03f);
-	  ImGui::DragFloat("Quadratic", &lightData->Quadratic, 0.03f);
-	  ImGui::DragFloat("CutOff", &lightData->CutOff, 0.03f);
-	  ImGui::ColorEdit4("ObjectColor", glm::value_ptr(m_ObjectColor), 0.03f);
 	  ImGui::End();
 	}
 

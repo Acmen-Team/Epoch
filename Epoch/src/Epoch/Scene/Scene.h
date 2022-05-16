@@ -40,7 +40,9 @@ namespace Epoch {
 	friend class Entity;
 	friend class SceneHierarchyPanel;
 
+	Epoch::ShaderLibrary* m_ShaderLibrary;
 	std::shared_ptr<Shader> m_shader;
+	std::shared_ptr<Shader> m_ColorShader;
 
 	Camera* mainCamera = nullptr;
 

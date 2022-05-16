@@ -29,16 +29,26 @@ namespace Epoch {
   class ShaderLibrary
   {
   public:
-	  void Add(const std::shared_ptr<Shader>& shader);
-	  void Add(const std::string& name, const std::shared_ptr<Shader>& shader);
-	  std::shared_ptr<Shader> Load(const std::string& filepath);
-	  std::shared_ptr<Shader> Load(const std::string& name, const std::string& filepath);
+	static ShaderLibrary* Get() 
+	{ 
+	  if(s_Instance == nullptr)
+		s_Instance = new ShaderLibrary();
 
-	  std::shared_ptr<Shader> Get(const std::string& name);
+	  return s_Instance;
+	}
 
-	  bool Exists(const std::string& name) const;
+	void Add(const std::shared_ptr<Shader>& shader);
+	void Add(const std::string& name, const std::shared_ptr<Shader>& shader);
+	std::shared_ptr<Shader> Load(const std::string& filepath);
+	std::shared_ptr<Shader> Load(const std::string& name, const std::string& filepath);
+
+	std::shared_ptr<Shader> GetShader(const std::string& name);
+
+	bool Exists(const std::string& name) const;
   private:
-	  std::unordered_map<std::string, std::shared_ptr<Shader>> m_Shaders;
+	static ShaderLibrary* s_Instance;
+
+	std::unordered_map<std::string, std::shared_ptr<Shader>> m_Shaders;
   };
 
 }

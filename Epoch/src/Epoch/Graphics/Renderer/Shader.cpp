@@ -21,6 +21,8 @@ namespace Epoch {
 	return std::make_shared<OpenGLShader>(name, vertexSource, fragmentSource);
   }
 
+  Epoch::ShaderLibrary* ShaderLibrary::s_Instance = nullptr;
+
   void ShaderLibrary::Add(const std::shared_ptr<Shader>& shader)
   {
 	auto& name = shader->GetName();
@@ -47,7 +49,7 @@ namespace Epoch {
 	return shader;
   }
 
-  std::shared_ptr<Epoch::Shader> ShaderLibrary::Get(const std::string& name)
+  std::shared_ptr<Epoch::Shader> ShaderLibrary::GetShader(const std::string& name)
   {
 	EP_CORE_ASSERT(Exists(name), "Shader not found!");
 	return m_Shaders[name];

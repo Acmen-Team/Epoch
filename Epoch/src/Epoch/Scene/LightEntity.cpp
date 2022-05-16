@@ -5,8 +5,6 @@ namespace Epoch {
 
   LightEntity::~LightEntity()
   {
-	delete m_LightData;
-	m_LightData = nullptr;
   }
 
 }

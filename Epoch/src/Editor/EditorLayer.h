@@ -32,7 +32,7 @@ namespace Epoch {
 	bool OnKeyPressed(KeyPressedEvent& e);
 
   private:
-	Epoch::ShaderLibrary m_ShaderLibrary;
+	Epoch::ShaderLibrary* m_ShaderLibrary;
 
 	SceneCameraController m_CameraController;
 	// Scene
@@ -44,13 +44,8 @@ namespace Epoch {
 	std::future<bool>* m_OfflineFu = nullptr;
 
 	Offline *m_Offline = nullptr;
-	//Light
-	glm::vec3 m_LightColor = { 1.0f, 0.3f, 1.0f };
-	glm::vec3 m_LightPosition = { 1.0f, 0.0f, 1.0f };
 
-	glm::vec4 m_ObjectColor = { 0.8, 0.7, 0.3, 1.0 };
-
-	glm::vec3 m_Position = { 1.0f, 0.0f, 1.0f };
+	glm::vec4 m_ObjectColor = { 1.0, 1.0, 1.0, 1.0 };
 
 	std::shared_ptr<Framebuffer> m_Framebuffer;
 
@@ -72,7 +67,6 @@ namespace Epoch {
 	Ref<Shader> m_colShader;
 
 	MaterialData* materialData = Material::Create();
-	LightData* lightData = Light::Create();
 
 	int renderModel_idx = 0;
 	RenderModel m_RenderModel = RenderModel::Fill;

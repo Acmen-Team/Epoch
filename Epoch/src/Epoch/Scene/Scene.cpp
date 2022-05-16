@@ -17,7 +17,11 @@ namespace Epoch {
 
   Scene::Scene()
   {
-	//m_shader = Shader::Create("assets/shaders/Phone.glsl");
+	m_ShaderLibrary = ShaderLibrary::Get();
+
+	// Load shader resource
+	m_ColorShader = m_ShaderLibrary->GetShader("ColorShader");
+	//m_ColorShader = Shader::Create("assets/shaders/Color.glsl");
   }
 
   Scene::~Scene()
@@ -50,20 +54,35 @@ namespace Epoch {
 	  });
 	}
 
-	// Render
-	//std::dynamic_pointer_cast<Shader>(m_shader)->use();
-	//std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("LightColor", glm::vec3(1.0f, 0.5f, 0.3f));
-
 	{
-	  auto view = m_Registry.view<TransformComponent, LightPropertyComponent>();
+	  auto view = m_Registry.view<TransformComponent, MeshComponent, LightPropertyComponent>();
+
+	  int LightNums{0};
+
 	  for (auto entity : view)
 	  {
-		auto [transform, lightProperty] = view.get<TransformComponent, LightPropertyComponent>(entity);
-		//std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("light.ambient", lightProperty._Property->Ambient);
-		//std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("light.diffuse", lightProperty._Property->Diffuse);
-		//std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("light.specular", lightProperty._Property->Specular);
-		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("light.position", transform.Translation);
-		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("light.direction", transform.Rotation);
+		auto [trans, mesh, lightProperty] = view.get<TransformComponent, MeshComponent, LightPropertyComponent>(entity);
+		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("lights[" + std::to_string(LightNums) + "].position", trans.Translation);
+		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("lights[" + std::to_string(LightNums) + "].direction", trans.Rotation);
+		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("lights[" + std::to_string(LightNums) + "].ambient", lightProperty._Property->Ambient);
+		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("lights[" + std::to_string(LightNums) + "].diffuse", lightProperty._Property->Diffuse);
+		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("lights[" + std::to_string(LightNums) + "].specular", lightProperty._Property->Specular);
+
+		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat("lights[" + std::to_string(LightNums) + "].constant", lightProperty._Property->Constant);
+		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat("lights[" + std::to_string(LightNums) + "].linear", lightProperty._Property->Linear);
+		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat("lights[" + std::to_string(LightNums) + "].quadratic", lightProperty._Property->Quadratic);
+		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat("lights[" + std::to_string(LightNums) + "].cutOff", lightProperty._Property->CutOff);
+
+		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat("lights[" + std::to_string(LightNums) + "].type", lightProperty._Property->LifhtType);
+
+		//std::dynamic_pointer_cast<Shader>(m_ColorShader)-//>UploadUniformFloat3("u_Color", //lightProperty._Property->Diffuse);
+		//
+		//for (auto shap : mesh._Mesh->GetMesh())
+		//{
+		//  Renderer::Submit(m_ColorShader, shap.second, //trans.GetTransform());
+		//}
+
+		LightNums++;
 	  }
 	}
 
@@ -87,7 +106,7 @@ namespace Epoch {
 	{
 	  //Renderer::BeginScene(*mainCamera, *CameraTransform);
 
-	  auto group = m_Registry.group<TagComponent>(entt::get<MeshComponent, TransformComponent>);
+	  auto group = m_Registry.group<TagComponent>(entt::get<MeshComponent, TransformComponent, MaterialComponent>);
 
 	  for (auto entity : group) {
 		// a component at a time ...
@@ -124,6 +143,23 @@ namespace Epoch {
 		}
 	  }
 
+	  {
+		auto view = m_Registry.view<TransformComponent, MeshComponent, LightPropertyComponent>();
+		int LightNums{ 0 };
+		for (auto entity : view)
+		{
+		  auto [trans, mesh, lightProperty] = view.get<TransformComponent, MeshComponent, LightPropertyComponent>(entity);
+		  std::dynamic_pointer_cast<Shader>(m_ColorShader)->use();
+		  std::dynamic_pointer_cast<Shader>(m_ColorShader)->UploadUniformFloat4("u_Color", glm::vec4(lightProperty._Property->Diffuse, 0.4));
+
+		  for (auto shap : mesh._Mesh->GetMesh())
+		  {
+			Renderer::Submit(m_ColorShader, shap.second, trans.GetTransform());
+		  }
+
+		  LightNums++;
+		}
+	  }
 	  //Renderer::EndScene();
 
 	}
