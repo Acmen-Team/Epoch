@@ -64,23 +64,11 @@ namespace Epoch {
 		auto [trans, mesh, lightProperty] = view.get<TransformComponent, MeshComponent, LightPropertyComponent>(entity);
 		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("lights[" + std::to_string(LightNums) + "].position", trans.Translation);
 		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("lights[" + std::to_string(LightNums) + "].direction", trans.Rotation);
-		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("lights[" + std::to_string(LightNums) + "].ambient", lightProperty._Property->Ambient);
-		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("lights[" + std::to_string(LightNums) + "].diffuse", lightProperty._Property->Diffuse);
-		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("lights[" + std::to_string(LightNums) + "].specular", lightProperty._Property->Specular);
+		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat4("lights[" + std::to_string(LightNums) + "].color", lightProperty._Property->Color);
+		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat("lights[" + std::to_string(LightNums) + "].range", lightProperty._Property->Range);
+		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat("lights[" + std::to_string(LightNums) + "].spotAngle", lightProperty._Property->SpotAngle);
 
-		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat("lights[" + std::to_string(LightNums) + "].constant", lightProperty._Property->Constant);
-		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat("lights[" + std::to_string(LightNums) + "].linear", lightProperty._Property->Linear);
-		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat("lights[" + std::to_string(LightNums) + "].quadratic", lightProperty._Property->Quadratic);
-		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat("lights[" + std::to_string(LightNums) + "].cutOff", lightProperty._Property->CutOff);
-
-		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat("lights[" + std::to_string(LightNums) + "].type", lightProperty._Property->LifhtType);
-
-		//std::dynamic_pointer_cast<Shader>(m_ColorShader)-//>UploadUniformFloat3("u_Color", //lightProperty._Property->Diffuse);
-		//
-		//for (auto shap : mesh._Mesh->GetMesh())
-		//{
-		//  Renderer::Submit(m_ColorShader, shap.second, //trans.GetTransform());
-		//}
+		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat("lights[" + std::to_string(LightNums) + "].type", lightProperty._Property->LightType);
 
 		LightNums++;
 	  }

@@ -112,7 +112,7 @@ namespace Epoch {
 	}
   }
 
-  static void DrawVec3Control(const std::string& label, glm::vec3& value, float resetValue = 0.0f, float columnWidth = 100.0f)
+  static void DrawVec3Control(const std::string& label, glm::vec3& value, float resetValue = 0.0f, float columnWidth = 70.0f)
   {
 	ImGuiIO& io = ImGui::GetIO();
 	auto boldFont = io.Fonts->Fonts[1];
@@ -181,7 +181,7 @@ namespace Epoch {
   const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding;
 
   template<typename T, typename UIFunction>
-  static void DrawCommponent(const std::string& name, Entity entity, UIFunction uiFunc)
+  static void DrawCommponent(const std::string& name, Entity entity, bool hasSetting, UIFunction uiFunc)
   {
 	if (entity.HasComponent<T>())
 	{
@@ -192,21 +192,29 @@ namespace Epoch {
 	  float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
 	  ImGui::Separator();
 	  bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), treeNodeFlags, name.c_str());
-	  ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
 
-	  if (ImGui::Button("+", ImVec2{ lineHeight, lineHeight }))
+	  if (hasSetting)
 	  {
-		ImGui::OpenPopup("ComponentSetting");
+		ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
+
+		if (ImGui::Button("+", ImVec2{ lineHeight, lineHeight }))
+		{
+		  ImGui::OpenPopup("ComponentSetting");
+		}
+
+		bool removeComponent = false;
+		if (ImGui::BeginPopup("ComponentSetting"))
+		{
+		  if (ImGui::MenuItem("Remove component"))
+			removeComponent = true;
+
+		  ImGui::EndPopup();
+		}
+
+		if (removeComponent)
+		  entity.RemoveComponent<T>();
 	  }
 
-	  bool removeComponent = false;
-	  if (ImGui::BeginPopup("ComponentSetting"))
-	  {
-		if (ImGui::MenuItem("Remove component"))
-		  removeComponent = true;
-
-		ImGui::EndPopup();
-	  }
 	  ImGui::PopStyleVar();
 
 	  if (open)
@@ -214,9 +222,6 @@ namespace Epoch {
 		uiFunc(component);
 		ImGui::TreePop();
 	  }
-
-	  if (removeComponent)
-		entity.RemoveComponent<T>();
 	}
   }
 
@@ -229,10 +234,12 @@ namespace Epoch {
 	  char buffer[256];
 	  memset(buffer, 0, sizeof(buffer));
 	  strcpy_s(buffer, sizeof(buffer), tag.c_str());
+	  ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
 	  if (ImGui::InputText("##Tag", buffer, sizeof(buffer)))
 	  {
 		tag = std::string(buffer);
 	  }
+	  ImGui::PopStyleVar();
 	}
 
 	ImGui::SameLine();
@@ -268,17 +275,55 @@ namespace Epoch {
 		auto& Rotation = entity.GetComponent<TransformComponent>().Rotation;
 		auto& Scale = entity.GetComponent<TransformComponent>().Scale;
 
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, 8));
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 5.0f);
 		DrawVec3Control("Position", Translation);
 		glm::vec3 rotation = glm::degrees(Rotation);
 		DrawVec3Control("Rotation", rotation);
 		Rotation = glm::radians(rotation);
 		DrawVec3Control("Scale", Scale, 1.0f);
+		ImGui::PopStyleVar(2);
 
 		ImGui::TreePop();
 	  }
 	}
 
-	DrawCommponent<MeshComponent>("Mesh", entity, [](auto& component)
+	if (entity.HasComponent<LightPropertyComponent>())
+	{
+	  DrawCommponent<LightPropertyComponent>("LightProperty", entity, false, [](auto& component) {
+
+		ImGui::AlignTextToFramePadding();
+		ImGui::Text("LightType:");
+		ImGui::SameLine();
+
+		static int index = 0;
+		ImGui::Combo("##LightType", &index, "Direction Light\0Point Light\0Sport Light\0\0");
+		component._Property->LightType = index;
+
+		// TODO: Add custom color button
+
+		ImGui::ColorEdit4("Color", glm::value_ptr(component._Property->Color));
+
+		if (0 == component._Property->LightType)
+		{
+
+		}
+		else if (1 == component._Property->LightType)
+		{
+		  ImGui::DragFloat("Range", glm::value_ptr(component._Property->Range))
+		}
+		else if (2 == component._Property->LightType)
+		{
+		  ImGui::DragFloat("Range", glm::value_ptr(component._Property->Range))
+		  ImGui::DragFloat("SpotAngle", glm::value_ptr(component._Property->SpotAngle))
+		}
+
+	  });
+
+	  return;
+	}
+
+	DrawCommponent<MeshComponent>("Mesh", entity, true, [](auto& component)
 	{
 	  std::string meshName = "";
 	  int size = ResourceManager::Get().GetAllocator()->GetResSize();
@@ -297,22 +342,10 @@ namespace Epoch {
 	  component._Id = m_CurrentMesh;
 	});
 
-	DrawCommponent<MaterialComponent>("Material", entity, [](auto& component)
+	DrawCommponent<MaterialComponent>("Material", entity, true, [](auto& component)
 	{
 
 	});
-
-	DrawCommponent<LightPropertyComponent>("LightProperty", entity, [](auto& component) {
-	  ImGui::ColorEdit3("Ambient", glm::value_ptr(component._Property->Ambient));
-	  ImGui::ColorEdit3("Diffuse", glm::value_ptr(component._Property->Diffuse));
-	  ImGui::ColorEdit3("Specular", glm::value_ptr(component._Property->Specular));
-
-	  ImGui::DragFloat("Constant", &component._Property->Constant, 0.03f);
-	  ImGui::DragFloat("Linear", &component._Property->Linear, 0.03f);
-	  ImGui::DragFloat("Quadratic", &component._Property->Quadratic, 0.03f);
-	  ImGui::DragFloat("CutOff", &component._Property->CutOff, 0.03f);
-	  ImGui::DragInt("Type", &component._Property->LifhtType);
-	  });
 
   }
 

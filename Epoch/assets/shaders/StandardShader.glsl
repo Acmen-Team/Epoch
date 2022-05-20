@@ -46,15 +46,10 @@ struct Light {
     vec3 position;
     vec3 direction;
 
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
-
-	float constant;
-	float linear;
-	float quadratic;
-
-	float cutOff;
+	glm::vec4 Color;
+	float Intensity;
+	float Range;
+	float SpotAngle;
 
 	// type of light...
 	// ... Different light types correspond to different light shards.

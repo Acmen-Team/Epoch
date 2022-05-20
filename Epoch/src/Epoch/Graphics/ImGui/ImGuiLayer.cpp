@@ -45,8 +45,11 @@ namespace Epoch {
 	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
 	  style.WindowRounding = 0.0f;
+	  //style.WindowPadding.x = 0.0f;
 	  style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 	}
+	// IndetSpacing
+	style.IndentSpacing = 5.0f;
 
 	SetDarkThemeColors();
 
@@ -155,10 +158,10 @@ namespace Epoch {
 
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
-	ImGui::End();
-	//static bool show_demo_window = false;
+	static bool show_demo_window = true;
 	//static bool show_another_window = true;
 	//ImGui::ShowDemoWindow(&show_demo_window);
+	ImGui::End();
 	//ImGui::ShowMetricsWindow(&show_demo_window);
 
 	//ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)

@@ -6,31 +6,20 @@ namespace Epoch {
 
   struct LightProperty
   {
-	glm::vec3 Ambient;
-	glm::vec3 Diffuse;
-	glm::vec3 Specular;
+	glm::vec4 Color;
+	float Intensity;
+	float Range;
+	float SpotAngle;
 
-	float Constant;
-	float Linear;
-	float Quadratic;
-
-	float CutOff;
-
-	int LifhtType;
+	int LightType;
 
 	LightProperty()
 	{
-	  Ambient = glm::vec3(0.2f, 0.2f, 0.2f);
-	  Diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-	  Specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	  Color = glm::vec4(0.2f, 0.2f, 0.3f, 1.0f);
+	  Intensity = 1.0;
+	  SpotAngle = glm::cos(glm::radians(15.0f));
 
-	  Constant = 1.0f;
-	  Linear = 0.09f;
-	  Quadratic = 0.032f;
-
-	  CutOff = glm::cos(glm::radians(12.5f));
-
-	  LifhtType = 0;
+	  LightType = 1;
 	}
   };
 
