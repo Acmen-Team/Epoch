@@ -138,7 +138,7 @@ namespace Epoch {
 		{
 		  auto [trans, mesh, lightProperty] = view.get<TransformComponent, MeshComponent, LightPropertyComponent>(entity);
 		  std::dynamic_pointer_cast<Shader>(m_ColorShader)->use();
-		  std::dynamic_pointer_cast<Shader>(m_ColorShader)->UploadUniformFloat4("u_Color", glm::vec4(lightProperty._Property->Diffuse, 0.4));
+		  std::dynamic_pointer_cast<Shader>(m_ColorShader)->UploadUniformFloat4("u_Color", lightProperty._Property->Color);
 
 		  for (auto shap : mesh._Mesh->GetMesh())
 		  {

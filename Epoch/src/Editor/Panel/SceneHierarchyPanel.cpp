@@ -310,12 +310,12 @@ namespace Epoch {
 		}
 		else if (1 == component._Property->LightType)
 		{
-		  ImGui::DragFloat("Range", glm::value_ptr(component._Property->Range))
+			ImGui::DragFloat("Range", &component._Property->Range);
 		}
 		else if (2 == component._Property->LightType)
 		{
-		  ImGui::DragFloat("Range", glm::value_ptr(component._Property->Range))
-		  ImGui::DragFloat("SpotAngle", glm::value_ptr(component._Property->SpotAngle))
+			ImGui::DragFloat("Range", &component._Property->Range);
+			ImGui::DragFloat("SpotAngle", &component._Property->SpotAngle);
 		}
 
 	  });
