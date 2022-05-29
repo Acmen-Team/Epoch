@@ -58,6 +58,11 @@ struct Light {
 	vec3 diffuse;
 	vec3 specular;
 	vec3 ambient;
+
+
+	float constant;
+    float linear;
+    float quadratic;
 };
 
 uniform vec3 ObjectColor;
@@ -70,8 +75,69 @@ uniform Sampler_Material s_material;
 uniform Light lights[6];
 out vec4 FragColor;
 
-void createLightBase(Light light) {
+
+vec3 DirectionalLightCalculate(Light light)
+{
+	vec3 result;
+
+
+	vec3 lightDir = normalize(vec3(-light.direction.z, -light.direction.y, light.direction.x) + vec3(0.0, 1.0, 0.0));
+	vec3 norm = normalize(v_Normal);
+
+	result = max(dot(norm, lightDir), 0.0) * (light.color).rgb;
+
+	return result;
+}
+
+
+
+vec3 PointLightCalculate(Light light)
+{
+	vec3 res;
+
+	float range = light.range;
+	light.constant = 1.0;
 	
+	if(range <= 0) {
+		return vec3(0.0, 0.0, 0.0);
+	}
+	else if(range <= 7) {
+		light.linear = 0.7;
+		light.quadratic = 1.8;
+	}
+	else if(range <= 13) {
+		light.linear = 0.35;
+		light.quadratic = 0.44;
+	}
+	else if(range <= 20) {
+		light.linear = 0.22;
+		light.quadratic = 0.20;
+	}
+	else if(range <= 32) {
+		light.linear = 0.14;
+		light.quadratic = 0.07;
+	}
+	else if(range <= 50) {
+		light.linear = 0.09;
+		light.quadratic = 0.032;
+	}
+	else if(range <= 65) {
+		light.linear = 0.07;
+		light.quadratic = 0.017;
+	}
+	else if(range <= 100) {
+		light.linear = 0.045;
+		light.quadratic = 0.0075;
+	}
+	else if(range <= 160) {
+		light.linear = 0.027;
+		light.quadratic = 0.0028;
+	}
+	else {
+		light.linear = 0.022;
+		light.quadratic = 0.0019;
+	}
+
 	vec3 norm = normalize(v_Normal);
 	vec3 lightDir = normalize(light.position - v_WorldPos);
 
@@ -79,137 +145,73 @@ void createLightBase(Light light) {
 	light.ambient = (light.color).xyz * ambientStrength;
 
 	float diff = max(dot(norm, lightDir), 0.0);
-	light.diffuse = diff * (light.color).xyz;
+	light.diffuse = diff * (light.color).rgb;
 
 	float specularStrength = 0.5;
 	vec3 viewDir = normalize(ViewPosition - v_WorldPos);
 	vec3 reflectDir = reflect(-lightDir, norm);
 
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64.0);
-	light.specular = specularStrength * spec * (light.color).xyz;
-}
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), v_material.shininess);
+	light.specular = specularStrength * spec * (light.color).rgb;
+
+	vec3 ambient = light.ambient * v_material.ambient;
+	vec3 diffuse = light.diffuse * diff * v_material.diffuse;
+	vec3 specular = light.specular * spec * v_material.specular;
+		
+	float distance = length(light.position - v_WorldPos);
+	float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+	
+	ambient *= attenuation;
+	diffuse *= attenuation;
+	specular *= attenuation;
 
 
-
-vec3 DirectionalLightCalculate(Light light)
-{
-	vec3 result;
-
-
-	vec3 lightDir = normalize(-light.direction);
-	vec3 norm = normalize(v_Normal);
-
-	//vec3 ambient = light.ambient * v_material.ambient;
-
-	//
-	//float diff = max(dot(norm, lightDir), 0.0);
-	//vec3 diffuse = light.diffuse * diff * v_material.diffuse;
-
-	//
-	//float specularStrength = 0.5;
-	//vec3 viewDir = normalize(ViewPosition - v_WorldPos);
-	//vec3 reflectDir = reflect(-lightDir, norm);
-	//float spec = pow(max(dot(viewDir, reflectDir), 0.0), v_material.shininess);
-	//vec3 specular = light.specular * spec * v_material.specular;
-
-	result = max(dot(norm, lightDir), 0.0) * (light.color).rgb;
-
-	return result;
-}
-
-vec3 PointLightCalculate(Light light)
-{
-	vec3 res;
-	//createLightBase(light);
-	//
-	////
-	//vec3 ambient = light.ambient * vec3(texture(s_material.diffuse, v_TexCoord));
-	//
-	////
-	//vec3 norm = normalize(v_Normal);
-	//vec3 lightDir = normalize(light.position - v_WorldPos);
-	//float diff = max(dot(norm, lightDir), 0.0);
-	//vec3 diffuse = light.diffuse * diff * vec3(texture(s_material.diffuse, v_TexCoord));
-	//
-	////
-	//float specularStrength = 0.5;
-	//vec3 viewDir = normalize(ViewPosition - v_WorldPos);
-	//vec3 reflectDir = reflect(-lightDir, norm);
-	//float spec = pow(max(dot(viewDir, reflectDir), 0.0), s_material.shininess);
-	//vec3 specular = light.specular * spec * vec3(texture(s_material.specular, v_TexCoord));
-	//
-	////
-	//float distance = length(light.position - v_WorldPos);
-	//float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
-	//
-	//ambient *= attenuation;
-	//diffuse *= attenuation;
-	//specular *= attenuation;
-	//
-	//return ambient + diffuse + specular;
-
+	
+	res = ambient + diffuse + specular;
+	
 	return res;
 }
+
 
 vec3 SpotLightCalculate(Light light)
 {
 
-	vec3 res;
+	vec3 res;	
 
-	//vec3 lightDir = normalize(light.position - v_WorldPos);
-	//float theta = dot(lightDir, normalize(light.position));
-	//if(theta > light.cutOff) 
+	vec3 norm = normalize(v_Normal);
+	vec3 lightDir = normalize(light.position - v_WorldPos);
+	vec3 spotDir = normalize(vec3(-light.direction.z, -light.direction.y, light.direction.x) + vec3(0.0, 1.0, 0.0));
+	
+	float theta = dot(lightDir, spotDir);
 
-	//{
-		//
-		//vec3 ambient = light.ambient * vec3(texture(s_material.diffuse, v_TexCoord));
+	float proLightDir = dot(lightDir, spotDir);
 
-		//
-		//vec3 norm = normalize(v_Normal);
-		//vec3 lightDir = normalize(light.position - v_WorldPos);
-		//float diff = max(dot(norm, lightDir), 0.0);
-		//vec3 diffuse = light.diffuse * diff * vec3(texture(s_material.diffuse, v_TexCoord));
-
-		//
-		//float specularStrength = 0.5;
-		//vec3 viewDir = normalize(ViewPosition - v_WorldPos);
-		//vec3 reflectDir = reflect(-lightDir, norm);
-		//float spec = pow(max(dot(viewDir, reflectDir), 0.0), s_material.shininess);
-		// specular = light.specular * spec * vec3(texture(s_material.specular, v_TexCoord));
-
-	//	return ambient + diffuse + specular;
-	//}
-	//else
-		//return light.ambient * vec3(texture(s_material.diffuse, v_TexCoord));
+	if(theta > light.spotAngle && light.range > proLightDir) {
+		res = max(dot(norm, lightDir), 0.0) * (light.color).rgb;
+		//res = vec3(1.0, 0.0, 0.0);
+	}
+	else {
+		res = vec3(0.0, 0.0, 0.0);
+	}
 
 	return res;
 }
 
 void main()
 {
-	vec3 LightColor;
 	vec3 result;
 	for(int i = 0; i < 6; ++i) {
+		vec3 LightColor;
 		
-		
-
-		//if(lights[i].type == 0)
-		//{
-		//	LightColor = LightCalculate(lights[i]);
+		//if(lights[i].type == 0) {
+		//	LightColor = DirectionalLightCalculate(lights[i]);
 		//}
-		//else if(lights[i].type == 1)
-		//{
-		LightColor = DirectionalLightCalculate(lights[i]);
-		//}
-		//else if(lights[i].type == 2)
-		//{
+		//else if(lights[i].type == 1) {
 		//	LightColor = PointLightCalculate(lights[i]);
 		//}
-		//else if(lights[i].type == 3)
-		//{
-		//	LightColor = SpotLightCalculate(lights[i]);
+		//else if(lights[i].type == 2) {
+			LightColor = SpotLightCalculate(lights[i]);
 		//}
-		//LightColor = DirectionalLightCalculate(lights[i]);
 
 		result += LightColor * ObjectColor * texture(u_Texture1, v_TexCoord).rgb;
 	}

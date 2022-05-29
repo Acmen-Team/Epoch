@@ -296,7 +296,7 @@ namespace Epoch {
 		ImGui::Text("LightType:");
 		ImGui::SameLine();
 
-		static int index = 0;
+		static int index = 2;
 		ImGui::Combo("##LightType", &index, "Direction Light\0Point Light\0Sport Light\0\0");
 		component._Property->LightType = index;
 

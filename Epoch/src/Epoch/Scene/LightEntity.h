@@ -19,7 +19,7 @@ namespace Epoch {
 	  Intensity = 1.0;
 	  SpotAngle = glm::cos(glm::radians(15.0f));
 
-	  LightType = 1;
+	  LightType = 2;
 	}
   };
 
