@@ -16,10 +16,11 @@ namespace Epoch {
 	LightProperty()
 	{
 	  Color = glm::vec4(0.2f, 0.2f, 0.3f, 1.0f);
+	  Range = 5;
 	  Intensity = 1.0;
-	  SpotAngle = glm::cos(glm::radians(15.0f));
+	  SpotAngle = 15;
 
-	  LightType = 2;
+	  LightType = 0;
 	}
   };
 

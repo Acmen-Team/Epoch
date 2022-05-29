@@ -73,6 +73,7 @@ uniform Vector_Material v_material;
 uniform Sampler_Material s_material;
 
 uniform Light lights[6];
+uniform int LightNums;
 out vec4 FragColor;
 
 
@@ -80,13 +81,12 @@ vec3 DirectionalLightCalculate(Light light)
 {
 	vec3 result;
 
-
 	vec3 lightDir = normalize(vec3(-light.direction.z, -light.direction.y, light.direction.x) + vec3(0.0, 1.0, 0.0));
 	vec3 norm = normalize(v_Normal);
 
 	result = max(dot(norm, lightDir), 0.0) * (light.color).rgb;
 
-	return result;
+	return result * light.intensity;
 }
 
 
@@ -164,54 +164,51 @@ vec3 PointLightCalculate(Light light)
 	ambient *= attenuation;
 	diffuse *= attenuation;
 	specular *= attenuation;
-
-
 	
 	res = ambient + diffuse + specular;
 	
-	return res;
+	return res * light.intensity;
 }
 
 
 vec3 SpotLightCalculate(Light light)
 {
-
 	vec3 res;	
 
 	vec3 norm = normalize(v_Normal);
+
 	vec3 lightDir = normalize(light.position - v_WorldPos);
 	vec3 spotDir = normalize(vec3(-light.direction.z, -light.direction.y, light.direction.x) + vec3(0.0, 1.0, 0.0));
 	
 	float theta = dot(lightDir, spotDir);
 
-	float proLightDir = dot(lightDir, spotDir);
+	float proLightDir = length(light.position - v_WorldPos) * theta;
 
 	if(theta > light.spotAngle && light.range > proLightDir) {
 		res = max(dot(norm, lightDir), 0.0) * (light.color).rgb;
-		//res = vec3(1.0, 0.0, 0.0);
 	}
 	else {
 		res = vec3(0.0, 0.0, 0.0);
 	}
 
-	return res;
+	return res * light.intensity;
 }
 
 void main()
 {
 	vec3 result;
-	for(int i = 0; i < 6; ++i) {
+	for(int i = 0; i < LightNums; ++i) {
 		vec3 LightColor;
 		
-		//if(lights[i].type == 0) {
-		//	LightColor = DirectionalLightCalculate(lights[i]);
-		//}
-		//else if(lights[i].type == 1) {
-		//	LightColor = PointLightCalculate(lights[i]);
-		//}
-		//else if(lights[i].type == 2) {
+		if(lights[i].type == 0) {
+			LightColor = DirectionalLightCalculate(lights[i]);
+		}
+		else if(lights[i].type == 1) {
+			LightColor = PointLightCalculate(lights[i]);
+		}
+		else if(lights[i].type == 2) {
 			LightColor = SpotLightCalculate(lights[i]);
-		//}
+		}
 
 		result += LightColor * ObjectColor * texture(u_Texture1, v_TexCoord).rgb;
 	}

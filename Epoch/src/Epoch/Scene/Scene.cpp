@@ -65,13 +65,16 @@ namespace Epoch {
 		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("lights[" + std::to_string(LightNums) + "].position", trans.Translation);
 		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat3("lights[" + std::to_string(LightNums) + "].direction", trans.Rotation);
 		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat4("lights[" + std::to_string(LightNums) + "].color", lightProperty._Property->Color);
+		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat("lights[" + std::to_string(LightNums) + "].intensity", lightProperty._Property->Intensity);
 		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat("lights[" + std::to_string(LightNums) + "].range", lightProperty._Property->Range);
-		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat("lights[" + std::to_string(LightNums) + "].spotAngle", lightProperty._Property->SpotAngle);
+		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat("lights[" + std::to_string(LightNums) + "].spotAngle", glm::cos(glm::radians(lightProperty._Property->SpotAngle)));
 
-		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformFloat("lights[" + std::to_string(LightNums) + "].type", lightProperty._Property->LightType);
+		std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformInt("lights[" + std::to_string(LightNums) + "].type", lightProperty._Property->LightType);
 
 		LightNums++;
 	  }
+
+	  std::dynamic_pointer_cast<Shader>(m_shader)->UploadUniformInt("LightNums", LightNums);
 	}
 
 	{

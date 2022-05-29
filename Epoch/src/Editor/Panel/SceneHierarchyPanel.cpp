@@ -296,13 +296,12 @@ namespace Epoch {
 		ImGui::Text("LightType:");
 		ImGui::SameLine();
 
-		static int index = 2;
-		ImGui::Combo("##LightType", &index, "Direction Light\0Point Light\0Sport Light\0\0");
-		component._Property->LightType = index;
+		ImGui::Combo("##LightType", &component._Property->LightType, "Direction Light\0Point Light\0Sport Light\0\0");
 
 		// TODO: Add custom color button
 
 		ImGui::ColorEdit4("Color", glm::value_ptr(component._Property->Color));
+		ImGui::DragFloat("Intensity", &component._Property->Intensity);
 
 		if (0 == component._Property->LightType)
 		{
